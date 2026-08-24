@@ -1,0 +1,131 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Nerdspace.OBSRecovery.App"
+             Name="Nerdspace Labs OBS Ground Control"
+             RequestedThemeVariant="Dark">
+  <Application.Styles>
+    <FluentTheme />
+    <Style Selector="Window">
+      <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter"/>
+      <Setter Property="Background" Value="#0B0D11"/>
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="#9AA2AF"/>
+    </Style>
+    <Style Selector="TextBlock.eyebrow">
+      <Setter Property="Foreground" Value="#FF7900"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="LetterSpacing" Value="1.6"/>
+    </Style>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="#13171E"/>
+      <Setter Property="BorderBrush" Value="#2B323D"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+    <Style Selector="Border.subtleCard">
+      <Setter Property="Background" Value="#10141A"/>
+      <Setter Property="BorderBrush" Value="#252B35"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14"/>
+    </Style>
+    <Style Selector="Border.dangerCard">
+      <Setter Property="Background" Value="#1B1316"/>
+      <Setter Property="BorderBrush" Value="#5B2C33"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16"/>
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="16,9"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Background" Value="#1A1F27"/>
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+      <Setter Property="BorderBrush" Value="#39414D"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#FF7900"/>
+      <Setter Property="Foreground" Value="#101216"/>
+      <Setter Property="BorderBrush" Value="#FF7900"/>
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#28191D"/>
+      <Setter Property="Foreground" Value="#FFBDC2"/>
+      <Setter Property="BorderBrush" Value="#7D3942"/>
+    </Style>
+    <Style Selector="Button.small">
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="CheckBox">
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="MinHeight" Value="32"/>
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="#0F1319"/>
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+      <Setter Property="BorderBrush" Value="#343C48"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="MinHeight" Value="40"/>
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="Background" Value="#0F1319"/>
+      <Setter Property="Foreground" Value="#F5F7FA"/>
+      <Setter Property="BorderBrush" Value="#343C48"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="#0F1319"/>
+      <Setter Property="BorderBrush" Value="#282F39"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+    </Style>
+    <Style Selector="TabItem">
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Foreground" Value="#AEB5C0"/>
+      <Setter Property="Padding" Value="14,10"/>
+    </Style>
+    <Style Selector="ProgressBar">
+      <Setter Property="Height" Value="4"/>
+      <Setter Property="Foreground" Value="#FF7900"/>
+      <Setter Property="Background" Value="#202630"/>
+    </Style>
+  </Application.Styles>
+
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/app.ico"
+                ToolTipText="Nerdspace Labs OBS Ground Control"
+                Clicked="TrayIcon_OnClicked">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Open Ground Control" Click="TrayOpen_OnClick" />
+            <NativeMenuItem Header="Launch OBS" Click="TrayLaunch_OnClick" />
+            <NativeMenuItem Header="Restart OBS" Click="TrayRestart_OnClick" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Exit Ground Control" Click="TrayExit_OnClick" />
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="About Nerdspace Labs OBS Ground Control..." Click="About_OnClick" />
+    </NativeMenu>
+  </NativeMenu.Menu>
+</Application>

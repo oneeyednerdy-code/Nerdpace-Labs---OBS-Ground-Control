@@ -1,0 +1,456 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Nerdspace.OBSRecovery.UI.MainWindow"
+        Title="Nerdspace Labs OBS Ground Control"
+        Width="1220" Height="900" MinWidth="920" MinHeight="720"
+        Icon="/Assets/app.ico"
+        WindowStartupLocation="CenterScreen">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="30,24,30,18">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,18">
+      <StackPanel Spacing="3">
+        <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
+        <TextBlock Text="OBS GROUND CONTROL" FontSize="34" FontWeight="Bold"/>
+        <TextBlock Text="Prepare • protect • maintain • recover" Classes="muted" FontSize="14"/>
+      </StackPanel>
+      <Border Grid.Column="1" Classes="subtleCard" VerticalAlignment="Center" Padding="14,9">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <TextBlock x:Name="PlatformText" FontWeight="SemiBold"/>
+          <TextBlock Text="•" Foreground="#626A76"/>
+          <TextBlock x:Name="VersionBadge" Foreground="#FF7900" FontWeight="Bold"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="card" Margin="0,0,0,16">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Ellipse x:Name="StatusDot" Width="14" Height="14" Fill="#747B87" Margin="0,4,14,0" VerticalAlignment="Top"/>
+        <StackPanel Grid.Column="1" Spacing="3">
+          <TextBlock x:Name="StatusTitle" Text="Checking OBS…" FontSize="20" FontWeight="Bold"/>
+          <TextBlock x:Name="StatusDetail" Text="Ground Control is inspecting OBS." Classes="muted" TextWrapping="Wrap"/>
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,5,0,0">
+            <TextBlock x:Name="PidText" Text="PID —" Foreground="#7F8794" FontSize="12"/>
+            <TextBlock x:Name="CapabilityText" Foreground="#7F8794" FontSize="12"/>
+          </StackPanel>
+        </StackPanel>
+        <Button Grid.Column="2" x:Name="PreflightHeaderButton" Classes="primary" Content="OPEN PRE-FLIGHT" MinWidth="160" VerticalAlignment="Center"
+                ToolTip.Tip="Open the Pre-Flight tab. Pre-Flight does not launch OBS unless you explicitly enable that option."/>
+      </Grid>
+    </Border>
+
+    <TabControl x:Name="MainTabs" Grid.Row="2" Background="Transparent">
+      <TabItem Header="DASHBOARD">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="16">
+            <Grid ColumnDefinitions="1.25*,.75*" ColumnSpacing="16">
+              <Border Classes="card">
+                <StackPanel Spacing="12">
+                  <TextBlock Text="MISSION CONTROL" Classes="eyebrow"/>
+                  <TextBlock Text="OBS control" FontSize="20" FontWeight="Bold"/>
+                  <TextBlock Text="Routine controls stay here. Recovery actions are separated so they are harder to click accidentally." Classes="muted" TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="10" LineSpacing="10" Margin="0,4,0,0">
+                    <Button x:Name="LaunchButton" Classes="primary" Content="Launch OBS" ToolTip.Tip="Start OBS using the detected/configured installation."/>
+                    <Button x:Name="ShowButton" Content="Show OBS" ToolTip.Tip="Bring an already-running OBS window to the foreground when supported."/>
+                    <Button x:Name="RestartButton" Content="Restart OBS" ToolTip.Tip="Gracefully close OBS when possible, then start it again."/>
+                    <Button x:Name="SafeModeButton" Content="Safe Mode" ToolTip.Tip="Launch OBS using its safe-mode argument to troubleshoot third-party plugins and scripts."/>
+                  </WrapPanel>
+                  <Separator Margin="0,4"/>
+                  <TextBlock Text="RECOVERY PROTECTION" FontWeight="Bold"/>
+                  <CheckBox x:Name="ProtectionToggle" Content="Monitor and recover confirmed OBS hangs"
+                            ToolTip.Tip="Watch OBS process health. Automatic recovery only acts on states Ground Control can confirm safely."/>
+                  <CheckBox x:Name="RelaunchToggle" Content="Relaunch after confirmed hung-process recovery"
+                            ToolTip.Tip="After a confirmed freeze is recovered, start OBS again. Stuck intentional shutdowns remain closed."/>
+                  <TextBlock x:Name="ProtectionNote" Classes="muted" FontSize="12" TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Classes="dangerCard">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="EMERGENCY RECOVERY" Foreground="#FF9CA4" FontWeight="Bold"/>
+                  <TextBlock Text="Force Close" FontSize="20" FontWeight="Bold"/>
+                  <TextBlock Text="Use only when OBS will not close or is fully stuck. Unsaved OBS changes may be lost." Foreground="#C6A7AB" TextWrapping="Wrap"/>
+                  <Button x:Name="ForceCloseButton" Classes="danger" Content="Force Close OBS" HorizontalAlignment="Left"
+                          ToolTip.Tip="Immediately terminate all detected OBS process trees. This is intentionally separated from normal controls."/>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+              <Border Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="LOCAL HEALTH" Classes="eyebrow"/>
+                  <TextBlock Text="OBS &amp; workstation snapshot" FontSize="18" FontWeight="Bold"/>
+                  <TextBlock x:Name="HealthSummaryText" TextWrapping="Wrap"/>
+                  <TextBlock x:Name="ObsUpdateText" Classes="muted" TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+              <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="NEXT CHECK" Classes="eyebrow"/>
+                  <TextBlock Text="Ready when you are" FontSize="18" FontWeight="Bold"/>
+                  <TextBlock Text="Use Pre-Flight hours or even a day before streaming. It inspects the setup without opening OBS unless you opt in." Classes="muted" TextWrapping="Wrap"/>
+                  <Button x:Name="DashboardPreflightButton" Content="Review Pre-Flight Options" HorizontalAlignment="Left"
+                          ToolTip.Tip="Open Pre-Flight so you can choose whether to skip update checks, run Bandwidth Advisor, or launch OBS afterward."/>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="RECOVERY HISTORY" Classes="eyebrow"/>
+                <TextBlock Text="Recent Ground Control events" FontSize="18" FontWeight="Bold"/>
+                <ListBox x:Name="HistoryList" Height="180"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem x:Name="PreflightTab" Header="PRE-FLIGHT">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="3">
+                <TextBlock Text="PRE-FLIGHT" Classes="eyebrow"/>
+                <TextBlock Text="Are you ready to stream?" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="A non-invasive readiness scan. Run it hours or a day before stream without starting OBS." Classes="muted" TextWrapping="Wrap"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="RunPreflightButton" Classes="primary" Content="Run Pre-Flight" VerticalAlignment="Center"
+                      ToolTip.Tip="Run the selected readiness checks. OBS stays closed unless 'Launch OBS after a ready result' is enabled."/>
+            </Grid>
+
+            <Border Classes="card">
+              <Grid ColumnDefinitions="1.1*,.9*" ColumnSpacing="20">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="THIS RUN" FontWeight="Bold"/>
+                  <CheckBox x:Name="SkipUpdatesThisRunToggle" Content="Skip software update checks this run"
+                            ToolTip.Tip="Skip OBS release and Windows main-update lookups while still checking local OBS health, drivers/devices, plugins, assets, disk, backups, logs, and crash history."/>
+                  <CheckBox x:Name="RunBandwidthInPreflightToggle" Content="Run Bandwidth Advisor (~25 MB upload)"
+                            ToolTip.Tip="Measure sustained upload using generated test bytes and include a conservative bitrate/resolution recommendation in Pre-Flight."/>
+                  <CheckBox x:Name="LaunchAfterReadyToggle" Content="Launch OBS after a ready result"
+                            ToolTip.Tip="Off by default. If enabled, OBS launches only after Pre-Flight completes with no failure-level results."/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8">
+                  <TextBlock Text="BANDWIDTH PROFILE" FontWeight="Bold"/>
+                  <TextBlock x:Name="PreflightBandwidthProfileText" Classes="muted" TextWrapping="Wrap"/>
+                  <Button x:Name="OpenBandwidthFromPreflightButton" Classes="small" Content="Change Bandwidth Profile" HorizontalAlignment="Left"
+                          ToolTip.Tip="Open Bandwidth Advisor to choose platform, content motion profile, and Twitch Enhanced Broadcasting options."/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock x:Name="PreflightSummaryText" Text="Pre-Flight has not been run yet." FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                <TextBlock x:Name="PreflightProgressText" Text="Choose options, then run the check." Classes="muted" TextWrapping="Wrap"/>
+                <ProgressBar x:Name="PreflightProgress" IsIndeterminate="True" IsVisible="False"/>
+              </StackPanel>
+            </Border>
+
+            <ListBox x:Name="PreflightList" MinHeight="390"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem x:Name="BandwidthTab" Header="BANDWIDTH">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="3">
+                <TextBlock Text="BANDWIDTH ADVISOR" Classes="eyebrow"/>
+                <TextBlock Text="Honest bitrate recommendations" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Ground Control measures sustained upload, uses the conservative result, divides it by four, then recommends a resolution/FPS profile that fits the selected streaming platform." Classes="muted" TextWrapping="Wrap"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="RunBandwidthButton" Classes="primary" Content="Run Upload Scan" VerticalAlignment="Center"
+                      ToolTip.Tip="Upload generated test bytes to Cloudflare's public speed-test endpoint. No personal files are uploaded. Approximately 25 MB is sent per scan."/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+              <Border Classes="card">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="STREAM PROFILE" FontWeight="Bold"/>
+                  <TextBlock Text="Platform" Classes="muted"/>
+                  <ComboBox x:Name="BandwidthPlatformSelect" ToolTip.Tip="Choose the service whose current bitrate/resolution constraints should cap the recommendation."/>
+                  <TextBlock Text="Content motion" Classes="muted"/>
+                  <ComboBox x:Name="BandwidthMotionSelect" ToolTip.Tip="High motion favors 60 FPS at a lower resolution; low motion favors image detail; balanced weighs both."/>
+                  <CheckBox x:Name="BandwidthEnhancedToggle" Content="Twitch Enhanced Broadcasting"
+                            ToolTip.Tip="Enable when you use Twitch Enhanced Broadcasting / multitrack video. Ground Control then considers current Enhanced Broadcasting behavior and 2K eligibility rules."/>
+                  <CheckBox x:Name="BandwidthServerTranscodeToggle" Content="Twitch added server-side transcode support"
+                            ToolTip.Tip="Enable only if Twitch Creator Dashboard says your account has added server-side transcode support for Enhanced Broadcasting 2K/Dual Format."/>
+                  <Separator Margin="0,4"/>
+                  <TextBlock Text="Already have a measured upload result?" Classes="muted"/>
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox x:Name="ManualUploadBox" PlaceholderText="Upload Mbps, e.g. 24.3" ToolTip.Tip="Enter a measured upload result from your ISP/speed-test tool. Ground Control will still apply the same ÷4 conservative budget."/>
+                    <Button Grid.Column="1" x:Name="CalculateManualBandwidthButton" Classes="small" Content="Calculate" ToolTip.Tip="Calculate a recommendation from the entered measured upload speed without running Ground Control's upload test."/>
+                  </Grid>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="HOW THE ADVISOR THINKS" FontWeight="Bold"/>
+                  <TextBlock Text="1. Run several upload samples." Classes="muted"/>
+                  <TextBlock Text="2. Ignore the prettiest peak and use a lower stable result." Classes="muted"/>
+                  <TextBlock Text="3. Stable upload ÷ 4 = conservative total stream budget." Classes="muted"/>
+                  <TextBlock Text="4. Reserve audio and protocol overhead." Classes="muted"/>
+                  <TextBlock Text="5. Choose resolution/FPS based on platform + motion." Classes="muted"/>
+                  <TextBlock Text="Recommendations favor reliability over maximum theoretical quality." Foreground="#FFB96B" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                  <Button x:Name="OpenCloudflareSpeedTestButton" Classes="small" Content="Open Cloudflare Speed Test" HorizontalAlignment="Left"
+                          ToolTip.Tip="Open Cloudflare's browser speed test if you want to compare Ground Control's conservative upload result with a full browser test."/>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="RECOMMENDATION" Classes="eyebrow"/>
+                <TextBlock x:Name="BandwidthSummaryText" Text="Run the upload scan to get a bitrate, resolution, FPS, codec, and confidence recommendation." FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                <TextBlock x:Name="CurrentObsOutputText" Text="Current OBS output: not inspected yet." Foreground="#C7CCD5" TextWrapping="Wrap"/>
+                <TextBlock x:Name="BandwidthDetailText" Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock x:Name="BandwidthProgressText" Classes="muted" Text="No scan running."/>
+                <ProgressBar x:Name="BandwidthProgress" IsIndeterminate="True" IsVisible="False"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="UPLOAD SAMPLES" FontWeight="Bold"/>
+                <ListBox x:Name="BandwidthSamplesList" Height="180"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem x:Name="UpdatesTab" Header="UPDATES">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="3">
+                <TextBlock Text="UPDATE CENTER" Classes="eyebrow"/>
+                <TextBlock Text="Software, creator hardware, audio &amp; operating system" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Ground Control reports local state and uses official destinations for downloads. It does not silently install drivers or operating-system updates." Classes="muted" TextWrapping="Wrap"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="CheckAllUpdatesButton" Classes="primary" Content="Check Everything" VerticalAlignment="Center"
+                      ToolTip.Tip="Run OBS, GPU/driver, Elgato hardware/software, SteelSeries Sonar, and Windows main-update checks. Vendor downloads remain manual."/>
+            </Grid>
+            <TextBlock x:Name="UpdatesProgressText" Text="No update scan running." Classes="muted"/>
+            <ProgressBar x:Name="UpdatesProgress" IsIndeterminate="True" IsVisible="False"/>
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+              <Border Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="OBS STUDIO" Classes="eyebrow"/>
+                  <TextBlock x:Name="ObsUpdateCardText" Text="Not checked yet." TextWrapping="Wrap"/>
+                  <Button x:Name="CheckObsUpdateButton" Classes="small" Content="Check OBS Release" HorizontalAlignment="Left"
+                          ToolTip.Tip="Compare the installed OBS version with the latest OBS GitHub release."/>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="NVIDIA" Classes="eyebrow"/>
+                  <TextBlock x:Name="NvidiaUpdateText" Text="Not checked yet." TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckGraphicsButton" Classes="small" Content="Scan GPU Drivers" ToolTip.Tip="Inspect locally installed NVIDIA and AMD graphics state. This does not install or modify drivers."/>
+                    <Button x:Name="OpenNvidiaDriversButton" Classes="small" Content="Official NVIDIA Drivers" ToolTip.Tip="Open NVIDIA's official driver search/download page."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="AMD" Classes="eyebrow"/>
+                  <TextBlock x:Name="AmdUpdateText" Text="Not checked yet." TextWrapping="Wrap"/>
+                  <Button x:Name="OpenAmdDriversButton" Classes="small" Content="Official AMD Drivers" HorizontalAlignment="Left" ToolTip.Tip="Open AMD's official driver/support page."/>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="1" Grid.Column="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="ELGATO HARDWARE &amp; SOFTWARE" Classes="eyebrow"/>
+                  <TextBlock x:Name="ElgatoText" Text="Not checked yet." TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckElgatoButton" Classes="small" Content="Scan Elgato" ToolTip.Tip="Check Elgato desktop software and connected USB hardware separately. Installing Wave Link or Stream Deck does not mean a device is currently connected."/>
+                    <Button x:Name="OpenElgatoButton" Classes="small" Content="Official Downloads" ToolTip.Tip="Open Elgato's official software/download page for software and firmware checks."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="2" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="STEELSERIES SONAR" Classes="eyebrow"/>
+                  <TextBlock x:Name="SteelSeriesText" Text="Not checked yet." TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckSonarButton" Classes="small" Content="Scan Sonar" ToolTip.Tip="On Windows, check whether SteelSeries GG is installed and whether Sonar process or virtual-audio endpoint evidence is present. Missing Sonar is not a warning if you do not use it."/>
+                    <Button x:Name="OpenSonarButton" Classes="small" Content="Official Sonar" ToolTip.Tip="Open SteelSeries' official Sonar for Streamers page. Sonar is installed through SteelSeries GG."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="2" Grid.Column="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="WINDOWS UPDATE" Classes="eyebrow"/>
+                  <TextBlock x:Name="WindowsUpdateText" Text="Main updates only. Driver, preview, optional, Defender-definition, and other non-main updates are excluded." TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckWindowsButton" Classes="small" Content="Check Main Updates" ToolTip.Tip="Check normal Windows software updates only; Ground Control excludes driver, preview, optional, definition, and other non-main categories."/>
+                    <Button x:Name="OpenWindowsUpdateButton" Classes="small" Content="Open Windows Update" ToolTip.Tip="Open the native Windows Update settings page. Ground Control never installs Windows updates itself."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="PLUGINS">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="14">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+              <StackPanel>
+                <TextBlock Text="PLUGIN CONTROL" Classes="eyebrow"/>
+                <TextBlock Text="Inventory, update evidence &amp; reversible quarantine" FontSize="24" FontWeight="Bold"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="ScanPluginsButton" Margin="8,0" Content="Scan Local" ToolTip.Tip="Inventory installed OBS plugin files without going online."/>
+              <Button Grid.Column="2" x:Name="CheckPluginUpdatesButton" Classes="primary" Content="Check Updates" ToolTip.Tip="Check registered trusted plugin release sources for newer versions where Ground Control has enough evidence."/>
+            </Grid>
+            <TextBlock x:Name="PluginProgressText" Text="No plugin scan running." Classes="muted"/>
+            <ProgressBar x:Name="PluginProgress" IsIndeterminate="True" IsVisible="False"/>
+            <ListBox x:Name="PluginList" MinHeight="240"/>
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="SELECTED PLUGIN" FontWeight="Bold"/>
+                <ComboBox x:Name="PluginSelect" ToolTip.Tip="Choose an installed plugin to review details and available maintenance actions."/>
+                <TextBlock x:Name="PluginDetailText" Classes="muted" TextWrapping="Wrap"/>
+                <WrapPanel ItemSpacing="10" LineSpacing="10">
+                  <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Update Plugin" ToolTip.Tip="Open the exact verified latest release page for this plugin. Ground Control does not install plugin updates automatically."/>
+                  <Button x:Name="SnoozePluginButton" Content="Remind in 1 Week" ToolTip.Tip="Hide this exact plugin update until one week from now. A newer version will still be detected."/>
+                  <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin version. Ground Control will alert again when a newer release appears."/>
+                  <Button x:Name="ClearPluginDeferralButton" Content="Clear Reminder" ToolTip.Tip="Remove the reminder or skip state for the selected plugin update."/>
+                  <Button x:Name="QuarantineButton" Classes="danger" Content="Quarantine Plugin" ToolTip.Tip="Move a safely identifiable complete plugin bundle out of OBS and store a restore manifest. OBS must be closed."/>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="QUARANTINE" FontWeight="Bold"/>
+                <ComboBox x:Name="QuarantineSelect"/>
+                <Button x:Name="RestorePluginButton" Content="Restore Selected Plugin" HorizontalAlignment="Left" ToolTip.Tip="Restore a previously quarantined plugin to its original path."/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="BACKUPS">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel>
+                <TextBlock Text="BACKUP &amp; RESTORE" Classes="eyebrow"/>
+                <TextBlock Text="Reversible OBS checkpoints" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Local snapshots include manifests and hashes while excluding known credential/service files by default." Classes="muted"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="CreateBackupButton" Classes="primary" Content="Create Backup" ToolTip.Tip="Create a local OBS configuration checkpoint. Credential/service files and caches are excluded by default."/>
+            </Grid>
+            <TextBlock x:Name="BackupProgressText" Text="No backup operation running." Classes="muted"/>
+            <ProgressBar x:Name="BackupProgress" IsIndeterminate="True" IsVisible="False"/>
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="AVAILABLE BACKUPS" FontWeight="Bold"/>
+                <ComboBox x:Name="BackupSelect"/>
+                <TextBlock x:Name="BackupDetailText" Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="Restore scope" FontWeight="SemiBold"/>
+                <ComboBox x:Name="RestoreScopeSelect"/>
+                <WrapPanel ItemSpacing="10">
+                  <Button x:Name="RestoreBackupButton" Classes="danger" Content="Restore Selected" ToolTip.Tip="Restore the selected scope. OBS must be closed; Ground Control can create a safety snapshot first."/>
+                  <Button x:Name="CompareBackupButton" Content="Compare to Current" ToolTip.Tip="Compare the selected backup manifest with the current OBS configuration to see added, removed, and changed files."/>
+                  <Button x:Name="OpenBackupFolderButton" Content="Open Backup Folder" ToolTip.Tip="Open the folder containing Ground Control's local OBS backups."/>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="DIAGNOSTICS">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel>
+                <TextBlock Text="DIAGNOSTICS" Classes="eyebrow"/>
+                <TextBlock Text="Evidence before guessing" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Review OBS log patterns, missing local assets, crash history, and sanitized support information." Classes="muted"/>
+              </StackPanel>
+              <Button Grid.Column="1" x:Name="RefreshDiagnosticsButton" Classes="primary" Content="Analyze" ToolTip.Tip="Re-scan the latest OBS log, scene-asset references, and crash directory."/>
+            </Grid>
+            <TextBlock x:Name="DiagnosticsProgressText" Text="No analysis running." Classes="muted"/>
+            <ProgressBar x:Name="DiagnosticsProgress" IsIndeterminate="True" IsVisible="False"/>
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="LATEST OBS LOG" FontWeight="Bold"/>
+                <ListBox x:Name="DiagnosticList" MinHeight="160"/>
+              </StackPanel>
+            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+              <Border Classes="card"><StackPanel Spacing="8"><TextBlock Text="MISSING LOCAL ASSETS" FontWeight="Bold"/><ListBox x:Name="MissingAssetsList" Height="180"/></StackPanel></Border>
+              <Border Grid.Column="1" Classes="card"><StackPanel Spacing="8"><TextBlock Text="CRASH HISTORY" FontWeight="Bold"/><ListBox x:Name="CrashList" Height="180"/></StackPanel></Border>
+            </Grid>
+            <WrapPanel ItemSpacing="10">
+              <Button x:Name="DiagnosticButton" Content="Generate Support Report" ToolTip.Tip="Create a sanitized local report for GitHub/Discord support. Sensitive service credentials, stream keys, browser URLs, chat, and scene content are excluded."/>
+              <Button x:Name="OpenObsLogsButton" Content="Open OBS Logs" ToolTip.Tip="Open OBS's native log directory."/>
+              <Button x:Name="OpenLogsButton" Content="Open Ground Control Logs" ToolTip.Tip="Open Ground Control's own local event log directory."/>
+            </WrapPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="SETTINGS">
+        <ScrollViewer>
+          <StackPanel Margin="0,18,0,8" Spacing="14">
+            <TextBlock Text="SETTINGS" Classes="eyebrow"/>
+            <TextBlock Text="Ground Control preferences" FontSize="24" FontWeight="Bold"/>
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="OBS executable / app path" FontWeight="SemiBold"/>
+                <TextBox x:Name="ObsPathBox" ToolTip.Tip="Override the automatically detected OBS executable or application path."/>
+                <Button x:Name="AutoDetectButton" Content="Auto Detect OBS" HorizontalAlignment="Left" ToolTip.Tip="Search common OBS installation locations for this operating system."/>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="BEHAVIOR" FontWeight="Bold"/>
+                <CheckBox x:Name="StartAtLoginToggle" Content="Start Ground Control with the operating system" ToolTip.Tip="Launch Ground Control at sign-in/login so Recovery Protection can be available before OBS starts."/>
+                <CheckBox x:Name="OnlineUpdatesToggle" Content="Allow explicit online update checks" ToolTip.Tip="Allow user-triggered version checks against official/trusted release sources. Pre-Flight can still skip them per run."/>
+                <CheckBox x:Name="AutoBackupRestoreToggle" Content="Create a safety backup before restore" ToolTip.Tip="Create a current configuration snapshot before restoring an older Ground Control backup."/>
+              </StackPanel>
+            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+              <Border Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="PRE-FLIGHT" FontWeight="Bold"/>
+                  <TextBlock Text="Backup warning age (days)" Classes="muted"/>
+                  <TextBox x:Name="BackupAgeBox"/>
+                  <TextBlock Text="Recording disk warning (GB)" Classes="muted"/>
+                  <TextBox x:Name="DiskWarningBox"/>
+                </StackPanel>
+              </Border>
+              <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="BACKUP LOCATION" FontWeight="Bold"/>
+                  <TextBox x:Name="BackupDirectoryBox" TextWrapping="Wrap"/>
+                  <TextBlock Text="Backups exclude service.json, browser cookies/cache, OBS logs, and crash files by default." Classes="muted" TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+            <Button x:Name="SaveSettingsButton" Classes="primary" Content="Save Settings" HorizontalAlignment="Left" ToolTip.Tip="Save Ground Control preferences locally."/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,14,0,0">
+      <TextBlock x:Name="FooterBrand" Foreground="#727A87" FontSize="12"/>
+      <TextBlock Grid.Column="1" Text="Local-first • No telemetry" Foreground="#727A87" FontSize="12"/>
+    </Grid>
+  </Grid>
+</Window>

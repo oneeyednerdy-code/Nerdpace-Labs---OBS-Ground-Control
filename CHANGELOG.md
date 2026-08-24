@@ -1,0 +1,104 @@
+# Changelog
+
+## 0.7.0-alpha.1 - Verified Plugin Updates & Deferrals
+
+### Added
+- Plugin rows now show **Installed → Latest verified** version comparisons.
+- Exact verified GitHub release URL is retained from release metadata and used by **Update Plugin**.
+- **Remind in 1 Week** for an exact plugin release.
+- **Skip This Version** without suppressing future newer releases.
+- **Clear Reminder** to remove a plugin update deferral.
+- Generic update-deferral storage designed to be reused by OBS/vendor update reminders later.
+- Pre-Flight can check verified plugin update sources when update checks are enabled.
+
+### Changed
+- Plugins without a trusted update source now explicitly show **Update source not verified** instead of implying they are current.
+- Plugins with an unknown installed version never get a fabricated update result.
+- Deferred/skipped plugin updates are neutral in Pre-Flight until the reminder expires or a newer version appears.
+- Plugin update actions open the exact verified latest release when available; Ground Control still does not auto-install plugin updates.
+- Footer/build metadata now identifies this alpha as **v0.7.0-alpha.1**.
+
+## 0.6.0 - Windows-first development
+- Narrowed supported development/release target to Windows 10/11 x64.
+- Removed macOS/Linux build and release jobs.
+- Removed macOS/Linux OBS platform implementations from the active source tree.
+- Targeted `net8.0-windows`.
+- Simplified plugin, GPU, Elgato, SteelSeries Sonar, folder-launch, and Windows Update paths around Windows behavior.
+- Improved Elgato hardware detection to enumerate currently present Windows devices through SetupAPI instead of relying on historical USB registry entries.
+- Retained `IObsPlatformService` as a future porting seam.
+- Added a future-platform roadmap instead of shipping partially supported ports.
+- Kept all v0.5.0 Ground Control features: Recovery Protection, Pre-Flight, Bandwidth Advisor, Updates, Plugins, Backups, Diagnostics, Elgato Hardware & Software, and SteelSeries Sonar.
+
+## 0.5.0 - Creator Hardware & Audio Health
+
+### Added
+- Dedicated **SteelSeries Sonar** check in Updates and Pre-Flight on Windows.
+- SteelSeries GG installation/version detection.
+- Sonar runtime and virtual-audio endpoint signals without requiring SteelSeries hardware.
+- Official SteelSeries Sonar destination button.
+- Best-effort connected Elgato USB hardware detection on Windows, macOS, and Linux.
+
+### Changed
+- Elgato is now labeled **Elgato Hardware & Software**.
+- Elgato installed software and connected hardware are reported as separate sections.
+- Installing Wave Link/Stream Deck no longer implies an Elgato device is connected.
+- No Elgato or SteelSeries product detected remains a neutral informational state and never blocks Pre-Flight.
+- Update Center is reorganized into OBS, NVIDIA, AMD, Elgato Hardware & Software, SteelSeries Sonar, and Windows Update cards.
+- Footer remains dynamic: **Nerdspace Labs by OneEyedNerdy • v0.5.0**.
+
+### Safety / privacy
+- Hardware inventory records only friendly/model-level device descriptions used for local status; Ground Control does not include USB serial numbers in sanitized support reports.
+- Vendor software and firmware installation remains manual through official vendor tools/pages.
+
+## 0.4.0 - Pre-Flight UX + Bandwidth Advisor
+
+### Added
+- Dedicated **Bandwidth** tab.
+- Multi-sample upload test using Cloudflare's public speed-test upload endpoint.
+- Conservative stable-upload calculation instead of trusting the fastest sample.
+- User-requested `stable upload ÷ 4` safe stream-budget formula.
+- Video/audio overhead reservation before video-bitrate recommendation.
+- Twitch, YouTube, and generic platform-aware bitrate profiles.
+- Low-motion, balanced, and high-motion recommendation modes.
+- Twitch Enhanced Broadcasting option.
+- Twitch added server-side transcode option for 2K requirement handling.
+- Resolution, FPS, bitrate, audio bitrate, codec/mode, confidence, and rationale output.
+- Read-only inspection of the current OBS output profile and bitrate comparison against the recommendation.
+- Optional Bandwidth Advisor check inside Pre-Flight.
+- **Skip software update checks this run** option.
+- **Launch OBS after a ready result** option, disabled by default.
+- Dedicated **Updates** tab for OBS/NVIDIA/AMD/Elgato/Windows checks.
+- Loading/progress indicators for Pre-Flight, bandwidth testing, updates, plugin scans, backup operations, and diagnostics.
+- Tooltips throughout primary controls.
+- Neutral no-device/no-vendor Pre-Flight states for NVIDIA, AMD, and Elgato.
+
+### Changed
+- Pre-Flight no longer launches OBS as part of normal operation.
+- Header Pre-Flight action opens the options page rather than immediately running a scan.
+- Update controls moved out of Dashboard into Update Center.
+- Destructive Force Close is visually isolated from routine OBS controls.
+- Orange is reserved primarily for brand/primary-action emphasis instead of decorating every card equally.
+- Footer remains dynamic: **Nerdspace Labs by OneEyedNerdy • v0.4.0**.
+
+### Privacy / safety
+- Bandwidth testing uploads generated bytes only; no user files are read or uploaded by the test.
+- Bandwidth scans are explicit and disclose approximate data use (~25 MB upload).
+- Skipping update checks does not disable local readiness checks.
+- Ground Control still does not automatically install OBS, GPU drivers, Elgato software/firmware, or Windows updates.
+
+## 0.3.0 - Ground Control expansion
+
+### Added
+- Full Pre-Flight dashboard.
+- NVIDIA/AMD graphics state, Elgato software inventory, and Windows main-update check.
+- plugin inventory/update evidence/quarantine.
+- backup/restore, diagnostics, missing assets, crash history, and sanitized support report.
+
+## 0.2.0 - Cross-platform launch
+
+### Added
+- Avalonia desktop UI shared across Windows, macOS, and Linux.
+- macOS Apple Silicon (`osx-arm64`) and Intel (`osx-x64`) builds.
+- Linux x64 build.
+- cross-platform OBS Safe Mode launch.
+- dynamic Nerdspace Labs footer.

@@ -1,0 +1,38 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj
+
+      - name: Build
+        run: dotnet build src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release --no-restore
+
+      - name: Publish Windows x64
+        run: dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/win-x64
+
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path publish/win-x64/* -DestinationPath Nerdspace-OBS-Ground-Control-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Nerdspace-OBS-Ground-Control-win-x64
+          path: Nerdspace-OBS-Ground-Control-win-x64.zip
