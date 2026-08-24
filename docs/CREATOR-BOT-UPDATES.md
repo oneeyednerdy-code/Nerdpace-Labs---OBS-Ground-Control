@@ -1,4 +1,4 @@
-# Creator Bot Update Checks — 0.8.0-alpha.1
+# Creator Bot Update Checks — 0.8.0-alpha.2
 
 Streamer Mission Control now checks three creator-side streaming automation tools in Update Center.
 

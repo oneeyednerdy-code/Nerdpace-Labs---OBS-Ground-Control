@@ -106,7 +106,7 @@ public sealed class CreatorSoftwareUpdateService
             id, name, true, installed, latest, status,
             ExplainStatus(status,
                 $"Latest stable version comes from {source}. Mission Control never installs or replaces {name} silently."),
-            executable, release?.Url ?? fallbackUrl, source);
+            executable, release?.ReleaseUrl ?? fallbackUrl, source);
     }
 
     private static CreatorSoftwareUpdateSnapshot NotDetected(

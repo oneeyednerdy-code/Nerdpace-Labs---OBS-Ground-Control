@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.8.0-alpha.1**
+Current development version: **v0.8.0-alpha.2**
 
 ## Supported platform
 
@@ -167,8 +167,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.8.0-alpha.1
-git push origin v0.8.0-alpha.1
+git tag v0.8.0-alpha.2
+git push origin v0.8.0-alpha.2
 ```
 
 The release workflow produces:
@@ -203,7 +203,7 @@ A license is intentionally not selected yet. Choose the repository license befor
 After installing .NET 10, Python, and Inno Setup, a maintainer can refresh the OBS catalog, publish the self-contained app, and build Setup.exe with:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.1
+.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.2
 ```
 
 Use `-SkipCatalogRefresh` only for offline development builds. Public release builds should refresh the official OBS resource catalog.

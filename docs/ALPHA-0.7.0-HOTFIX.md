@@ -1,4 +1,4 @@
-# v0.8.0-alpha.1 Build Hotfix
+# v0.8.0-alpha.2 Build Hotfix
 
 This alpha hotfix fixes two C# compiler errors that appeared after moving the project to .NET 10.
 

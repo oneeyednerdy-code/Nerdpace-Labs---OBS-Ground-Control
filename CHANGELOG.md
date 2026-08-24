@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.8.0-alpha.1 - Streamer Mission Control Rebrand
+## 0.8.0-alpha.2 - Creator Update Compile Fix
+
+- Fixed the creator software update checker to use `GitHubReleaseInfo.ReleaseUrl`.
+- Resolves CS1061 in `CreatorSoftwareUpdateService.cs`.
+- Verified all remaining `GitHubReleaseInfo` usages reference the current model members: `Version`, `TagName`, `ReleaseUrl`, and `PublishedAt`.
+- No user-facing feature behavior changed.
+
+## 0.8.0-alpha.2 - Streamer Mission Control Rebrand
 
 - Rebranded the public product to **NerdSpace Labs - Streamer Mission Control**.
 - Matched the shared NerdSpace Labs black/violet design system.
@@ -12,7 +19,7 @@
 - Added migration from the legacy `Nerdspace Labs\OBS Ground Control` local settings/backups directory.
 - Renamed the published executable to `NerdSpace.StreamerMissionControl.exe`.
 
-## 0.8.0-alpha.1 - Creator Bot Update Checks
+## 0.8.0-alpha.2 - Creator Bot Update Checks
 
 - Added installed-version detection and stable update checks for **Mix It Up**, **Streamer.bot**, and **Firebot**.
 - Mix It Up uses the official `MixItUpBot/Desktop` GitHub Releases feed.
