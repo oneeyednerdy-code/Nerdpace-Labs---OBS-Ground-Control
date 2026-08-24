@@ -17,7 +17,7 @@ body:
     id: version
     attributes:
       label: OBS Ground Control version
-      placeholder: v0.7.0-alpha.3
+      placeholder: v0.7.0-alpha.4
     validations:
       required: true
 

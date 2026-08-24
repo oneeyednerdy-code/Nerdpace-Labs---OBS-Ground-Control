@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.3**
+Current development version: **v0.7.0-alpha.4**
 
 ## Supported platform
 
@@ -133,7 +133,7 @@ The app footer is generated from assembly version metadata:
 
 Requirements:
 - Windows 10 or Windows 11
-- .NET 8 SDK
+- .NET 10 SDK
 - x64 development target
 
 ```powershell
@@ -149,8 +149,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.3
-git push origin v0.7.0-alpha.3
+git tag v0.7.0-alpha.4
+git push origin v0.7.0-alpha.4
 ```
 
 The release workflow produces:

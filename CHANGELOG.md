@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0-alpha.4 - .NET 10 SDK / Runtime Baseline
+
+- Moved the Windows application target from `net8.0-windows` to `net10.0-windows`.
+- Pinned developer/build tooling to the .NET 10 SDK 10.0.400 baseline with feature-band roll-forward enabled.
+- Updated GitHub Actions to install the .NET 10 SDK (`10.0.x`).
+- Kept Windows publishing self-contained and single-file so end users do not need the .NET 10 SDK or Desktop Runtime installed.
+- Installer remains offline-capable and packages the runtime files produced by `dotnet publish`.
+- The full developer SDK is intentionally not bundled into the installer because it is only needed to build Ground Control, not run it.
+
 ## 0.7.0-alpha.3 - Self-Contained Windows Runtime
 
 - Hardened Windows publishing as self-contained `win-x64`.

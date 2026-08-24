@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Set app version from release tag
         shell: pwsh
@@ -42,7 +42,7 @@ jobs:
           $props = $project.Project.PropertyGroup
           if (($props.SelfContained | Select-Object -First 1) -ne 'true') { throw "SelfContained must remain true for installer releases." }
           if (($props.PublishSingleFile | Select-Object -First 1) -ne 'true') { throw "PublishSingleFile must remain true for installer releases." }
-          Write-Host "Verified: Windows publish is self-contained and does not require a separately installed .NET runtime."
+          Write-Host "Verified: Windows publish is self-contained on .NET 10 and does not require a separately installed .NET runtime or SDK."
 
       - name: Package portable build
         shell: pwsh

@@ -27,7 +27,7 @@ The installer:
 Requirements:
 
 - Windows 10/11 x64
-- .NET 8 SDK
+- .NET 10 SDK
 - Inno Setup 6.3+ or 7
 
 First publish the application:
@@ -39,7 +39,7 @@ dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release
 Then compile the setup package:
 
 ```powershell
-& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.7.0-alpha.3" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.7.0-alpha.4" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
 ```
 
 The resulting installer is placed in `dist/`.
