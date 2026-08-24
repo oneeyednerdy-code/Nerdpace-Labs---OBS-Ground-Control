@@ -1,8 +1,10 @@
 # Streamer Mission Control Self-Updates
 
-Version: 0.8.0-alpha.5
+Version: 0.8.0-alpha.6
 
 Streamer Mission Control uses **NetSparkleUpdater.SparkleUpdater 3.1.0** with Mission Control's own Avalonia UI.
+
+The runtime library and signing CLI have different version lines: the app uses core **3.1.0**, while the currently published `NetSparkleUpdater.Tools.AppCastGenerator` CLI is **2.9.0**.
 
 The application does not blindly execute a GitHub download. The update feed and installer are verified with **Ed25519 signatures** before installation.
 
@@ -33,7 +35,7 @@ Normal SemVer releases such as:
 
 Alpha/beta builds such as:
 
-`v0.8.0-alpha.5`
+`v0.8.0-alpha.6`
 
 A stable release refreshes both the Stable and Preview feeds so preview testers can move naturally onto a stable build.
 
@@ -98,8 +100,8 @@ This is intentional fail-safe behavior.
 For a tag such as:
 
 ```powershell
-git tag v0.8.0-alpha.5
-git push origin v0.8.0-alpha.5
+git tag v0.8.0-alpha.6
+git push origin v0.8.0-alpha.6
 ```
 
 GitHub:
@@ -137,3 +139,24 @@ The existing Inno Setup AppId is unchanged so the updater upgrades the current i
 ## Why only the NetSparkle core package?
 
 Mission Control uses its own NerdSpace Labs UI instead of NetSparkle's built-in Avalonia UI package. This keeps the update interface visually consistent with the rest of Mission Control and avoids tying the app's UI to a different Avalonia major version.
+
+
+### NuGet says AppCastGenerator 3.1.0 does not exist
+
+That is expected: `NetSparkleUpdater.SparkleUpdater` and
+`NetSparkleUpdater.Tools.AppCastGenerator` do not currently share the same
+version number.
+
+Use:
+
+```powershell
+dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 2.9.0
+```
+
+Then verify:
+
+```powershell
+netsparkle-generate-appcast --help
+```
+
+The application can still use `NetSparkleUpdater.SparkleUpdater` 3.1.0.

@@ -128,7 +128,7 @@ jobs:
       - name: Install NetSparkle appcast generator
         if: steps.updater_signing.outputs.configured == 'true'
         shell: pwsh
-        run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 3.1.0
+        run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 2.9.0
 
       - name: Generate signed Mission Control appcast
         if: steps.updater_signing.outputs.configured == 'true'

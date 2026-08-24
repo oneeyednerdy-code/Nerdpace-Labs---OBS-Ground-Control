@@ -1,6 +1,6 @@
 # Windows signing plan
 
-Streamer Mission Control v0.8.0-alpha.5 is Windows-only.
+Streamer Mission Control v0.8.0-alpha.6 is Windows-only.
 
 The source/release workflow intentionally does not contain signing credentials. Public releases should eventually use Authenticode signing through a protected CI identity.
 

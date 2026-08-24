@@ -7,19 +7,31 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "Streamer Mission Control secure updater setup"
 Write-Host ""
-Write-Host "NetSparkle 3.1.0's appcast generator requires a compatible .NET runtime (6-9)."
+Write-Host "Mission Control uses NetSparkle core 3.1.0 and AppCastGenerator CLI 2.9.0."
 Write-Host "GitHub Actions installs .NET 9 automatically for release signing."
 Write-Host ""
 
 $tool = Get-Command netsparkle-generate-appcast -ErrorAction SilentlyContinue
+if ($tool) {
+    Write-Host "Found existing netsparkle-generate-appcast tool."
+}
 if (-not $tool) {
-    Write-Host "Installing NetSparkle AppCastGenerator 3.1.0..."
-    dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 3.1.0
+    Write-Host "Installing NetSparkle AppCastGenerator 2.9.0..."
+    dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 2.9.0
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not install NetSparkleUpdater.Tools.AppCastGenerator 2.9.0 from NuGet. This is a tool-package install failure, not proof that your .NET runtime is missing."
+    }
+
+    # Refresh PATH lookup after dotnet installs the global tool.
+    $dotnetTools = Join-Path $env:USERPROFILE ".dotnet\tools"
+    if ($env:PATH -notlike "*$dotnetTools*") {
+        $env:PATH = "$env:PATH;$dotnetTools"
+    }
     $tool = Get-Command netsparkle-generate-appcast -ErrorAction SilentlyContinue
 }
 
 if (-not $tool) {
-    throw "netsparkle-generate-appcast is not available. Install a .NET 9 runtime, reopen PowerShell, and run this script again."
+    throw "AppCastGenerator 2.9.0 was installed but netsparkle-generate-appcast is still not on PATH. Reopen PowerShell or add $env:USERPROFILE\.dotnet\tools to PATH, then run this script again."
 }
 
 New-Item -ItemType Directory -Force -Path $KeyDirectory | Out-Null
