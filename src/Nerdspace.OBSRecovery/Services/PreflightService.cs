@@ -158,7 +158,7 @@ public sealed class PreflightService
             results.Add(new("Bandwidth Advisor", CheckSeverity.Info, "Bandwidth scan not requested", "Enable 'Run Bandwidth Advisor' when you want an upload-based bitrate and resolution recommendation."));
         }
 
-        progress?.Report(options.SkipUpdateChecks ? "Scanning installed OBS plugins (update lookup skipped)…" : "Scanning OBS plugins and verified update sources…");
+        progress?.Report(options.SkipUpdateChecks ? "Scanning installed third-party OBS plugins (update lookup skipped)…" : "Scanning third-party OBS plugins and verified update sources…");
         var pluginOnlineCheck = !options.SkipUpdateChecks && _settings.CheckUpdatesOnline;
         var plugins = await _plugins.ScanAsync(checkUpdates: pluginOnlineCheck, cancellationToken);
         var loadIssues = plugins.Count(x => x.CompatibilityStatus == "Load issue detected");
@@ -170,11 +170,11 @@ public sealed class PreflightService
             ? $"{loadIssues} load issue(s) • {updatesAvailable} update(s) available • {deferred} deferred/skipped"
             : pluginOnlineCheck
                 ? $"{updatesAvailable} update(s) available • {deferred} deferred/skipped • {plugins.Count - unknownSources} verified/known entries"
-                : $"{plugins.Count} plugin entries detected • update lookup skipped this run";
+                : $"{plugins.Count} third-party plugin(s) detected • update lookup skipped this run";
         results.Add(new("Plugins", pluginSeverity, pluginSummary,
             unknownSources > 0
-                ? $"{unknownSources} plugin(s) do not have a verified update source in Ground Control. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."
-                : "Installed versions were compared with verified latest releases where available. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."));
+                ? $"{unknownSources} third-party plugin(s) do not have a verified update source in Ground Control. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."
+                : "Third-party installed versions were compared with verified latest releases where available. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."));
 
         progress?.Report("Analyzing the latest OBS log…");
         var logFindings = _logs.AnalyzeLatest();

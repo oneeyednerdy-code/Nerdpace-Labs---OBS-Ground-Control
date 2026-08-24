@@ -1,6 +1,6 @@
 # Windows signing plan
 
-OBS Ground Control v0.7.0-alpha.5 is Windows-only.
+OBS Ground Control v0.7.0-alpha.9 is Windows-only.
 
 The source/release workflow intentionally does not contain signing credentials. Public releases should eventually use Authenticode signing through a protected CI identity.
 

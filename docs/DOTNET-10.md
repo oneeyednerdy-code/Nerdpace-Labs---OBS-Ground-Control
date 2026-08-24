@@ -1,6 +1,6 @@
 # .NET 10 baseline
 
-OBS Ground Control v0.7.0-alpha.5 targets `net10.0-windows` and is built with the .NET 10 SDK.
+OBS Ground Control v0.7.0-alpha.9 targets `net10.0-windows` and is built with the .NET 10 SDK.
 
 ## Developers / GitHub Actions
 

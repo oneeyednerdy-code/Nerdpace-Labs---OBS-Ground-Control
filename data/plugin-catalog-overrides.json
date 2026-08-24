@@ -1,0 +1,40 @@
+{
+  "overrides": [
+    {
+      "resourceId": "1991",
+      "matchTokens": ["aitum-multistream", "obs-aitum-multistream", "multistream"]
+    },
+    {
+      "resourceId": "1715",
+      "matchTokens": ["vertical-canvas", "aitum-vertical", "obs-vertical-canvas"]
+    },
+    {
+      "resourceId": "2368",
+      "matchTokens": ["aitum-stream-suite", "obs-aitum-stream-suite", "stream-suite"]
+    },
+    {
+      "resourceId": "1285",
+      "matchTokens": ["source-record", "sourcerecord", "obs-source-record"]
+    },
+    {
+      "resourceId": "913",
+      "matchTokens": ["move-transition", "obs-move-transition", "move_transition"]
+    },
+    {
+      "resourceId": "395",
+      "matchTokens": ["advanced-scene-switcher", "scene-switcher", "sceneswitcher", "advanced scene switcher"]
+    },
+    {
+      "resourceId": "1736",
+      "matchTokens": ["obs-shaderfilter", "shaderfilter", "shader-filter"]
+    },
+    {
+      "resourceId": "1780",
+      "matchTokens": ["obs-composite-blur", "composite-blur", "composite_blur"]
+    },
+    {
+      "resourceId": "1254",
+      "matchTokens": ["downstream-keyer", "obs-downstream-keyer", "downstream_keyer"]
+    }
+  ]
+}

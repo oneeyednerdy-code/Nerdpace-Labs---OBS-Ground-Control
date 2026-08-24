@@ -1,0 +1,191 @@
+{
+  "generatedAtUtc": "2026-08-24T00:00:00Z",
+  "source": "https://obsproject.com/forum/plugins/",
+  "resourceCount": 9,
+  "sourceVerifiedCount": 9,
+  "entries": [
+    {
+      "id": "1991",
+      "displayName": "Aitum Multistream",
+      "author": "Aitum",
+      "repository": "Aitum/obs-aitum-multistream",
+      "sourceUrl": "https://github.com/Aitum/obs-aitum-multistream",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/aitum-multistream.1991/",
+      "description": "Multistream to multiple services from OBS.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "aitum-multistream",
+        "obs-aitum-multistream",
+        "multistream"
+      ],
+      "resourceVersion": "1.0.8"
+    },
+    {
+      "id": "1715",
+      "displayName": "Aitum Vertical",
+      "author": "Aitum",
+      "repository": "Aitum/obs-vertical-canvas",
+      "sourceUrl": "https://github.com/Aitum/obs-vertical-canvas",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/aitum-vertical.1715/",
+      "description": "Separate vertical canvas and vertical streaming workflow for OBS.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "vertical-canvas",
+        "aitum-vertical",
+        "obs-vertical-canvas"
+      ],
+      "resourceVersion": "1.6.4"
+    },
+    {
+      "id": "2368",
+      "displayName": "Aitum Stream Suite",
+      "author": "Aitum",
+      "repository": "Aitum/obs-aitum-stream-suite",
+      "sourceUrl": "https://github.com/Aitum/obs-aitum-stream-suite",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/aitum-stream-suite.2368/",
+      "description": "Integrated Aitum streaming, canvas, output, and dock suite.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "aitum-stream-suite",
+        "obs-aitum-stream-suite",
+        "stream-suite"
+      ],
+      "resourceVersion": null
+    },
+    {
+      "id": "1285",
+      "displayName": "Source Record",
+      "author": "Exeldro",
+      "repository": "exeldro/obs-source-record",
+      "sourceUrl": "https://github.com/exeldro/obs-source-record",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/source-record.1285/",
+      "description": "Record an individual OBS source with a source filter.",
+      "supportedPlatforms": [
+        "Windows",
+        "macOS",
+        "Linux"
+      ],
+      "minimumObsVersion": "26.0.0",
+      "matchTokens": [
+        "source-record",
+        "sourcerecord",
+        "obs-source-record"
+      ],
+      "resourceVersion": "0.4.8"
+    },
+    {
+      "id": "913",
+      "displayName": "Move Transition",
+      "author": "Exeldro",
+      "repository": "exeldro/obs-move-transition",
+      "sourceUrl": "https://github.com/exeldro/obs-move-transition",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/move.913/",
+      "description": "Animate source position, size, and values across transitions.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "move-transition",
+        "obs-move-transition",
+        "move_transition"
+      ],
+      "resourceVersion": null
+    },
+    {
+      "id": "395",
+      "displayName": "Advanced Scene Switcher",
+      "author": "Warmuptill",
+      "repository": "WarmUpTill/SceneSwitcher",
+      "sourceUrl": "https://github.com/WarmUpTill/SceneSwitcher",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/advanced-scene-switcher.395/",
+      "description": "Automate OBS actions and scene changes with configurable macros.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "advanced-scene-switcher",
+        "scene-switcher",
+        "sceneswitcher",
+        "advanced scene switcher"
+      ],
+      "resourceVersion": null
+    },
+    {
+      "id": "1736",
+      "displayName": "obs-shaderfilter",
+      "author": "Exeldro",
+      "repository": "exeldro/obs-shaderfilter",
+      "sourceUrl": "https://github.com/exeldro/obs-shaderfilter",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/obs-shaderfilter.1736/",
+      "description": "Apply user-defined shader effects to OBS sources.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "obs-shaderfilter",
+        "shaderfilter",
+        "shader-filter"
+      ],
+      "resourceVersion": null
+    },
+    {
+      "id": "1780",
+      "displayName": "Composite Blur",
+      "author": "FiniteSingularity",
+      "repository": "FiniteSingularity/obs-composite-blur",
+      "sourceUrl": "https://github.com/FiniteSingularity/obs-composite-blur",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/composite-blur.1780/",
+      "description": "Feature-rich blur, pixelate, mask, and compositing filters.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "obs-composite-blur",
+        "composite-blur",
+        "composite_blur"
+      ],
+      "resourceVersion": null
+    },
+    {
+      "id": "1254",
+      "displayName": "Downstream Keyer",
+      "author": "Exeldro",
+      "repository": "exeldro/obs-downstream-keyer",
+      "sourceUrl": "https://github.com/exeldro/obs-downstream-keyer",
+      "sourceVerification": "OBS resource page",
+      "obsResourceUrl": "https://obsproject.com/forum/resources/downstream-keyer.1254/",
+      "description": "Adds a downstream keyer dock for persistent overlays and output composition.",
+      "supportedPlatforms": [
+        "Windows"
+      ],
+      "minimumObsVersion": "",
+      "matchTokens": [
+        "downstream-keyer",
+        "obs-downstream-keyer",
+        "downstream_keyer"
+      ],
+      "resourceVersion": null
+    }
+  ]
+}

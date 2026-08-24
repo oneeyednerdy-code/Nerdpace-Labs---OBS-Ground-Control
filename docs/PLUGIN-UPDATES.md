@@ -1,6 +1,8 @@
 # Plugin Update Verification
 
-OBS Ground Control scans all discovered Windows OBS plugin entries locally. Update status is only asserted when Ground Control can map a plugin to a trusted release source and read both an installed version and the latest verified release metadata.
+OBS Ground Control inventories **third-party/user-installed OBS plugins only**. OBS-bundled modules are intentionally excluded from the Plugins tab and Pre-Flight plugin counts. Update status is only asserted when Ground Control can map a third-party plugin to a trusted release source and read both an installed version and the latest verified release metadata.
+
+On Windows, Ground Control treats the recommended `C:\ProgramData\obs-studio\plugins` structure and custom `OBS_PLUGINS_PATH` locations as external plugin locations. The legacy mixed `obs-plugins\64bit` directory inside the OBS installation is scanned with a bundled-module exclusion list so older third-party installs can still be found without showing OBS stock modules.
 
 ## Status rules
 

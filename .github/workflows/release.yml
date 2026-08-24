@@ -18,6 +18,16 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Build preloaded OBS plugin catalog
+        run: python scripts/refresh-plugin-catalog.py --require-min-resources 250
+
+      - name: Verify preloaded plugin catalog
+        shell: pwsh
+        run: |
+          $catalog = Get-Content 'src/Nerdspace.OBSRecovery/Data/plugin-catalog.json' -Raw | ConvertFrom-Json
+          if ($catalog.resourceCount -lt 250) { throw "OBS plugin catalog is unexpectedly small: $($catalog.resourceCount)" }
+          Write-Host "Embedding $($catalog.resourceCount) OBS resources; $($catalog.sourceVerifiedCount) publish source URLs."
+
       - name: Set app version from release tag
         shell: pwsh
         run: |
@@ -79,9 +89,13 @@ jobs:
           }
           $lines | Set-Content SHA256SUMS.txt -Encoding ascii
 
-      - uses: softprops/action-gh-release@v2
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
         with:
+          name: Nerdspace Labs OBS Ground Control ${{ github.ref_name }}
           generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          fail_on_unmatched_files: true
           files: |
             dist/Nerdspace-OBS-Ground-Control-Setup-*.exe
             Nerdspace-OBS-Ground-Control-*-win-x64.zip

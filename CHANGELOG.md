@@ -1,12 +1,52 @@
 # Changelog
 
+## 0.7.0-alpha.9 - GitHub Release Guide
+
+- Added a complete GitHub repository and first-publish walkthrough.
+- Added a Windows alpha release checklist.
+- Alpha-tagged releases are now explicitly created as GitHub Pre-releases.
+- Release publishing now fails when expected installer/portable artifacts are missing.
+- Preserves automatic .NET 10 self-contained publishing, Inno Setup packaging, plugin-catalog refresh, and SHA-256 generation.
+
+## 0.7.0-alpha.9 - Full OBS Resource Catalog
+
+- Added a build-time catalog generator for the official OBS Studio Plugins resource directory.
+- Release builds enumerate the OBS plugin resource catalog and embed the resulting JSON into Ground Control.
+- Every catalog entry carries its official OBS resource URL.
+- Source repositories are marked verified only when the OBS resource page publishes the source URL.
+- GitHub release/version checks run only for OBS-page-verified GitHub repositories.
+- Plugins with no published source URL remain discoverable but are never presented as source-verified.
+- Added catalog date/resource/source-verification counts to Plugin Discovery.
+- Windows-only discovery hides resources explicitly marked non-Windows while retaining entries with unspecified platform metadata.
+- Added maintainer overrides for reliable local module matching without weakening catalog trust.
+
+## 0.7.0-alpha.9 - Trusted Plugin Registry & Discovery
+
+- Split Plugin Control into **Installed**, **Updates**, and **Discover** views.
+- Added a curated trusted plugin registry with verified OBS resource pages and official GitHub repositories.
+- Expanded verified update coverage beyond Aitum/Source Record to include Move Transition, Advanced Scene Switcher, obs-shaderfilter, Composite Blur, Downstream Keyer, and Aitum Stream Suite.
+- Added local plugin discovery search by plugin name, author, feature description, or repository.
+- Added optional latest-version refresh from each plugin's verified GitHub Releases source.
+- Added a direct **Browse Official OBS Plugins** action for the full OBS resource directory.
+- Discovery remains read-only: Ground Control does not automatically download or install third-party plugins.
+- Installed plugin inventory continues to hide OBS bundled modules.
+
+## 0.7.0-alpha.6 - Third-Party Plugin Isolation
+
+- Plugins tab now inventories third-party/user-installed OBS plugins instead of every bundled OBS module.
+- Filters OBS-bundled Windows modules from the legacy mixed `obs-plugins\64bit` directory.
+- Keeps the recommended ProgramData plugin directory as third-party/user-installed inventory.
+- Adds support for custom `OBS_PLUGINS_PATH` directories.
+- Pre-Flight plugin counts now represent third-party plugins only.
+- Updated plugin scan labels, tooltips, documentation, and regression tests.
+
 ## 0.7.0-alpha.5 - .NET 10 Compile Fix
 
 - Fixed `string.Split` overload usage in `ObsConfigurationInspectorService`.
 - Fixed the same overload issue in `PluginInventoryService`.
 - Restores successful compilation under the .NET 10 SDK without changing user-facing behavior.
 
-## 0.7.0-alpha.5 - .NET 10 SDK / Runtime Baseline
+## 0.7.0-alpha.4 - .NET 10 SDK / Runtime Baseline
 
 - Moved the Windows application target from `net8.0-windows` to `net10.0-windows`.
 - Pinned developer/build tooling to the .NET 10 SDK 10.0.400 baseline with feature-band roll-forward enabled.

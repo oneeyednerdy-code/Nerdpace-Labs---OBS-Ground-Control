@@ -1,9 +1,9 @@
-# v0.7.0-alpha.5 Windows Alpha Testing Checklist
+# v0.7.0-alpha.9 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.5` for the branch build.
+- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.9` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -89,6 +89,10 @@
 
 ## Plugin update alpha regression
 - [ ] Local scan inventories plugins without making network requests.
+- [ ] Plugins tab does not list OBS-bundled modules such as `obs-browser`, `obs-ffmpeg`, `obs-filters`, `obs-websocket`, `win-capture`, or `win-wasapi`.
+- [ ] Third-party plugins installed under `C:\ProgramData\obs-studio\plugins` are listed.
+- [ ] Legacy third-party plugins inside the OBS install `obs-plugins\64bit` folder are listed unless their module name is an OBS-bundled module.
+- [ ] A custom `OBS_PLUGINS_PATH` directory is scanned when configured.
 - [ ] Update scan compares installed version against the latest verified release for mapped plugins.
 - [ ] Plugin row renders `Installed X → Latest Y`.
 - [ ] A newer verified release shows `Update available`.
@@ -104,7 +108,7 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.7.0-alpha.5+)
+## Windows installer regression checks (v0.7.0-alpha.9+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
@@ -118,10 +122,36 @@
 - [ ] Portable ZIP continues to run independently of the installed build.
 
 
-## Self-contained runtime regression checks (v0.7.0-alpha.5+)
+## Self-contained runtime regression checks (v0.7.0-alpha.9+)
 
 - [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
 - [ ] Ground Control launches normally after installation.
 - [ ] Setup never prompts to download/install .NET.
 - [ ] Unplug/disconnect the network during install and confirm setup still completes.
 - [ ] Portable ZIP also launches without installing .NET separately.
+
+## Plugin registry / discovery alpha checks
+
+- Installed shows only third-party plugins actually present on the PC.
+- OBS bundled modules do not appear in Installed or Updates.
+- Known installed plugins map to their friendly registry names.
+- Updates shows installed plugins with trusted registry mappings.
+- Installed version and latest verified version are shown separately after online checking.
+- Update action opens the verified release/repository page and does not download/install automatically.
+- Discover searches the preloaded official OBS resource catalog without adding results to Installed.
+- Refresh Versions performs explicit online GitHub release checks.
+- Official OBS Page opens the verified OBS resource page.
+- Browse Official OBS Plugins opens the official OBS plugin directory.
+- No search result or unknown plugin is treated as an error.
+
+## Full OBS plugin catalog regression checks (v0.7.0-alpha.9+)
+
+- [ ] Release workflow refreshes the official OBS Studio Plugins directory before compilation.
+- [ ] Release fails rather than embedding a suspiciously incomplete catalog below the configured minimum resource threshold.
+- [ ] Discover shows the embedded resource count and source-verified count.
+- [ ] Every Discover result has an official `obsproject.com/forum/resources/...` page.
+- [ ] Source / Releases is enabled only when the official OBS resource page publishes a source URL.
+- [ ] A resource without a Source Code URL remains discoverable and does not receive an invented repository.
+- [ ] GitHub live version refresh is limited to 25 or fewer matching Discover results to avoid accidental API-rate-limit storms.
+- [ ] Blank Discover search remains usable without performing hundreds of live GitHub API requests.
+- [ ] Installed plugin update checks continue to use only matched local third-party plugins, not the entire discovery catalog.

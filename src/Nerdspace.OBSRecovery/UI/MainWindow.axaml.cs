@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private readonly ObsDetector _detector;
     private readonly RecoveryService _recovery;
     private readonly PluginInventoryService _plugins;
+    private readonly PluginDiscoveryService _pluginDiscovery;
     private readonly UpdateDeferralService _updateDeferrals;
     private readonly PluginQuarantineService _quarantine;
     private readonly BackupService _backups;
@@ -41,6 +42,8 @@ public partial class MainWindow : Window
     private bool _monitorBusy;
     private bool _allowClose;
     private IReadOnlyList<PluginInfo> _pluginItems = Array.Empty<PluginInfo>();
+    private IReadOnlyList<PluginInfo> _pluginUpdateItems = Array.Empty<PluginInfo>();
+    private IReadOnlyList<PluginDiscoveryInfo> _pluginDiscoveryItems = Array.Empty<PluginDiscoveryInfo>();
     private IReadOnlyList<PluginQuarantineService.QuarantineItem> _quarantineItems = Array.Empty<PluginQuarantineService.QuarantineItem>();
     private IReadOnlyList<BackupInfo> _backupItems = Array.Empty<BackupInfo>();
     private GraphicsDriverSnapshot? _graphicsSnapshot;
@@ -54,6 +57,7 @@ public partial class MainWindow : Window
         ObsDetector detector,
         RecoveryService recovery,
         PluginInventoryService plugins,
+        PluginDiscoveryService pluginDiscovery,
         UpdateDeferralService updateDeferrals,
         PluginQuarantineService quarantine,
         BackupService backups,
@@ -77,6 +81,7 @@ public partial class MainWindow : Window
         _detector = detector;
         _recovery = recovery;
         _plugins = plugins;
+        _pluginDiscovery = pluginDiscovery;
         _updateDeferrals = updateDeferrals;
         _quarantine = quarantine;
         _backups = backups;
@@ -150,6 +155,7 @@ public partial class MainWindow : Window
         CheckWindowsButton.IsEnabled = true;
         OpenWindowsUpdateButton.IsEnabled = true;
         CheckSonarButton.IsEnabled = true;
+
     }
 
     private void WireEvents()
@@ -189,12 +195,23 @@ public partial class MainWindow : Window
         ScanPluginsButton.Click += async (_, _) => await ScanPluginsAsync(false);
         CheckPluginUpdatesButton.Click += async (_, _) => await ScanPluginsAsync(true);
         PluginSelect.SelectionChanged += (_, _) => UpdatePluginDetail();
+        PluginUpdateSelect.SelectionChanged += (_, _) => UpdatePluginUpdateDetail();
+        OpenPluginObsResourceButton.Click += (_, _) => OpenSelectedPluginObsResource();
         OpenPluginPageButton.Click += (_, _) => OpenSelectedPluginPage();
+        OpenPluginUpdateButton.Click += (_, _) => OpenSelectedUpdatePluginPage();
         SnoozePluginButton.Click += async (_, _) => await SnoozeSelectedPluginAsync();
         SkipPluginVersionButton.Click += async (_, _) => await SkipSelectedPluginVersionAsync();
         ClearPluginDeferralButton.Click += async (_, _) => await ClearSelectedPluginDeferralAsync();
         QuarantineButton.Click += async (_, _) => await QuarantineSelectedAsync();
         RestorePluginButton.Click += async (_, _) => await RestoreQuarantinedAsync();
+
+        DiscoverPluginSearchButton.Click += async (_, _) => await SearchDiscoveryAsync(false);
+        DiscoverCheckVersionsButton.Click += async (_, _) => await SearchDiscoveryAsync(true);
+        DiscoverPluginSelect.SelectionChanged += (_, _) => UpdateDiscoveryDetail();
+        OpenDiscoverObsPageButton.Click += (_, _) => OpenSelectedDiscoveryObsPage();
+        OpenDiscoverRepositoryButton.Click += (_, _) => OpenSelectedDiscoveryRepository();
+        BrowseOfficialPluginsButton.Click += (_, _) => OpenUrl(PluginDiscoveryService.OfficialObsPluginDirectoryUrl);
+        DiscoverCatalogSummaryText.Text = _pluginDiscovery.CatalogSummary;
 
         CreateBackupButton.Click += async (_, _) => await CreateBackupAsync();
         BackupSelect.SelectionChanged += (_, _) => UpdateBackupDetail();
@@ -579,16 +596,36 @@ public partial class MainWindow : Window
     private async Task ScanPluginsAsync(bool online)
     {
         var button = online ? CheckPluginUpdatesButton : ScanPluginsButton;
-        await WithBusyAsync(button, online ? "Checking…" : "Scanning…", PluginProgress, PluginProgressText,
-            online ? "Checking trusted plugin release sources…" : "Scanning installed OBS plugins…", async () =>
+        var progress = online ? PluginUpdateProgress : PluginProgress;
+        var progressText = online ? PluginUpdateProgressText : PluginProgressText;
+        await WithBusyAsync(button, online ? "Checking…" : "Scanning…", progress, progressText,
+            online ? "Checking trusted plugin release sources…" : "Scanning installed third-party OBS plugins…", async () =>
             {
                 _pluginItems = await _plugins.ScanAsync(online);
                 PluginList.ItemsSource = _pluginItems.Select(x => x.Display).ToList();
                 PluginSelect.ItemsSource = _pluginItems.Select(x => x.Name).ToList();
                 PluginSelect.SelectedIndex = _pluginItems.Count > 0 ? 0 : -1;
                 UpdatePluginDetail();
+
+                _pluginUpdateItems = _pluginItems.Where(x => !string.IsNullOrWhiteSpace(x.Repository)).ToList();
+                PluginUpdateList.ItemsSource = _pluginUpdateItems.Select(x => x.Display).ToList();
+                PluginUpdateSelect.ItemsSource = _pluginUpdateItems.Select(x => x.Name).ToList();
+                PluginUpdateSelect.SelectedIndex = _pluginUpdateItems.Count > 0 ? 0 : -1;
+                UpdatePluginUpdateDetail();
+
+                var available = _pluginUpdateItems.Count(x => x.IsUpdateAvailable);
+                var deferred = _pluginUpdateItems.Count(x => x.IsDeferred);
+                var current = _pluginUpdateItems.Count(x => x.UpdateStatus.Equals("Current", StringComparison.OrdinalIgnoreCase));
+                var unknown = _pluginItems.Count(x => string.IsNullOrWhiteSpace(x.Repository));
+                PluginUpdateSummaryText.Text = online
+                    ? $"{available} update(s) available • {current} current • {deferred} deferred/skipped • {unknown} unverified source(s)."
+                    : $"{_pluginItems.Count} installed third-party plugin(s) found • {_pluginUpdateItems.Count} matched to the trusted registry. Run Check Updates for latest versions.";
+
                 RefreshQuarantineList();
-                PluginProgressText.Text = $"Plugin scan complete • {_pluginItems.Count} entries.";
+                if (online)
+                    PluginUpdateProgressText.Text = $"Update check complete • {_pluginUpdateItems.Count} trusted installed plugin(s) reviewed.";
+                else
+                    PluginProgressText.Text = $"Plugin scan complete • {_pluginItems.Count} installed third-party plugin(s).";
             });
     }
 
@@ -597,21 +634,41 @@ public partial class MainWindow : Window
         var plugin = SelectedPlugin();
         if (plugin is null)
         {
-            PluginDetailText.Text = "No plugin selected.";
+            PluginDetailText.Text = "No installed third-party plugin selected.";
             OpenPluginPageButton.IsEnabled = false;
+            OpenPluginObsResourceButton.IsEnabled = false;
+            return;
+        }
+
+        var source = !string.IsNullOrWhiteSpace(plugin.Repository)
+            ? $"Trusted registry: {plugin.Repository}"
+            : "Update source not verified in Ground Control's registry";
+        PluginDetailText.Text =
+            $"{plugin.Name}\nInstalled version: {plugin.Version}\nLatest verified version: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nUpdate source: {source}\nCompatibility: {plugin.CompatibilityStatus}\nCan quarantine safely: {(plugin.CanQuarantine ? "Yes" : "No")}";
+
+        OpenPluginPageButton.IsEnabled = plugin.HasVerifiedRelease || !string.IsNullOrWhiteSpace(plugin.Repository);
+        OpenPluginObsResourceButton.IsEnabled = plugin.HasOfficialObsResource;
+    }
+
+    private void UpdatePluginUpdateDetail()
+    {
+        var plugin = SelectedUpdatePlugin();
+        if (plugin is null)
+        {
+            PluginUpdateDetailText.Text = "Run Check Updates, then select a registered installed plugin.";
+            OpenPluginUpdateButton.IsEnabled = false;
             SnoozePluginButton.IsEnabled = false;
             SkipPluginVersionButton.IsEnabled = false;
             ClearPluginDeferralButton.IsEnabled = false;
             return;
         }
 
-        var source = plugin.HasVerifiedRelease ? "Verified GitHub release" : plugin.Repository is not null ? "Trusted repository; latest release unavailable" : "Update source not verified";
-        PluginDetailText.Text =
-            $"{plugin.Name}\nInstalled version: {plugin.Version}\nLatest verified version: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nUpdate source: {source}\nCompatibility: {plugin.CompatibilityStatus}\nCan quarantine safely: {(plugin.CanQuarantine ? "Yes" : "No")}";
+        PluginUpdateDetailText.Text =
+            $"{plugin.Name}\nInstalled: {plugin.Version}\nLatest verified: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nRepository: {plugin.Repository ?? "Not verified"}";
 
         var updateKnown = plugin.HasKnownLatestVersion && plugin.HasKnownInstalledVersion &&
             (plugin.IsUpdateAvailable || plugin.IsDeferred);
-        OpenPluginPageButton.IsEnabled = plugin.HasVerifiedRelease;
+        OpenPluginUpdateButton.IsEnabled = plugin.HasVerifiedRelease || !string.IsNullOrWhiteSpace(plugin.Repository);
         SnoozePluginButton.IsEnabled = updateKnown;
         SkipPluginVersionButton.IsEnabled = updateKnown;
         ClearPluginDeferralButton.IsEnabled = plugin.HasKnownLatestVersion &&
@@ -621,9 +678,29 @@ public partial class MainWindow : Window
     private PluginInfo? SelectedPlugin()
         => PluginSelect.SelectedIndex >= 0 && PluginSelect.SelectedIndex < _pluginItems.Count ? _pluginItems[PluginSelect.SelectedIndex] : null;
 
+    private PluginInfo? SelectedUpdatePlugin()
+        => PluginUpdateSelect.SelectedIndex >= 0 && PluginUpdateSelect.SelectedIndex < _pluginUpdateItems.Count ? _pluginUpdateItems[PluginUpdateSelect.SelectedIndex] : null;
+
+    private void OpenSelectedPluginObsResource()
+    {
+        var plugin = SelectedPlugin();
+        if (!string.IsNullOrWhiteSpace(plugin?.ObsResourceUrl)) OpenUrl(plugin.ObsResourceUrl);
+    }
+
     private void OpenSelectedPluginPage()
     {
         var plugin = SelectedPlugin();
+        OpenPluginReleaseOrRepository(plugin);
+    }
+
+    private void OpenSelectedUpdatePluginPage()
+    {
+        var plugin = SelectedUpdatePlugin();
+        OpenPluginReleaseOrRepository(plugin);
+    }
+
+    private void OpenPluginReleaseOrRepository(PluginInfo? plugin)
+    {
         if (plugin is null) return;
         if (!string.IsNullOrWhiteSpace(plugin.ReleaseUrl))
         {
@@ -640,7 +717,7 @@ public partial class MainWindow : Window
 
     private async Task SnoozeSelectedPluginAsync()
     {
-        var plugin = SelectedPlugin();
+        var plugin = SelectedUpdatePlugin();
         if (plugin?.LatestVersion is null) return;
         await _updateDeferrals.SnoozeAsync(PluginInventoryService.DeferralKey(plugin.Id), plugin.LatestVersion, TimeSpan.FromDays(7));
         _logger.Info($"{plugin.Name} {plugin.LatestVersion} update reminder deferred for one week.");
@@ -649,7 +726,7 @@ public partial class MainWindow : Window
 
     private async Task SkipSelectedPluginVersionAsync()
     {
-        var plugin = SelectedPlugin();
+        var plugin = SelectedUpdatePlugin();
         if (plugin?.LatestVersion is null) return;
         await _updateDeferrals.SkipVersionAsync(PluginInventoryService.DeferralKey(plugin.Id), plugin.LatestVersion);
         _logger.Info($"{plugin.Name} {plugin.LatestVersion} will be skipped until a newer release is published or the deferral is cleared.");
@@ -658,11 +735,78 @@ public partial class MainWindow : Window
 
     private async Task ClearSelectedPluginDeferralAsync()
     {
-        var plugin = SelectedPlugin();
+        var plugin = SelectedUpdatePlugin();
         if (plugin is null) return;
         await _updateDeferrals.ClearAsync(PluginInventoryService.DeferralKey(plugin.Id));
         _logger.Info($"Cleared the update reminder/skip state for {plugin.Name}.");
         await ScanPluginsAsync(true);
+    }
+
+    private async Task SearchDiscoveryAsync(bool checkLatestVersions)
+    {
+        var button = checkLatestVersions ? DiscoverCheckVersionsButton : DiscoverPluginSearchButton;
+        await WithBusyAsync(button, checkLatestVersions ? "Refreshing…" : "Searching…", DiscoverPluginProgress, DiscoverPluginProgressText,
+            checkLatestVersions ? "Checking verified plugin release sources…" : "Searching the trusted plugin registry…", async () =>
+            {
+                // Refresh the local installed list if it has not been scanned yet so Discover can label installed entries.
+                if (_pluginItems.Count == 0)
+                    _pluginItems = await _plugins.ScanAsync(false);
+
+                _pluginDiscoveryItems = await _pluginDiscovery.SearchAsync(
+                    DiscoverPluginSearchBox.Text,
+                    _pluginItems,
+                    checkLatestVersions);
+
+                DiscoverPluginList.ItemsSource = _pluginDiscoveryItems.Select(x => x.Display).ToList();
+                DiscoverPluginSelect.ItemsSource = _pluginDiscoveryItems.Select(x => x.Entry.DisplayName).ToList();
+                DiscoverPluginSelect.SelectedIndex = _pluginDiscoveryItems.Count > 0 ? 0 : -1;
+                UpdateDiscoveryDetail();
+                DiscoverPluginProgressText.Text = _pluginDiscoveryItems.Count == 0
+                    ? "No preloaded OBS resource matches this search. Try Browse Official OBS Plugins for the live directory."
+                    : $"{_pluginDiscoveryItems.Count} catalog result(s) • {(checkLatestVersions ? "verified GitHub release sources refreshed where available" : "online version lookup skipped")}.";
+            });
+    }
+
+    private PluginDiscoveryInfo? SelectedDiscoveryPlugin()
+        => DiscoverPluginSelect.SelectedIndex >= 0 && DiscoverPluginSelect.SelectedIndex < _pluginDiscoveryItems.Count
+            ? _pluginDiscoveryItems[DiscoverPluginSelect.SelectedIndex]
+            : null;
+
+    private void UpdateDiscoveryDetail()
+    {
+        var item = SelectedDiscoveryPlugin();
+        if (item is null)
+        {
+            DiscoverPluginDetailText.Text = "No discovery result selected.";
+            OpenDiscoverObsPageButton.IsEnabled = false;
+            OpenDiscoverRepositoryButton.IsEnabled = false;
+            return;
+        }
+
+        var sourceLabel = item.Entry.HasVerifiedSource
+            ? $"Verified source: {item.Entry.SourceUrl}"
+            : "Source: No source URL is published on this OBS resource page";
+        var minimumObs = string.IsNullOrWhiteSpace(item.Entry.MinimumObsVersion) ? "Not listed" : item.Entry.MinimumObsVersion;
+        DiscoverPluginDetailText.Text =
+            $"{item.Entry.DisplayName}\nAuthor: {item.Entry.Author}\n{item.Entry.Description}\nPlatforms: {item.Entry.PlatformSummary}\nMinimum OBS: {minimumObs}\nLocal status: {(item.Installed ? $"Installed {item.InstalledVersion}" : "Not detected on this PC")}\nLatest release check: {item.LatestVersion}\n{sourceLabel}";
+        OpenDiscoverObsPageButton.IsEnabled = !string.IsNullOrWhiteSpace(item.Entry.ObsResourceUrl);
+        OpenDiscoverRepositoryButton.IsEnabled = item.Entry.HasVerifiedSource;
+    }
+
+    private void OpenSelectedDiscoveryObsPage()
+    {
+        var item = SelectedDiscoveryPlugin();
+        if (item is not null) OpenUrl(item.Entry.ObsResourceUrl);
+    }
+
+    private void OpenSelectedDiscoveryRepository()
+    {
+        var item = SelectedDiscoveryPlugin();
+        if (item is null || !item.Entry.HasVerifiedSource) return;
+        var target = !string.IsNullOrWhiteSpace(item.LatestReleaseUrl)
+            ? item.LatestReleaseUrl
+            : item.Entry.HasGitHubRepository ? item.Entry.ReleasesUrl : item.Entry.SourceUrl ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(target)) OpenUrl(target);
     }
 
     private async Task QuarantineSelectedAsync()

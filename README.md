@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.5**
+Current development version: **v0.7.0-alpha.9**
 
 ## Supported platform
 
@@ -76,6 +76,8 @@ Ground Control separates maintenance from the main OBS controls:
 Ground Control does **not** silently install drivers, firmware, OBS updates, Elgato/SteelSeries software, or Windows updates.
 
 ### Plugins
+
+Ground Control shows **third-party/user-installed plugins only**. OBS-bundled modules are filtered out of the plugin inventory and update checks.
 - Windows OBS plugin inventory
 - installed version → latest verified release comparison for supported/trusted sources
 - exact verified release-page link for updates
@@ -85,6 +87,10 @@ Ground Control does **not** silently install drivers, firmware, OBS updates, Elg
 - local compatibility/load signals from OBS logs
 - reversible plugin quarantine when the plugin directory can be safely moved
 - no automatic plugin installation
+- release-time preloaded snapshot of the official OBS Studio Plugins resource catalog
+- official OBS resource page retained for every catalog entry
+- source repository marked verified only when published by that OBS resource page
+- Windows-compatible plugin discovery by name, author, description, and source
 
 ### Backups
 - timestamped OBS configuration ZIP backups
@@ -144,13 +150,22 @@ dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release
 
 ## GitHub builds
 
+For the complete first-publish walkthrough, see:
+
+`docs/GITHUB-PUBLISH-GUIDE.md`
+
+For the release gate/checklist, see:
+
+`docs/GITHUB-ALPHA-RELEASE-CHECKLIST.md`
+
+
 GitHub Actions now builds **Windows x64 only**.
 
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.5
-git push origin v0.7.0-alpha.5
+git tag v0.7.0-alpha.9
+git push origin v0.7.0-alpha.9
 ```
 
 The release workflow produces:
@@ -179,3 +194,13 @@ See `PRIVACY.md` and `SECURITY.md`.
 ## License
 
 A license is intentionally not selected yet. Choose the repository license before accepting outside contributions.
+
+## One-command Windows release build
+
+After installing .NET 10, Python, and Inno Setup, a maintainer can refresh the OBS catalog, publish the self-contained app, and build Setup.exe with:
+
+```powershell
+.\scripts\build-windows-release.ps1 -Version 0.7.0-alpha.9
+```
+
+Use `-SkipCatalogRefresh` only for offline development builds. Public release builds should refresh the official OBS resource catalog.

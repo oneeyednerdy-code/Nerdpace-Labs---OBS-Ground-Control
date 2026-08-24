@@ -39,7 +39,7 @@ dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release
 Then compile the setup package:
 
 ```powershell
-& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.7.0-alpha.5" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.7.0-alpha.9" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
 ```
 
 The resulting installer is placed in `dist/`.

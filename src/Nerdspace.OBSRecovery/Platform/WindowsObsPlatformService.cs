@@ -127,6 +127,13 @@ public sealed class WindowsObsPlatformService : IObsPlatformService
         {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "obs-studio", "plugins")
         };
+
+        var customPluginPath = Environment.GetEnvironmentVariable("OBS_PLUGINS_PATH");
+        if (!string.IsNullOrWhiteSpace(customPluginPath))
+        {
+            foreach (var path in customPluginPath.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                list.Add(path);
+        }
         var install = FindObsInstall();
         if (install is not null)
         {

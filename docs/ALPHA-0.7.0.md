@@ -1,4 +1,4 @@
-# v0.7.0-alpha.5 Alpha Patch Notes
+# v0.7.0-alpha.9 Alpha Patch Notes
 
 ## Focus: verified OBS plugin updates
 

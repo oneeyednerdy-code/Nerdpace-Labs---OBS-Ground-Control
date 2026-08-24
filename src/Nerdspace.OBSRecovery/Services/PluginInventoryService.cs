@@ -12,33 +12,66 @@ public sealed class PluginInventoryService
     private readonly UpdateService _updates;
     private readonly UpdateDeferralService _deferrals;
 
-    private static readonly PluginCatalogEntry[] Catalog =
+    private readonly PluginRegistryService _registry;
+
+
+    // OBS modules that ship with the Windows application. These are filtered only
+    // from OBS's legacy mixed plugin directory. ProgramData remains user-installed.
+    private static readonly HashSet<string> BundledWindowsModules = new(StringComparer.OrdinalIgnoreCase)
     {
-        new("aitum-multistream", "Aitum Multistream", "Aitum/obs-aitum-multistream", new[] { "aitum-multistream", "multistream" }),
-        new("aitum-vertical", "Aitum Vertical", "Aitum/obs-vertical-canvas", new[] { "vertical-canvas", "aitum-vertical", "vertical" }),
-        new("source-record", "Source Record", "exeldro/obs-source-record", new[] { "source-record", "sourcerecord" })
+        "aja",
+        "aja-output-ui",
+        "coreaudio-encoder",
+        "decklink",
+        "decklink-captions",
+        "decklink-output-ui",
+        "frontend-tools",
+        "image-source",
+        "nv-filters",
+        "obs-browser",
+        "obs-ffmpeg",
+        "obs-filters",
+        "obs-libfdk",
+        "obs-nvenc",
+        "obs-outputs",
+        "obs-qsv11",
+        "obs-text",
+        "obs-transitions",
+        "obs-vst",
+        "obs-webrtc",
+        "obs-websocket",
+        "obs-x264",
+        "rtmp-services",
+        "text-freetype2",
+        "vlc-video",
+        "win-capture",
+        "win-dshow",
+        "win-wasapi"
     };
 
-    public PluginInventoryService(IObsPlatformService platform, LoggingService logger, UpdateService updates, UpdateDeferralService deferrals)
+    public PluginInventoryService(IObsPlatformService platform, LoggingService logger, UpdateService updates, UpdateDeferralService deferrals, PluginRegistryService registry)
     {
         _platform = platform;
         _logger = logger;
         _updates = updates;
         _deferrals = deferrals;
+        _registry = registry;
     }
 
     public async Task<IReadOnlyList<PluginInfo>> ScanAsync(bool checkUpdates, CancellationToken cancellationToken = default)
     {
         var plugins = new List<PluginInfo>();
+        var bundledRoot = GetBundledPluginRoot();
         foreach (var root in _platform.GetPluginDirectories().Where(Directory.Exists))
         {
-            try { ScanWindows(root, plugins); }
+            try { ScanWindows(root, plugins, PathsEqual(root, bundledRoot)); }
             catch (Exception ex) { _logger.Warn($"Plugin directory scan failed for {root}: {ex.Message}"); }
         }
 
         var deduped = plugins
             .GroupBy(p => p.Path, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
+            .Select(ApplyRegistryMetadata)
             .OrderBy(p => p.Name)
             .Select(p => p with { CompatibilityStatus = GetCompatibility(p.Name) })
             .ToList();
@@ -48,24 +81,45 @@ public sealed class PluginInventoryService
         var enriched = new List<PluginInfo>();
         foreach (var plugin in deduped)
         {
-            var catalog = MatchCatalog(plugin.Name, plugin.Path);
+            var catalog = _registry.Match(plugin.Name, plugin.Path);
             if (catalog is null)
             {
-                enriched.Add(plugin with { UpdateStatus = "Update source not verified", Repository = null, LatestVersion = null, ReleaseUrl = null });
+                enriched.Add(plugin with { UpdateStatus = "Update source not verified", Repository = null, ObsResourceUrl = null, LatestVersion = null, ReleaseUrl = null });
                 continue;
             }
 
-            if (!releaseCache.TryGetValue(catalog.Repository, out var release))
+            if (!catalog.HasVerifiedSource)
             {
-                release = await _updates.GetLatestGitHubReleaseAsync(catalog.Repository, cancellationToken);
-                releaseCache[catalog.Repository] = release;
+                enriched.Add(plugin with
+                {
+                    Id = catalog.Id, Name = catalog.DisplayName, Repository = null, ObsResourceUrl = catalog.ObsResourceUrl,
+                    LatestVersion = catalog.ResourceVersion, ReleaseUrl = null, UpdateStatus = "Source URL not published on OBS resource page"
+                });
+                continue;
+            }
+
+            if (!catalog.HasGitHubRepository)
+            {
+                enriched.Add(plugin with
+                {
+                    Id = catalog.Id, Name = catalog.DisplayName, Repository = null, ObsResourceUrl = catalog.ObsResourceUrl,
+                    LatestVersion = catalog.ResourceVersion, ReleaseUrl = catalog.SourceUrl, UpdateStatus = "Verified source • manual update check"
+                });
+                continue;
+            }
+
+            var repository = catalog.Repository!;
+            if (!releaseCache.TryGetValue(repository, out var release))
+            {
+                release = await _updates.GetLatestGitHubReleaseAsync(repository, cancellationToken);
+                releaseCache[repository] = release;
             }
 
             if (release is null)
             {
                 enriched.Add(plugin with
                 {
-                    Id = catalog.Id, Name = catalog.DisplayName, Repository = catalog.Repository,
+                    Id = catalog.Id, Name = catalog.DisplayName, Repository = catalog.Repository, ObsResourceUrl = catalog.ObsResourceUrl,
                     LatestVersion = "Unavailable", ReleaseUrl = null, UpdateStatus = "Latest version unavailable"
                 });
                 continue;
@@ -78,6 +132,7 @@ public sealed class PluginInventoryService
                 Id = catalog.Id,
                 Name = catalog.DisplayName,
                 Repository = catalog.Repository,
+                ObsResourceUrl = catalog.ObsResourceUrl,
                 LatestVersion = release.Version,
                 ReleaseUrl = release.ReleaseUrl,
                 UpdateStatus = finalStatus,
@@ -89,11 +144,12 @@ public sealed class PluginInventoryService
 
     public static string DeferralKey(string pluginId) => $"plugin:{pluginId}";
 
-    private static void ScanWindows(string root, ICollection<PluginInfo> result)
+    private static void ScanWindows(string root, ICollection<PluginInfo> result, bool filterBundledModules)
     {
         var programDataStyle = Directory.GetDirectories(root).Any(d => Directory.Exists(Path.Combine(d, "bin")));
         if (programDataStyle)
         {
+            // OBS's recommended ProgramData structure is for externally installed plugins.
             foreach (var dir in Directory.GetDirectories(root))
             {
                 var dll = Directory.EnumerateFiles(dir, "*.dll", SearchOption.AllDirectories).FirstOrDefault();
@@ -104,7 +160,13 @@ public sealed class PluginInventoryService
         else
         {
             foreach (var dll in Directory.EnumerateFiles(root, "*.dll", SearchOption.TopDirectoryOnly))
-                result.Add(BuildPlugin(Path.GetFileNameWithoutExtension(dll), dll, dll, root, false));
+            {
+                var moduleName = Path.GetFileNameWithoutExtension(dll);
+                if (filterBundledModules && IsBundledObsModule(moduleName))
+                    continue;
+
+                result.Add(BuildPlugin(moduleName, dll, dll, root, false));
+            }
         }
     }
 
@@ -117,13 +179,20 @@ public sealed class PluginInventoryService
             version = info.ProductVersion?.Split(' ')[0] ?? info.FileVersion ?? "Unknown";
         }
         catch { }
-        return new PluginInfo(NormalizeId(name), PrettyName(name), version, movablePath, location, canQuarantine, null, null, null, "Not checked", "Not verified");
+        return new PluginInfo(NormalizeId(name), PrettyName(name), version, movablePath, location, canQuarantine, null, null, null, null, "Not checked", "Not verified");
     }
 
-    private static PluginCatalogEntry? MatchCatalog(string name, string path)
+    private PluginInfo ApplyRegistryMetadata(PluginInfo plugin)
     {
-        var haystack = $"{name} {path}".ToLowerInvariant();
-        return Catalog.FirstOrDefault(c => c.MatchTokens.Any(t => haystack.Contains(t, StringComparison.OrdinalIgnoreCase)));
+        var catalog = _registry.Match(plugin.Name, plugin.Path);
+        if (catalog is null) return plugin;
+        return plugin with
+        {
+            Id = catalog.Id,
+            Name = catalog.DisplayName,
+            Repository = catalog.Repository,
+            ObsResourceUrl = catalog.ObsResourceUrl
+        };
     }
 
     private string GetCompatibility(string pluginName)
@@ -147,6 +216,36 @@ public sealed class PluginInventoryService
         }
         catch { return "Not verified"; }
     }
+
+    private string? GetBundledPluginRoot()
+    {
+        try
+        {
+            var install = _platform.FindObsInstall();
+            if (string.IsNullOrWhiteSpace(install)) return null;
+            var bin64 = Path.GetDirectoryName(install);
+            var bin = bin64 is null ? null : Directory.GetParent(bin64)?.FullName;
+            var obsRoot = bin is null ? null : Directory.GetParent(bin)?.FullName;
+            return obsRoot is null ? null : Path.Combine(obsRoot, "obs-plugins", "64bit");
+        }
+        catch { return null; }
+    }
+
+    private static bool PathsEqual(string left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(right)) return false;
+        try
+        {
+            return string.Equals(
+                Path.TrimEndingDirectorySeparator(Path.GetFullPath(left)),
+                Path.TrimEndingDirectorySeparator(Path.GetFullPath(right)),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch { return false; }
+    }
+
+    private static bool IsBundledObsModule(string moduleName)
+        => BundledWindowsModules.Contains(moduleName);
 
     private static bool CanMove(string path)
     {

@@ -303,42 +303,119 @@
       </TabItem>
 
       <TabItem Header="PLUGINS">
-        <ScrollViewer>
-          <StackPanel Margin="0,18,0,8" Spacing="14">
-            <Grid ColumnDefinitions="*,Auto,Auto">
-              <StackPanel>
-                <TextBlock Text="PLUGIN CONTROL" Classes="eyebrow"/>
-                <TextBlock Text="Inventory, update evidence &amp; reversible quarantine" FontSize="24" FontWeight="Bold"/>
-              </StackPanel>
-              <Button Grid.Column="1" x:Name="ScanPluginsButton" Margin="8,0" Content="Scan Local" ToolTip.Tip="Inventory installed OBS plugin files without going online."/>
-              <Button Grid.Column="2" x:Name="CheckPluginUpdatesButton" Classes="primary" Content="Check Updates" ToolTip.Tip="Check registered trusted plugin release sources for newer versions where Ground Control has enough evidence."/>
-            </Grid>
-            <TextBlock x:Name="PluginProgressText" Text="No plugin scan running." Classes="muted"/>
-            <ProgressBar x:Name="PluginProgress" IsIndeterminate="True" IsVisible="False"/>
-            <ListBox x:Name="PluginList" MinHeight="240"/>
-            <Border Classes="card">
-              <StackPanel Spacing="10">
-                <TextBlock Text="SELECTED PLUGIN" FontWeight="Bold"/>
-                <ComboBox x:Name="PluginSelect" ToolTip.Tip="Choose an installed plugin to review details and available maintenance actions."/>
-                <TextBlock x:Name="PluginDetailText" Classes="muted" TextWrapping="Wrap"/>
-                <WrapPanel ItemSpacing="10" LineSpacing="10">
-                  <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Update Plugin" ToolTip.Tip="Open the exact verified latest release page for this plugin. Ground Control does not install plugin updates automatically."/>
-                  <Button x:Name="SnoozePluginButton" Content="Remind in 1 Week" ToolTip.Tip="Hide this exact plugin update until one week from now. A newer version will still be detected."/>
-                  <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin version. Ground Control will alert again when a newer release appears."/>
-                  <Button x:Name="ClearPluginDeferralButton" Content="Clear Reminder" ToolTip.Tip="Remove the reminder or skip state for the selected plugin update."/>
-                  <Button x:Name="QuarantineButton" Classes="danger" Content="Quarantine Plugin" ToolTip.Tip="Move a safely identifiable complete plugin bundle out of OBS and store a restore manifest. OBS must be closed."/>
-                </WrapPanel>
-              </StackPanel>
-            </Border>
-            <Border Classes="card">
-              <StackPanel Spacing="10">
-                <TextBlock Text="QUARANTINE" FontWeight="Bold"/>
-                <ComboBox x:Name="QuarantineSelect"/>
-                <Button x:Name="RestorePluginButton" Content="Restore Selected Plugin" HorizontalAlignment="Left" ToolTip.Tip="Restore a previously quarantined plugin to its original path."/>
-              </StackPanel>
-            </Border>
+        <StackPanel Margin="0,18,0,8" Spacing="12">
+          <StackPanel>
+            <TextBlock Text="PLUGIN CONTROL" Classes="eyebrow"/>
+            <TextBlock Text="Installed, updates, discovery &amp; reversible quarantine" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="Ground Control separates what is installed on this PC from plugins you can discover online." Classes="muted" TextWrapping="Wrap"/>
           </StackPanel>
-        </ScrollViewer>
+
+          <TabControl x:Name="PluginTabs">
+            <TabItem Header="INSTALLED">
+              <ScrollViewer>
+                <StackPanel Margin="0,14,0,8" Spacing="14">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel>
+                      <TextBlock Text="THIRD-PARTY PLUGINS ON THIS PC" FontWeight="Bold"/>
+                      <TextBlock Text="Bundled OBS modules are hidden from this inventory." Classes="muted"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" x:Name="ScanPluginsButton" Content="Scan Installed" ToolTip.Tip="Inventory third-party OBS plugins without going online. Bundled OBS modules are hidden."/>
+                  </Grid>
+                  <TextBlock x:Name="PluginProgressText" Text="No plugin scan running." Classes="muted"/>
+                  <ProgressBar x:Name="PluginProgress" IsIndeterminate="True" IsVisible="False"/>
+                  <ListBox x:Name="PluginList" MinHeight="220"/>
+                  <Border Classes="card">
+                    <StackPanel Spacing="10">
+                      <TextBlock Text="SELECTED INSTALLED PLUGIN" FontWeight="Bold"/>
+                      <ComboBox x:Name="PluginSelect" ToolTip.Tip="Choose an installed third-party plugin to review its detected version, trusted source status, and maintenance actions."/>
+                      <TextBlock x:Name="PluginDetailText" Classes="muted" TextWrapping="Wrap"/>
+                      <WrapPanel ItemSpacing="10" LineSpacing="10">
+                        <Button x:Name="OpenPluginObsResourceButton" Content="Official OBS Page" ToolTip.Tip="Open the plugin's verified OBS Resource page when Ground Control has one registered."/>
+                        <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Latest Release" ToolTip.Tip="Open the exact verified latest GitHub release when one has been checked. Ground Control never installs plugin updates automatically."/>
+                        <Button x:Name="QuarantineButton" Classes="danger" Content="Quarantine Plugin" ToolTip.Tip="Move a safely identifiable complete plugin bundle out of OBS and store a restore manifest. OBS must be closed."/>
+                      </WrapPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Classes="card">
+                    <StackPanel Spacing="10">
+                      <TextBlock Text="QUARANTINE" FontWeight="Bold"/>
+                      <ComboBox x:Name="QuarantineSelect"/>
+                      <Button x:Name="RestorePluginButton" Content="Restore Selected Plugin" HorizontalAlignment="Left" ToolTip.Tip="Restore a previously quarantined plugin to its original path."/>
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="UPDATES">
+              <ScrollViewer>
+                <StackPanel Margin="0,14,0,8" Spacing="14">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel>
+                      <TextBlock Text="VERIFIED PLUGIN UPDATES" FontWeight="Bold"/>
+                      <TextBlock Text="Compare installed versions against trusted official release sources." Classes="muted"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" x:Name="CheckPluginUpdatesButton" Classes="primary" Content="Check Updates" ToolTip.Tip="Check trusted GitHub release sources for installed registered plugins. Unverified plugins remain neutral rather than being guessed."/>
+                  </Grid>
+                  <TextBlock x:Name="PluginUpdateProgressText" Text="No update check running." Classes="muted" TextWrapping="Wrap"/>
+                  <ProgressBar x:Name="PluginUpdateProgress" IsIndeterminate="True" IsVisible="False"/>
+                  <TextBlock x:Name="PluginUpdateSummaryText" Text="Run Check Updates to compare installed plugins with verified releases." Classes="muted" TextWrapping="Wrap"/>
+                  <ListBox x:Name="PluginUpdateList" MinHeight="220"/>
+                  <Border Classes="card">
+                    <StackPanel Spacing="10">
+                      <TextBlock Text="SELECTED UPDATE" FontWeight="Bold"/>
+                      <ComboBox x:Name="PluginUpdateSelect" ToolTip.Tip="Choose a registered installed plugin to review its installed and latest verified versions."/>
+                      <TextBlock x:Name="PluginUpdateDetailText" Classes="muted" TextWrapping="Wrap"/>
+                      <WrapPanel ItemSpacing="10" LineSpacing="10">
+                        <Button x:Name="OpenPluginUpdateButton" Classes="primary" Content="Open Update" ToolTip.Tip="Open the exact verified latest release page. Ground Control does not download or install the plugin itself."/>
+                        <Button x:Name="SnoozePluginButton" Content="Remind in 1 Week" ToolTip.Tip="Defer this exact plugin update for one week. A newer version will still be detected."/>
+                        <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin release. Ground Control will alert again when a newer version appears."/>
+                        <Button x:Name="ClearPluginDeferralButton" Content="Clear Reminder" ToolTip.Tip="Remove the reminder or skip state for the selected plugin update."/>
+                      </WrapPanel>
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="DISCOVER">
+              <ScrollViewer>
+                <StackPanel Margin="0,14,0,8" Spacing="14">
+                  <Grid ColumnDefinitions="*,Auto,Auto">
+                    <StackPanel>
+                      <TextBlock Text="DISCOVER OBS PLUGINS" FontWeight="Bold"/>
+                      <TextBlock Text="Search Ground Control's preloaded official OBS resource catalog. Source links are marked verified only when the OBS resource page publishes them." Classes="muted" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" x:Name="DiscoverCheckVersionsButton" Margin="8,0" Content="Refresh Versions" ToolTip.Tip="Check latest releases only for catalog entries whose OBS resource page publishes a GitHub source repository. This uses the internet but does not download plugin files."/>
+                    <Button Grid.Column="2" x:Name="BrowseOfficialPluginsButton" Classes="primary" Content="Browse Official OBS Plugins" ToolTip.Tip="Open the live official OBS Studio Plugins directory in your browser. Ground Control also ships a release-time snapshot of this catalog."/>
+                  </Grid>
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <TextBox x:Name="DiscoverPluginSearchBox" Watermark="Search by plugin, author, feature, or repository…" ToolTip.Tip="Search the preloaded official OBS plugin resource catalog. Leave blank to show all Windows-compatible or platform-unspecified entries."/>
+                    <Button Grid.Column="1" x:Name="DiscoverPluginSearchButton" Content="Search"/>
+                  </Grid>
+                  <TextBlock x:Name="DiscoverCatalogSummaryText" Text="Loading preloaded OBS plugin catalog…" Classes="muted" TextWrapping="Wrap"/>
+                  <TextBlock x:Name="DiscoverPluginProgressText" Text="Discovery catalog ready." Classes="muted"/>
+                  <ProgressBar x:Name="DiscoverPluginProgress" IsIndeterminate="True" IsVisible="False"/>
+                  <ListBox x:Name="DiscoverPluginList" MinHeight="230"/>
+                  <Border Classes="card">
+                    <StackPanel Spacing="10">
+                      <TextBlock Text="PLUGIN DETAILS" FontWeight="Bold"/>
+                      <ComboBox x:Name="DiscoverPluginSelect" ToolTip.Tip="Choose a discovered plugin to see its official OBS resource page, source verification state, supported platforms, and local installation status."/>
+                      <TextBlock x:Name="DiscoverPluginDetailText" Classes="muted" TextWrapping="Wrap"/>
+                      <WrapPanel ItemSpacing="10" LineSpacing="10">
+                        <Button x:Name="OpenDiscoverObsPageButton" Classes="primary" Content="Official OBS Page" ToolTip.Tip="Open this plugin's verified page in the official OBS resource directory."/>
+                        <Button x:Name="OpenDiscoverRepositoryButton" Content="Source / Releases" ToolTip.Tip="Open the source URL published by the official OBS resource page, or the exact GitHub release when version information has been refreshed. Disabled when no source URL is published."/>
+                      </WrapPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Classes="card">
+                    <TextBlock Text="Discovery is read-only in this alpha. Ground Control does not automatically download or install third-party plugins. This keeps plugin installation under the streamer's control." Classes="muted" TextWrapping="Wrap"/>
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+            </TabItem>
+          </TabControl>
+        </StackPanel>
       </TabItem>
 
       <TabItem Header="BACKUPS">
