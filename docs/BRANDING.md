@@ -1,6 +1,6 @@
 # NerdSpace Labs - Streamer Mission Control Branding
 
-Version: `0.8.0-alpha.6`
+Version: `0.8.0-alpha.7`
 
 Streamer Mission Control uses the shared NerdSpace Labs visual system used across the Labs application family.
 

@@ -1,6 +1,7 @@
 param(
     [string]$KeyDirectory = "$env:USERPROFILE\.nerdspace-streamer-mission-control\update-keys",
-    [switch]$ConfigureGitHub
+    [switch]$ConfigureGitHub,
+    [string]$Repository = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,7 +23,6 @@ if (-not $tool) {
         throw "Could not install NetSparkleUpdater.Tools.AppCastGenerator 2.9.0 from NuGet. This is a tool-package install failure, not proof that your .NET runtime is missing."
     }
 
-    # Refresh PATH lookup after dotnet installs the global tool.
     $dotnetTools = Join-Path $env:USERPROFILE ".dotnet\tools"
     if ($env:PATH -notlike "*$dotnetTools*") {
         $env:PATH = "$env:PATH;$dotnetTools"
@@ -39,31 +39,67 @@ New-Item -ItemType Directory -Force -Path $KeyDirectory | Out-Null
 $publicPath = Join-Path $KeyDirectory "NetSparkle_Ed25519.pub"
 $privatePath = Join-Path $KeyDirectory "NetSparkle_Ed25519.priv"
 
-if ((Test-Path $publicPath) -or (Test-Path $privatePath)) {
-    throw "A key already exists in $KeyDirectory. Mission Control will not overwrite updater signing keys."
+$hasPublic = Test-Path $publicPath
+$hasPrivate = Test-Path $privatePath
+
+if ($hasPublic -xor $hasPrivate) {
+    throw "Only one updater signing key exists in $KeyDirectory. Mission Control will not overwrite or regenerate an incomplete key pair. Restore the matching key from backup before continuing."
 }
 
-netsparkle-generate-appcast --generate-keys --key-path $KeyDirectory
+if ($hasPublic -and $hasPrivate) {
+    Write-Host "Existing Mission Control updater signing key pair found."
+    Write-Host "Reusing existing keys. They will NOT be regenerated."
+}
+else {
+    Write-Host "No updater signing keys found. Generating a new Ed25519 key pair..."
+    netsparkle-generate-appcast --generate-keys --key-path $KeyDirectory
+    if ($LASTEXITCODE -ne 0) {
+        throw "NetSparkle could not generate the updater signing key pair."
+    }
+    Write-Host "New updater signing key pair generated."
+}
 
 $public = (Get-Content $publicPath -Raw).Trim()
 $private = (Get-Content $privatePath -Raw).Trim()
 
+if ([string]::IsNullOrWhiteSpace($public) -or [string]::IsNullOrWhiteSpace($private)) {
+    throw "The updater signing key pair exists but one or both files are empty."
+}
+
 Write-Host ""
-Write-Host "Keys generated."
+Write-Host "Updater signing key pair is ready."
 Write-Host "PUBLIC KEY (safe to store as a GitHub Actions variable):"
 Write-Host $public
 Write-Host ""
-Write-Host "PRIVATE KEY saved locally at:"
+Write-Host "PRIVATE KEY remains at:"
 Write-Host $privatePath
 Write-Host "Never commit or share the private key."
 
 if ($ConfigureGitHub) {
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-        throw "GitHub CLI (gh) is required for -ConfigureGitHub."
+        throw "GitHub CLI (gh) is required for -ConfigureGitHub. You can also add NETSPARKLE_PUBLIC_KEY and NETSPARKLE_PRIVATE_KEY manually in GitHub Settings > Secrets and variables > Actions."
     }
 
-    gh variable set NETSPARKLE_PUBLIC_KEY --body $public
-    gh secret set NETSPARKLE_PRIVATE_KEY --body $private
+    $repoArgs = @()
+    if (-not [string]::IsNullOrWhiteSpace($Repository)) {
+        $repoArgs = @("--repo", $Repository)
+    }
+
+    Write-Host ""
+    Write-Host "Configuring GitHub Actions signing values..."
+
+    & gh variable set NETSPARKLE_PUBLIC_KEY @repoArgs --body $public
+    if ($LASTEXITCODE -ne 0) {
+        throw "GitHub CLI could not set NETSPARKLE_PUBLIC_KEY. Confirm that the authenticated GitHub account has repository ADMIN/write access to Actions variables, or add it manually in GitHub Settings."
+    }
+
+    # Pipe the private key through stdin instead of placing it directly in the
+    # visible command line.
+    $private | & gh secret set NETSPARKLE_PRIVATE_KEY @repoArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "GitHub CLI could not set NETSPARKLE_PRIVATE_KEY. Confirm repository permissions, or add it manually in GitHub Settings."
+    }
+
     Write-Host ""
     Write-Host "Configured GitHub Actions variable NETSPARKLE_PUBLIC_KEY and secret NETSPARKLE_PRIVATE_KEY."
 }
