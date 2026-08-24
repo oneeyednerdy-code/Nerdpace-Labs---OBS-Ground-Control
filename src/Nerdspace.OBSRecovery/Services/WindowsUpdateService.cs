@@ -24,7 +24,7 @@ public sealed class WindowsUpdateService
         {
             var type = Type.GetTypeFromProgID("Microsoft.Update.Session") ?? throw new InvalidOperationException("Windows Update Agent is unavailable.");
             dynamic session = Activator.CreateInstance(type)!;
-            session.ClientApplicationID = "Nerdspace Labs OBS Ground Control";
+            session.ClientApplicationID = "NerdSpace Labs - Streamer Mission Control";
             dynamic searcher = session.CreateUpdateSearcher();
             searcher.Online = true;
 
@@ -52,7 +52,7 @@ public sealed class WindowsUpdateService
 
             return new WindowsUpdateSnapshot(true, items, reboot,
                 items.Count == 0 ? "Windows main updates look current" : "Main Windows updates available",
-                "Ground Control checks non-optional software updates and filters out drivers, preview releases, optional/browse-only updates, and routine Defender definition updates. Installation stays in Windows Update.");
+                "Mission Control checks non-optional software updates and filters out drivers, preview releases, optional/browse-only updates, and routine Defender definition updates. Installation stays in Windows Update.");
         }
         catch (Exception ex)
         {

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report an OBS Ground Control problem on Windows
+description: Report an Streamer Mission Control problem on Windows
 title: "[Bug] "
 labels: ["bug"]
 body:
@@ -16,8 +16,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: OBS Ground Control version
-      placeholder: v0.7.0-alpha.11
+      label: Streamer Mission Control version
+      placeholder: v0.8.0-alpha.1
     validations:
       required: true
 

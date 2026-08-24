@@ -1,6 +1,6 @@
 # Windows installer
 
-OBS Ground Control ships with two Windows x64 release options:
+Streamer Mission Control ships with two Windows x64 release options:
 
 - **Setup EXE** — recommended for most alpha testers.
 - **Portable ZIP** — useful for testing without installation.
@@ -9,17 +9,17 @@ OBS Ground Control ships with two Windows x64 release options:
 
 The installer is built with Inno Setup and installs per-user by default:
 
-`%LOCALAPPDATA%\Programs\Nerdspace Labs\OBS Ground Control`
+`%LOCALAPPDATA%\Programs\NerdSpace Labs\Streamer Mission Control`
 
-This design avoids requiring Administrator permission simply to install Ground Control. The application may still request UAC later when a specific OBS recovery operation needs elevated process permissions.
+This design avoids requiring Administrator permission simply to install Mission Control. The application may still request UAC later when a specific OBS recovery operation needs elevated process permissions.
 
 The installer:
 
-- creates a Start Menu shortcut under **Nerdspace Labs**;
+- creates a Start Menu shortcut under **NerdSpace Labs**;
 - optionally creates a Desktop shortcut;
 - registers a normal Windows uninstall entry;
 - closes the app before replacing files during an upgrade when Windows permits it;
-- preserves Ground Control settings/logs stored outside the installation directory;
+- preserves Mission Control settings/logs stored outside the installation directory;
 - does not install services, kernel drivers, browser extensions, or scheduled tasks.
 
 ## Build locally
@@ -39,7 +39,7 @@ dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release
 Then compile the setup package:
 
 ```powershell
-& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.7.0-alpha.11" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=0.8.0-alpha.1" "/DPublishDir=$((Resolve-Path 'publish/win-x64').Path)" installer\GroundControl.iss
 ```
 
 The resulting installer is placed in `dist/`.
@@ -50,9 +50,9 @@ The alpha installer is structurally ready for Authenticode signing, but code sig
 
 ## .NET runtime packaging
 
-Ground Control is published as a **self-contained Windows x64 application**. The generated installer includes the runtime and application dependencies emitted by `dotnet publish`.
+Mission Control is published as a **self-contained Windows x64 application**. The generated installer includes the runtime and application dependencies emitted by `dotnet publish`.
 
-Users do **not** need to install the .NET Desktop Runtime before running Ground Control, and setup does not download a runtime from the internet. This intentionally makes the installer larger, but it gives alpha testers a predictable install on a clean supported Windows machine.
+Users do **not** need to install the .NET Desktop Runtime before running Mission Control, and setup does not download a runtime from the internet. This intentionally makes the installer larger, but it gives alpha testers a predictable install on a clean supported Windows machine.
 
 The release pipeline explicitly publishes with:
 

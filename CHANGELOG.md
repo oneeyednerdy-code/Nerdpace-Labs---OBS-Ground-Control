@@ -1,6 +1,18 @@
 # Changelog
 
-## 0.7.0-alpha.11 - Creator Bot Update Checks
+## 0.8.0-alpha.1 - Streamer Mission Control Rebrand
+
+- Rebranded the public product to **NerdSpace Labs - Streamer Mission Control**.
+- Matched the shared NerdSpace Labs black/violet design system.
+- Replaced decorative orange with NerdSpace violet while preserving red/amber/green for status semantics.
+- Added a flat Sputnik-inspired Windows desktop/taskbar/tray icon.
+- Simplified the splash screen to the product text, desktop icon, and loading state.
+- Updated installer names, shortcuts, tray labels, About UI, metadata, README, scripts, and GitHub release artifacts.
+- Preserved the existing Inno Setup AppId for upgrade continuity.
+- Added migration from the legacy `Nerdspace Labs\OBS Ground Control` local settings/backups directory.
+- Renamed the published executable to `NerdSpace.StreamerMissionControl.exe`.
+
+## 0.8.0-alpha.1 - Creator Bot Update Checks
 
 - Added installed-version detection and stable update checks for **Mix It Up**, **Streamer.bot**, and **Firebot**.
 - Mix It Up uses the official `MixItUpBot/Desktop` GitHub Releases feed.
@@ -10,17 +22,17 @@
 - Added optional executable-path overrides for all three tools in Settings.
 - Added all three creator bots to **Check Everything**.
 - Added `Current`, `Update available`, `Newer than catalog`, `Version unknown`, and `Not detected automatically` states.
-- Ground Control opens official release/download destinations only; it never silently installs or overwrites creator tools.
+- Mission Control opens official release/download destinations only; it never silently installs or overwrites creator tools.
 - Improved loose version comparison so equivalent versions such as `1.0.4` and `1.0.4.0` compare correctly.
 
 ## 0.7.0-alpha.10 - Window & Launch UX
 
-- Closing the main window with **X** now fully shuts down Ground Control instead of hiding it to the tray.
+- Closing the main window with **X** now fully shuts down Mission Control instead of hiding it to the tray.
 - Added an explicit **Exit** button with full-shutdown behavior.
 - Added a branded animated startup screen with an indeterminate loading animation.
 - Reduced the default window size for 14-inch/smaller laptops.
 - Reduced minimum window dimensions to `760 × 540` and kept tab contents scrollable.
-- Ground Control now remembers the last normal window size.
+- Mission Control now remembers the last normal window size.
 - Tightened general button/tab spacing for smaller displays.
 - Added Settings copy explaining the difference between Close/Exit and Minimize.
 
@@ -35,7 +47,7 @@
 ## 0.7.0-alpha.8 - Full OBS Resource Catalog
 
 - Added a build-time catalog generator for the official OBS Studio Plugins resource directory.
-- Release builds enumerate the OBS plugin resource catalog and embed the resulting JSON into Ground Control.
+- Release builds enumerate the OBS plugin resource catalog and embed the resulting JSON into Mission Control.
 - Every catalog entry carries its official OBS resource URL.
 - Source repositories are marked verified only when the OBS resource page publishes the source URL.
 - GitHub release/version checks run only for OBS-page-verified GitHub repositories.
@@ -52,7 +64,7 @@
 - Added local plugin discovery search by plugin name, author, feature description, or repository.
 - Added optional latest-version refresh from each plugin's verified GitHub Releases source.
 - Added a direct **Browse Official OBS Plugins** action for the full OBS resource directory.
-- Discovery remains read-only: Ground Control does not automatically download or install third-party plugins.
+- Discovery remains read-only: Mission Control does not automatically download or install third-party plugins.
 - Installed plugin inventory continues to hide OBS bundled modules.
 
 ## 0.7.0-alpha.6 - Third-Party Plugin Isolation
@@ -77,7 +89,7 @@
 - Updated GitHub Actions to install the .NET 10 SDK (`10.0.x`).
 - Kept Windows publishing self-contained and single-file so end users do not need the .NET 10 SDK or Desktop Runtime installed.
 - Installer remains offline-capable and packages the runtime files produced by `dotnet publish`.
-- The full developer SDK is intentionally not bundled into the installer because it is only needed to build Ground Control, not run it.
+- The full developer SDK is intentionally not bundled into the installer because it is only needed to build Mission Control, not run it.
 
 ## 0.7.0-alpha.3 - Self-Contained Windows Runtime
 
@@ -113,7 +125,7 @@
 - Plugins without a trusted update source now explicitly show **Update source not verified** instead of implying they are current.
 - Plugins with an unknown installed version never get a fabricated update result.
 - Deferred/skipped plugin updates are neutral in Pre-Flight until the reminder expires or a newer version appears.
-- Plugin update actions open the exact verified latest release when available; Ground Control still does not auto-install plugin updates.
+- Plugin update actions open the exact verified latest release when available; Mission Control still does not auto-install plugin updates.
 - Footer/build metadata now identifies this alpha as **v0.7.0-alpha.1**.
 
 ## 0.6.0 - Windows-first development
@@ -125,7 +137,7 @@
 - Improved Elgato hardware detection to enumerate currently present Windows devices through SetupAPI instead of relying on historical USB registry entries.
 - Retained `IObsPlatformService` as a future porting seam.
 - Added a future-platform roadmap instead of shipping partially supported ports.
-- Kept all v0.5.0 Ground Control features: Recovery Protection, Pre-Flight, Bandwidth Advisor, Updates, Plugins, Backups, Diagnostics, Elgato Hardware & Software, and SteelSeries Sonar.
+- Kept all v0.5.0 Mission Control features: Recovery Protection, Pre-Flight, Bandwidth Advisor, Updates, Plugins, Backups, Diagnostics, Elgato Hardware & Software, and SteelSeries Sonar.
 
 ## 0.5.0 - Creator Hardware & Audio Health
 
@@ -142,10 +154,10 @@
 - Installing Wave Link/Stream Deck no longer implies an Elgato device is connected.
 - No Elgato or SteelSeries product detected remains a neutral informational state and never blocks Pre-Flight.
 - Update Center is reorganized into OBS, NVIDIA, AMD, Elgato Hardware & Software, SteelSeries Sonar, and Windows Update cards.
-- Footer remains dynamic: **Nerdspace Labs by OneEyedNerdy • v0.5.0**.
+- Footer remains dynamic: **NerdSpace Labs by OneEyedNerdy • v0.5.0**.
 
 ### Safety / privacy
-- Hardware inventory records only friendly/model-level device descriptions used for local status; Ground Control does not include USB serial numbers in sanitized support reports.
+- Hardware inventory records only friendly/model-level device descriptions used for local status; Mission Control does not include USB serial numbers in sanitized support reports.
 - Vendor software and firmware installation remains manual through official vendor tools/pages.
 
 ## 0.4.0 - Pre-Flight UX + Bandwidth Advisor
@@ -176,15 +188,15 @@
 - Update controls moved out of Dashboard into Update Center.
 - Destructive Force Close is visually isolated from routine OBS controls.
 - Orange is reserved primarily for brand/primary-action emphasis instead of decorating every card equally.
-- Footer remains dynamic: **Nerdspace Labs by OneEyedNerdy • v0.4.0**.
+- Footer remains dynamic: **NerdSpace Labs by OneEyedNerdy • v0.4.0**.
 
 ### Privacy / safety
 - Bandwidth testing uploads generated bytes only; no user files are read or uploaded by the test.
 - Bandwidth scans are explicit and disclose approximate data use (~25 MB upload).
 - Skipping update checks does not disable local readiness checks.
-- Ground Control still does not automatically install OBS, GPU drivers, Elgato software/firmware, or Windows updates.
+- Mission Control still does not automatically install OBS, GPU drivers, Elgato software/firmware, or Windows updates.
 
-## 0.3.0 - Ground Control expansion
+## 0.3.0 - Mission Control expansion
 
 ### Added
 - Full Pre-Flight dashboard.
@@ -199,4 +211,4 @@
 - macOS Apple Silicon (`osx-arm64`) and Intel (`osx-x64`) builds.
 - Linux x64 build.
 - cross-platform OBS Safe Mode launch.
-- dynamic Nerdspace Labs footer.
+- dynamic NerdSpace Labs footer.

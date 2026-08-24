@@ -59,8 +59,8 @@ public sealed class GraphicsDriverService
             : "Installed graphics driver detected";
 
         var detail = adapters.Count == 0
-            ? "Ground Control did not identify an NVIDIA or AMD display adapter. This is informational if the PC uses Intel graphics or another vendor."
-            : "Ground Control reports the locally installed Windows driver. Use the official vendor page to verify the newest compatible release for the exact GPU.";
+            ? "Mission Control did not identify an NVIDIA or AMD display adapter. This is informational if the PC uses Intel graphics or another vendor."
+            : "Mission Control reports the locally installed Windows driver. Use the official vendor page to verify the newest compatible release for the exact GPU.";
 
         return new GraphicsDriverSnapshot(true, adapters, status, detail);
     }

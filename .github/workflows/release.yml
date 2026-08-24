@@ -46,8 +46,8 @@ jobs:
       - name: Verify self-contained publish
         shell: pwsh
         run: |
-          $exe = "publish/win-x64/Nerdspace.OBSRecovery.exe"
-          if (-not (Test-Path $exe)) { throw "Published Ground Control executable was not produced." }
+          $exe = "publish/win-x64/NerdSpace.StreamerMissionControl.exe"
+          if (-not (Test-Path $exe)) { throw "Published Mission Control executable was not produced." }
           $project = [xml](Get-Content src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj)
           $props = $project.Project.PropertyGroup
           if (($props.SelfContained | Select-Object -First 1) -ne 'true') { throw "SelfContained must remain true for installer releases." }
@@ -56,7 +56,7 @@ jobs:
 
       - name: Package portable build
         shell: pwsh
-        run: Compress-Archive -Path publish/win-x64/* -DestinationPath "Nerdspace-OBS-Ground-Control-$env:GITHUB_REF_NAME-win-x64.zip"
+        run: Compress-Archive -Path publish/win-x64/* -DestinationPath "NerdSpace-Streamer-Mission-Control-$env:GITHUB_REF_NAME-win-x64.zip"
 
       - name: Install Inno Setup
         shell: pwsh
@@ -73,15 +73,15 @@ jobs:
             "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           ) | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $iscc) { throw "Inno Setup compiler not found after installation." }
-          & $iscc "/DMyAppVersion=$version" "/DPublishDir=$publishDir" "installer\GroundControl.iss"
+          & $iscc "/DMyAppVersion=$version" "/DPublishDir=$publishDir" "installer\StreamerMissionControl.iss"
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 
       - name: SHA-256
         shell: pwsh
         run: |
           $files = @(
-            (Get-ChildItem "Nerdspace-OBS-Ground-Control-*-win-x64.zip" | Select-Object -First 1),
-            (Get-ChildItem "dist\Nerdspace-OBS-Ground-Control-Setup-*.exe" | Select-Object -First 1)
+            (Get-ChildItem "NerdSpace-Streamer-Mission-Control-*-win-x64.zip" | Select-Object -First 1),
+            (Get-ChildItem "dist\NerdSpace-Streamer-Mission-Control-Setup-*.exe" | Select-Object -First 1)
           )
           $lines = foreach ($file in $files) {
             $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -92,11 +92,11 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: Nerdspace Labs OBS Ground Control ${{ github.ref_name }}
+          name: NerdSpace Labs - Streamer Mission Control ${{ github.ref_name }}
           generate_release_notes: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           fail_on_unmatched_files: true
           files: |
-            dist/Nerdspace-OBS-Ground-Control-Setup-*.exe
-            Nerdspace-OBS-Ground-Control-*-win-x64.zip
+            dist/NerdSpace-Streamer-Mission-Control-Setup-*.exe
+            NerdSpace-Streamer-Mission-Control-*-win-x64.zip
             SHA256SUMS.txt

@@ -5,16 +5,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <AssemblyName>Nerdspace.OBSRecovery</AssemblyName>
+    <AssemblyName>NerdSpace.StreamerMissionControl</AssemblyName>
     <RootNamespace>Nerdspace.OBSRecovery</RootNamespace>
-    <Version>0.7.0-alpha.11</Version>
-    <AssemblyVersion>0.7.0.0</AssemblyVersion>
-    <FileVersion>0.7.0.0</FileVersion>
-    <InformationalVersion>0.7.0-alpha.11</InformationalVersion>
-    <Company>Nerdspace Labs by OneEyedNerdy</Company>
-    <Product>Nerdspace Labs OBS Ground Control</Product>
-    <Description>Windows-first OBS Studio pre-flight, maintenance, backup, recovery, diagnostics, and streamer workstation health utility by Nerdspace Labs.</Description>
-    <!-- Build with the .NET 10 SDK and ship the required .NET 10 Windows runtime with Ground Control. Testers do not need the SDK or runtime installed separately. -->
+    <Version>0.8.0-alpha.1</Version>
+    <AssemblyVersion>0.8.0.0</AssemblyVersion>
+    <FileVersion>0.8.0.0</FileVersion>
+    <InformationalVersion>0.8.0-alpha.1</InformationalVersion>
+    <Company>NerdSpace Labs by OneEyedNerdy</Company>
+    <Product>NerdSpace Labs - Streamer Mission Control</Product>
+    <Description>Windows-first streamer workstation pre-flight, OBS maintenance, update checks, backup, recovery, diagnostics, and creator-tool health utility by NerdSpace Labs.</Description>
+    <!-- Build with the .NET 10 SDK and ship the required .NET 10 Windows runtime with Streamer Mission Control. Testers do not need the SDK or runtime installed separately. -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>

@@ -1,4 +1,4 @@
-# Ground Control Pre-Flight
+# Mission Control Pre-Flight
 
 Pre-Flight is a read-mostly readiness check. It does not install operating-system updates, GPU drivers, Elgato software/firmware, or OBS plugins.
 
@@ -16,12 +16,12 @@ Pre-Flight is a read-mostly readiness check. It does not install operating-syste
 8. OBS plugin inventory and load-issue evidence.
 9. Latest OBS log warning patterns.
 10. Missing local scene assets.
-11. Ground Control backup age.
+11. Mission Control backup age.
 12. Recent OBS crash-report presence.
 
 ## Windows Update definition of “main updates”
 
-Ground Control asks Windows Update Agent for uninstalled, non-hidden, non-optional software updates. It then excludes Preview releases, driver updates, routine Defender definition/security-intelligence updates, and the Malicious Software Removal Tool.
+Mission Control asks Windows Update Agent for uninstalled, non-hidden, non-optional software updates. It then excludes Preview releases, driver updates, routine Defender definition/security-intelligence updates, and the Malicious Software Removal Tool.
 
 This is a readiness signal, not a replacement for Windows Update. The user chooses whether and when to install anything.
 

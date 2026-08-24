@@ -55,7 +55,7 @@ public sealed class LogAnalyzerService
                 .ToList();
 
             if (findings.Count == 0)
-                findings.Add(new DiagnosticFinding(CheckSeverity.Pass, "Logs", "No known warning patterns found", "The latest OBS log did not contain the Ground Control patterns currently monitored."));
+                findings.Add(new DiagnosticFinding(CheckSeverity.Pass, "Logs", "No known warning patterns found", "The latest OBS log did not contain the Mission Control patterns currently monitored."));
             return findings;
         }
         catch (Exception ex)

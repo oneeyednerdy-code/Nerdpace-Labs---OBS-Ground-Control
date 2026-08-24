@@ -1,12 +1,12 @@
 # Bandwidth Advisor
 
-Ground Control's Bandwidth Advisor is designed to answer one question conservatively:
+Mission Control's Bandwidth Advisor is designed to answer one question conservatively:
 
 > What stream settings can this connection reasonably support while leaving meaningful headroom?
 
 ## Formula
 
-Ground Control uses:
+Mission Control uses:
 
 `stable measured upload ÷ 4 = conservative total stream budget`
 
@@ -27,7 +27,7 @@ This test measures the route from the computer to Cloudflare's test infrastructu
 
 ## Manual input
 
-Users can enter an upload result measured elsewhere. Ground Control applies the exact same `/4` recommendation logic.
+Users can enter an upload result measured elsewhere. Mission Control applies the exact same `/4` recommendation logic.
 
 Use a real measured upload result rather than the ISP plan's advertised maximum whenever possible.
 
@@ -51,4 +51,4 @@ As of the current Windows-first release:
 
 ## Safety
 
-Ground Control only recommends settings. It does not automatically rewrite OBS output settings in the current release.
+Mission Control only recommends settings. It does not automatically rewrite OBS output settings in the current release.

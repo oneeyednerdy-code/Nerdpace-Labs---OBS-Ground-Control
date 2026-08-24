@@ -14,7 +14,7 @@ public partial class SplashWindow : Window
         _animationTimer.Tick += (_, _) =>
         {
             _dotCount = (_dotCount + 1) % 4;
-            LaunchStatusText.Text = "Starting Ground Control" + new string('.', _dotCount);
+            LaunchStatusText.Text = "Starting Streamer Mission Control" + new string('.', _dotCount);
         };
         Opened += (_, _) => _animationTimer.Start();
         Closed += (_, _) => _animationTimer.Stop();

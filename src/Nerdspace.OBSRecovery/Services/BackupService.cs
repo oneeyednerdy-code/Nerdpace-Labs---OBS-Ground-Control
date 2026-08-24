@@ -126,7 +126,7 @@ public sealed class BackupService
     public async Task<ConfigDiff> CompareToCurrentAsync(BackupInfo backup, CancellationToken cancellationToken = default)
     {
         using var archive = ZipFile.OpenRead(backup.Path);
-        var manifest = ReadManifest(archive) ?? throw new InvalidDataException("This backup does not contain a Ground Control manifest.");
+        var manifest = ReadManifest(archive) ?? throw new InvalidDataException("This backup does not contain a Mission Control manifest.");
         var oldMap = manifest.Files.ToDictionary(x => x.RelativePath, StringComparer.OrdinalIgnoreCase);
         var current = new Dictionary<string, BackupManifestFile>(StringComparer.OrdinalIgnoreCase);
         var config = _platform.GetObsConfigDirectory();

@@ -1,6 +1,6 @@
 # Releases
 
-OBS Ground Control currently publishes **Windows x64 only**.
+Streamer Mission Control currently publishes **Windows x64 only**.
 
 The release workflow triggers on tags matching:
 
@@ -9,8 +9,8 @@ The release workflow triggers on tags matching:
 Example:
 
 ```powershell
-git tag v0.7.0-alpha.11
-git push origin v0.7.0-alpha.11
+git tag v0.8.0-alpha.1
+git push origin v0.8.0-alpha.1
 ```
 
 Release artifacts:
@@ -22,7 +22,7 @@ Release artifacts:
 
 The release workflow runs the repository version script before compilation. The same assembly version is used by the executable and the footer:
 
-`Nerdspace Labs by OneEyedNerdy • vX.Y.Z`
+`NerdSpace Labs by OneEyedNerdy • vX.Y.Z`
 
 ## Planned release hardening
 1. Authenticode code signing

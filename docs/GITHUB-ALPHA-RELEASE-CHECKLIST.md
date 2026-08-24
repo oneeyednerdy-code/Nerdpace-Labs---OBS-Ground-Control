@@ -1,4 +1,4 @@
-# GitHub Alpha Release Checklist — 0.7.0-alpha.11
+# GitHub Alpha Release Checklist — 0.8.0-alpha.1
 
 ## Repository
 - [ ] Repository root contains `.github`, `src`, `installer`, `scripts`, and `README.md`.
@@ -15,9 +15,9 @@
 ## Windows test
 - [ ] Setup launches.
 - [ ] App installs without requiring .NET separately.
-- [ ] Start Menu shortcut launches Ground Control.
+- [ ] Start Menu shortcut launches Mission Control.
 - [ ] Optional Desktop shortcut works.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.11`.
+- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.1`.
 - [ ] OBS detection works.
 - [ ] Third-party plugin scanner excludes stock OBS modules.
 - [ ] Plugin update comparison works for a known supported plugin.
@@ -26,7 +26,7 @@
 - [ ] Uninstall works.
 
 ## Public alpha
-- [ ] Tag `v0.7.0-alpha.11` is created only after the main artifact is tested.
+- [ ] Tag `v0.8.0-alpha.1` is created only after the main artifact is tested.
 - [ ] `Release Windows` completes successfully.
 - [ ] GitHub marks the alpha as a Pre-release.
 - [ ] Setup EXE appears under Release Assets.
@@ -36,11 +36,11 @@
 
 ## Do not publish as stable yet if
 - [ ] the installer has not been tested on a second Windows machine
-- [ ] Ground Control cannot reliably identify third-party plugins
+- [ ] Mission Control cannot reliably identify third-party plugins
 - [ ] recovery behavior has not been tested with OBS open and closed
 - [ ] a failed Pre-Flight can accidentally launch OBS
 
-## 0.7.0-alpha.11 creator-bot regression checks
+## 0.8.0-alpha.1 creator-bot regression checks
 - [ ] Mix It Up installed copy is detected and reports its executable version.
 - [ ] Mix It Up compares against the official stable GitHub release.
 - [ ] Streamer.bot portable copy is detected or can be supplied via Settings.

@@ -1,6 +1,6 @@
 # Future platform roadmap
 
-macOS and Linux are deferred while OBS Ground Control concentrates on a strong Windows release.
+macOS and Linux are deferred while Streamer Mission Control concentrates on a strong Windows release.
 
 ## Revisit macOS when
 - Windows Recovery Protection is stable in beta

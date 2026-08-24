@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.7.0-alpha.11",
+    [string]$Version = "0.8.0-alpha.1",
     [switch]$SkipCatalogRefresh,
     [switch]$SkipInstaller
 )
@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $RepoRoot
 
-Write-Host "Nerdspace Labs OBS Ground Control $Version" -ForegroundColor Cyan
+Write-Host "NerdSpace Labs - Streamer Mission Control $Version" -ForegroundColor Cyan
 Write-Host "Windows x64 release build" -ForegroundColor Cyan
 
 if (-not $SkipCatalogRefresh) {
@@ -36,7 +36,7 @@ dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj `
     -o $PublishDir
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed." }
 
-$Exe = Join-Path $PublishDir "Nerdspace.OBSRecovery.exe"
+$Exe = Join-Path $PublishDir "NerdSpace.StreamerMissionControl.exe"
 if (-not (Test-Path $Exe)) { throw "Published executable not found: $Exe" }
 
 if (-not $SkipInstaller) {
@@ -54,7 +54,7 @@ if (-not $SkipInstaller) {
         throw "Inno Setup ISCC.exe was not found. Install it with: winget install --id JRSoftware.InnoSetup -e"
     }
 
-    & $iscc "/DMyAppVersion=$Version" "/DPublishDir=$PublishDir" "installer\GroundControl.iss"
+    & $iscc "/DMyAppVersion=$Version" "/DPublishDir=$PublishDir" "installer\StreamerMissionControl.iss"
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 } else {
     Write-Host "`n[4/4] Installer build skipped." -ForegroundColor Yellow
@@ -63,6 +63,6 @@ if (-not $SkipInstaller) {
 Write-Host "`nRelease build complete." -ForegroundColor Green
 Write-Host "Published app: $Exe"
 if (-not $SkipInstaller) {
-    Get-ChildItem "$RepoRoot\dist\Nerdspace-OBS-Ground-Control-Setup-*.exe" -ErrorAction SilentlyContinue |
+    Get-ChildItem "$RepoRoot\dist\NerdSpace-Streamer-Mission-Control-Setup-*.exe" -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Write-Host "Installer: $($_.FullName)" }
 }

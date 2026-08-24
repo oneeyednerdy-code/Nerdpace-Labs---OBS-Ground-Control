@@ -73,7 +73,7 @@ public sealed class PreflightService
             var low = health.RecordingFreeGb.Value < _settings.RecordingDiskWarningGb;
             results.Add(new("Recording Disk", low ? CheckSeverity.Warning : CheckSeverity.Pass, $"{health.RecordingFreeGb.Value:F1} GB free", $"Recording path: {health.RecordingPath}"));
         }
-        else results.Add(new("Recording Disk", CheckSeverity.Info, "Recording path not detected", "Ground Control could not determine the recording drive from OBS profiles."));
+        else results.Add(new("Recording Disk", CheckSeverity.Info, "Recording path not detected", "Mission Control could not determine the recording drive from OBS profiles."));
 
         progress?.Report("Reading current OBS output profile…");
         var obsOutput = _obsConfig.Inspect();
@@ -113,7 +113,7 @@ public sealed class PreflightService
 
         if (options.SkipUpdateChecks)
         {
-            results.Add(new("Windows Update", CheckSeverity.Info, "Main update check skipped this run", "Driver, preview, optional, Defender-definition, and other non-main updates are not part of Ground Control's main update check."));
+            results.Add(new("Windows Update", CheckSeverity.Info, "Main update check skipped this run", "Driver, preview, optional, Defender-definition, and other non-main updates are not part of Mission Control's main update check."));
         }
         else
         {
@@ -140,7 +140,7 @@ public sealed class PreflightService
                     var severity = r.SafeBudgetMbps < 1.2 || r.Confidence.StartsWith("LOW", StringComparison.OrdinalIgnoreCase) || currentTooHigh
                         ? CheckSeverity.Warning : CheckSeverity.Pass;
                     var comparison = currentTooHigh
-                        ? $" Current OBS video bitrate is {obsOutput.VideoBitrateKbps:N0} Kbps, above Ground Control's conservative {r.VideoBitrateKbps:N0} Kbps recommendation."
+                        ? $" Current OBS video bitrate is {obsOutput.VideoBitrateKbps:N0} Kbps, above Mission Control's conservative {r.VideoBitrateKbps:N0} Kbps recommendation."
                         : obsOutput.VideoBitrateKbps.HasValue
                             ? $" Current OBS video bitrate is {obsOutput.VideoBitrateKbps:N0} Kbps."
                             : " Current OBS video bitrate could not be read.";
@@ -173,7 +173,7 @@ public sealed class PreflightService
                 : $"{plugins.Count} third-party plugin(s) detected • update lookup skipped this run";
         results.Add(new("Plugins", pluginSeverity, pluginSummary,
             unknownSources > 0
-                ? $"{unknownSources} third-party plugin(s) do not have a verified update source in Ground Control. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."
+                ? $"{unknownSources} third-party plugin(s) do not have a verified update source in Mission Control. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."
                 : "Third-party installed versions were compared with verified latest releases where available. Deferred/skipped exact versions do not create repeated Pre-Flight warnings."));
 
         progress?.Report("Analyzing the latest OBS log…");
@@ -181,7 +181,7 @@ public sealed class PreflightService
         var serious = logFindings.Count(x => x.Severity is CheckSeverity.Warning or CheckSeverity.Fail);
         results.Add(serious > 0
             ? new("Latest OBS Log", CheckSeverity.Warning, $"{serious} warning/error pattern(s) detected", "Open Diagnostics for details.")
-            : new("Latest OBS Log", CheckSeverity.Pass, "No known high-priority patterns detected", "Ground Control scanned the latest OBS log."));
+            : new("Latest OBS Log", CheckSeverity.Pass, "No known high-priority patterns detected", "Mission Control scanned the latest OBS log."));
 
         progress?.Report("Checking scene assets…");
         var missing = _assets.Scan();
@@ -194,7 +194,7 @@ public sealed class PreflightService
         if (!_settings.PreflightCheckBackupAge)
             results.Add(new("Backup", CheckSeverity.Info, "Backup-age check disabled", "You can re-enable it in Settings."));
         else if (backups.Count == 0)
-            results.Add(new("Backup", CheckSeverity.Warning, "No Ground Control backup found", "Create a backup before large OBS/plugin changes."));
+            results.Add(new("Backup", CheckSeverity.Warning, "No Mission Control backup found", "Create a backup before large OBS/plugin changes."));
         else
         {
             var age = DateTimeOffset.Now - backups[0].Created;
@@ -207,7 +207,7 @@ public sealed class PreflightService
         if (recentCrash is not null && DateTime.Now - recentCrash.Timestamp < TimeSpan.FromDays(7))
             results.Add(new("Crash History", CheckSeverity.Warning, "Recent OBS crash report found", recentCrash.Display));
         else
-            results.Add(new("Crash History", CheckSeverity.Pass, "No recent OBS crash report detected", "Ground Control checked the OBS crash-report directory."));
+            results.Add(new("Crash History", CheckSeverity.Pass, "No recent OBS crash report detected", "Mission Control checked the OBS crash-report directory."));
 
         progress?.Report("Pre-Flight complete.");
         return results;

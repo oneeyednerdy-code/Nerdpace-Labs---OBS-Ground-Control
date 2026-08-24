@@ -29,8 +29,8 @@ public sealed class SteelSeriesSonarService
 
         var status = sonar ? "SteelSeries Sonar detected" : "SteelSeries GG detected";
         var detail = sonar
-            ? "Ground Control found local Sonar process/audio endpoint evidence. Use SteelSeries GG for Sonar configuration and software updates."
-            : "SteelSeries GG is installed, but Ground Control did not find an active Sonar process or Sonar virtual audio endpoint. This can be normal when Sonar is disabled or GG is not running.";
+            ? "Mission Control found local Sonar process/audio endpoint evidence. Use SteelSeries GG for Sonar configuration and software updates."
+            : "SteelSeries GG is installed, but Mission Control did not find an active Sonar process or Sonar virtual audio endpoint. This can be normal when Sonar is disabled or GG is not running.";
 
         return Task.FromResult(new SteelSeriesSonarSnapshot(
             true, ggInstalled, version, sonar, running, endpoints, status, detail));

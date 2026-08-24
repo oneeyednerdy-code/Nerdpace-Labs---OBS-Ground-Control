@@ -46,7 +46,7 @@ public sealed class ObsConfigurationInspectorService
             }
 
             return new ObsOutputSnapshot(true, profileName, video, audio, width, height, fps, encoder,
-                "Read-only snapshot of the most likely active/recent OBS profile. Ground Control does not change these settings automatically.");
+                "Read-only snapshot of the most likely active/recent OBS profile. Mission Control does not change these settings automatically.");
         }
         catch (Exception ex)
         {

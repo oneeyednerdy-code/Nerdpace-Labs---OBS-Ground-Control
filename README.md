@@ -1,20 +1,20 @@
-# Nerdspace Labs OBS Ground Control
+# NerdSpace Labs - Streamer Mission Control
 
-**Nerdspace Labs by OneEyedNerdy**
+**NerdSpace Labs by OneEyedNerdy**
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.11**
+Current development version: **v0.8.0-alpha.1**
 
 ## Supported platform
 
 **Windows 10/11 x64**
 
-Ground Control is intentionally Windows-only for the current development cycle. macOS and Linux are deferred until the Windows recovery, diagnostics, hardware detection, update checks, installer/signing, and OBS integration are mature.
+Mission Control is intentionally Windows-only for the current development cycle. macOS and Linux are deferred until the Windows recovery, diagnostics, hardware detection, update checks, installer/signing, and OBS integration are mature.
 
 The source keeps a small platform-service boundary so future ports can be added without weakening the Windows implementation.
 
-## What Ground Control does
+## What Mission Control does
 
 ### Dashboard
 - launch OBS
@@ -54,7 +54,7 @@ Per-run options:
 - launch OBS only after a ready result
 
 ### Bandwidth Advisor
-Ground Control favors stability over theoretical maximum quality.
+Mission Control favors stability over theoretical maximum quality.
 
 It can:
 - run several upload samples using generated test data
@@ -68,7 +68,7 @@ It can:
 - compare the recommendation against the current OBS profile when readable
 
 ### Updates
-Ground Control separates maintenance from the main OBS controls:
+Mission Control separates maintenance from the main OBS controls:
 - OBS release check
 - NVIDIA installed driver + official NVIDIA driver page
 - AMD installed driver + official AMD driver page
@@ -76,11 +76,11 @@ Ground Control separates maintenance from the main OBS controls:
 - SteelSeries GG/Sonar state
 - Windows **main updates only**
 
-Ground Control does **not** silently install drivers, firmware, OBS updates, Elgato/SteelSeries software, Mix It Up, Streamer.bot, Firebot, plugins, or Windows updates.
+Mission Control does **not** silently install drivers, firmware, OBS updates, Elgato/SteelSeries software, Mix It Up, Streamer.bot, Firebot, plugins, or Windows updates.
 
 ### Plugins
 
-Ground Control shows **third-party/user-installed plugins only**. OBS-bundled modules are filtered out of the plugin inventory and update checks.
+Mission Control shows **third-party/user-installed plugins only**. OBS-bundled modules are filtered out of the plugin inventory and update checks.
 - Windows OBS plugin inventory
 - installed version → latest verified release comparison for supported/trusted sources
 - exact verified release-page link for updates
@@ -109,7 +109,7 @@ Ground Control shows **third-party/user-installed plugins only**. OBS-bundled mo
 - missing local asset detection
 - crash history
 - sanitized support report
-- Ground Control local logs
+- Mission Control local logs
 
 ## Neutral device absence
 
@@ -122,11 +122,11 @@ Examples:
 - `Elgato — No supported hardware or software detected. Check skipped.`
 - `SteelSeries Sonar — Not detected. Check skipped.`
 
-Ground Control distinguishes **not present** from **detection failed**.
+Mission Control distinguishes **not present** from **detection failed**.
 
 ## Privacy
 
-Ground Control is local-first and has no usage telemetry.
+Mission Control is local-first and has no usage telemetry.
 
 Backups and support reports intentionally exclude OBS service credentials, stream keys, OAuth tokens, browser cookies/cache, private browser-source URLs, chat/message content, USB serial numbers, and raw device IDs.
 
@@ -136,7 +136,7 @@ The optional automatic Bandwidth Advisor sends generated test bytes to Cloudflar
 
 The app footer is generated from assembly version metadata:
 
-`Nerdspace Labs by OneEyedNerdy • vMAJOR.MINOR.PATCH`
+`NerdSpace Labs - Streamer Mission Control vMAJOR.MINOR.PATCH | by OneEyedNerdy`
 
 ## Development
 
@@ -167,8 +167,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.11
-git push origin v0.7.0-alpha.11
+git tag v0.8.0-alpha.1
+git push origin v0.8.0-alpha.1
 ```
 
 The release workflow produces:
@@ -181,10 +181,10 @@ The Setup EXE is the recommended alpha download. The portable ZIP remains availa
 
 ## Windows installer
 
-**No separate .NET runtime is required.** Release builds are published self-contained for Windows x64, so the installer carries the .NET runtime and managed/native dependencies needed by Ground Control. The installer does not download .NET during setup.
+**No separate .NET runtime is required.** Release builds are published self-contained for Windows x64, so the installer carries the .NET runtime and managed/native dependencies needed by Mission Control. The installer does not download .NET during setup.
 
 
-Ground Control now includes an Inno Setup project and GitHub release automation for a normal per-user Windows installer. See `docs/INSTALLER.md`.
+Mission Control now includes an Inno Setup project and GitHub release automation for a normal per-user Windows installer. See `docs/INSTALLER.md`.
 
 ## Future platforms
 
@@ -203,7 +203,7 @@ A license is intentionally not selected yet. Choose the repository license befor
 After installing .NET 10, Python, and Inno Setup, a maintainer can refresh the OBS catalog, publish the self-contained app, and build Setup.exe with:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.7.0-alpha.11
+.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.1
 ```
 
 Use `-SkipCatalogRefresh` only for offline development builds. Public release builds should refresh the official OBS resource catalog.

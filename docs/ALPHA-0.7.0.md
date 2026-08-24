@@ -1,12 +1,12 @@
-# v0.7.0-alpha.11 Alpha Patch Notes
+# v0.8.0-alpha.1 Alpha Patch Notes
 
 ## Focus: verified OBS plugin updates
 
 This alpha tightens plugin update handling around three rules:
 
-1. Ground Control scans every discovered Windows OBS plugin locally.
+1. Mission Control scans every discovered Windows OBS plugin locally.
 2. It only claims an update when it can compare a readable installed version with a newer release from a trusted mapped source.
-3. The update action opens the exact verified latest release page; Ground Control does not download or install plugin binaries automatically.
+3. The update action opens the exact verified latest release page; Mission Control does not download or install plugin binaries automatically.
 
 ## New plugin workflow
 
@@ -23,7 +23,7 @@ This alpha tightens plugin update handling around three rules:
 - Aitum Vertical — Aitum/obs-vertical-canvas
 - Source Record — exeldro/obs-source-record
 
-Unknown plugins remain inventoried and can still expose load-health signals, but Ground Control will not fabricate a latest version or update link.
+Unknown plugins remain inventoried and can still expose load-health signals, but Mission Control will not fabricate a latest version or update link.
 
 ## Alpha test priority
 

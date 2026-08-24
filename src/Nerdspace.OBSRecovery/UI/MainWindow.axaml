@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Nerdspace.OBSRecovery.UI.MainWindow"
-        Title="Nerdspace Labs OBS Ground Control"
+        Title="NerdSpace Labs - Streamer Mission Control"
         Width="1060" Height="700" MinWidth="760" MinHeight="540" CanResize="True"
         Icon="/Assets/app.ico"
         WindowStartupLocation="CenterScreen">
@@ -9,30 +9,30 @@
     <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,14">
       <StackPanel Spacing="3">
         <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
-        <TextBlock Text="OBS GROUND CONTROL" FontSize="30" FontWeight="Bold"/>
+        <TextBlock Text="STREAMER MISSION CONTROL" Classes="brandTitle"/>
         <TextBlock Text="Prepare • protect • maintain • recover" Classes="muted" FontSize="14"/>
       </StackPanel>
       <Border Grid.Column="1" Classes="subtleCard" VerticalAlignment="Center" Padding="12,8" Margin="0,0,10,0">
         <StackPanel Orientation="Horizontal" Spacing="8">
           <TextBlock x:Name="PlatformText" FontWeight="SemiBold"/>
-          <TextBlock Text="•" Foreground="#626A76"/>
-          <TextBlock x:Name="VersionBadge" Foreground="#FF7900" FontWeight="Bold"/>
+          <TextBlock Text="•" Foreground="#948FB0"/>
+          <TextBlock x:Name="VersionBadge" Foreground="#8B5CF6" FontWeight="Bold"/>
         </StackPanel>
       </Border>
       <Button Grid.Column="2" x:Name="ExitButton" Classes="small" Content="Exit"
               VerticalAlignment="Center"
-              ToolTip.Tip="Fully shut down OBS Ground Control. Closing the window with X does the same thing."/>
+              ToolTip.Tip="Fully shut down Streamer Mission Control. Closing the window with X does the same thing."/>
     </Grid>
 
     <Border Grid.Row="1" Classes="card" Margin="0,0,0,16">
       <Grid ColumnDefinitions="Auto,*,Auto">
-        <Ellipse x:Name="StatusDot" Width="14" Height="14" Fill="#747B87" Margin="0,4,14,0" VerticalAlignment="Top"/>
+        <Ellipse x:Name="StatusDot" Width="14" Height="14" Fill="#766595" Margin="0,4,14,0" VerticalAlignment="Top"/>
         <StackPanel Grid.Column="1" Spacing="3">
           <TextBlock x:Name="StatusTitle" Text="Checking OBS…" FontSize="20" FontWeight="Bold"/>
-          <TextBlock x:Name="StatusDetail" Text="Ground Control is inspecting OBS." Classes="muted" TextWrapping="Wrap"/>
+          <TextBlock x:Name="StatusDetail" Text="Mission Control is inspecting OBS." Classes="muted" TextWrapping="Wrap"/>
           <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,5,0,0">
-            <TextBlock x:Name="PidText" Text="PID —" Foreground="#7F8794" FontSize="12"/>
-            <TextBlock x:Name="CapabilityText" Foreground="#7F8794" FontSize="12"/>
+            <TextBlock x:Name="PidText" Text="PID —" Foreground="#948FB0" FontSize="12"/>
+            <TextBlock x:Name="CapabilityText" Foreground="#948FB0" FontSize="12"/>
           </StackPanel>
         </StackPanel>
         <Button Grid.Column="2" x:Name="PreflightHeaderButton" Classes="primary" Content="OPEN PRE-FLIGHT" MinWidth="160" VerticalAlignment="Center"
@@ -59,7 +59,7 @@
                   <Separator Margin="0,4"/>
                   <TextBlock Text="RECOVERY PROTECTION" FontWeight="Bold"/>
                   <CheckBox x:Name="ProtectionToggle" Content="Monitor and recover confirmed OBS hangs"
-                            ToolTip.Tip="Watch OBS process health. Automatic recovery only acts on states Ground Control can confirm safely."/>
+                            ToolTip.Tip="Watch OBS process health. Automatic recovery only acts on states Mission Control can confirm safely."/>
                   <CheckBox x:Name="RelaunchToggle" Content="Relaunch after confirmed hung-process recovery"
                             ToolTip.Tip="After a confirmed freeze is recovered, start OBS again. Stuck intentional shutdowns remain closed."/>
                   <TextBlock x:Name="ProtectionNote" Classes="muted" FontSize="12" TextWrapping="Wrap"/>
@@ -100,7 +100,7 @@
             <Border Classes="card">
               <StackPanel Spacing="10">
                 <TextBlock Text="RECOVERY HISTORY" Classes="eyebrow"/>
-                <TextBlock Text="Recent Ground Control events" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="Recent Mission Control events" FontSize="18" FontWeight="Bold"/>
                 <ListBox x:Name="HistoryList" Height="180"/>
               </StackPanel>
             </Border>
@@ -161,7 +161,7 @@
               <StackPanel Spacing="3">
                 <TextBlock Text="BANDWIDTH ADVISOR" Classes="eyebrow"/>
                 <TextBlock Text="Honest bitrate recommendations" FontSize="24" FontWeight="Bold"/>
-                <TextBlock Text="Ground Control measures sustained upload, uses the conservative result, divides it by four, then recommends a resolution/FPS profile that fits the selected streaming platform." Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="Mission Control measures sustained upload, uses the conservative result, divides it by four, then recommends a resolution/FPS profile that fits the selected streaming platform." Classes="muted" TextWrapping="Wrap"/>
               </StackPanel>
               <Button Grid.Column="1" x:Name="RunBandwidthButton" Classes="primary" Content="Run Upload Scan" VerticalAlignment="Center"
                       ToolTip.Tip="Upload generated test bytes to Cloudflare's public speed-test endpoint. No personal files are uploaded. Approximately 25 MB is sent per scan."/>
@@ -176,14 +176,14 @@
                   <TextBlock Text="Content motion" Classes="muted"/>
                   <ComboBox x:Name="BandwidthMotionSelect" ToolTip.Tip="High motion favors 60 FPS at a lower resolution; low motion favors image detail; balanced weighs both."/>
                   <CheckBox x:Name="BandwidthEnhancedToggle" Content="Twitch Enhanced Broadcasting"
-                            ToolTip.Tip="Enable when you use Twitch Enhanced Broadcasting / multitrack video. Ground Control then considers current Enhanced Broadcasting behavior and 2K eligibility rules."/>
+                            ToolTip.Tip="Enable when you use Twitch Enhanced Broadcasting / multitrack video. Mission Control then considers current Enhanced Broadcasting behavior and 2K eligibility rules."/>
                   <CheckBox x:Name="BandwidthServerTranscodeToggle" Content="Twitch added server-side transcode support"
                             ToolTip.Tip="Enable only if Twitch Creator Dashboard says your account has added server-side transcode support for Enhanced Broadcasting 2K/Dual Format."/>
                   <Separator Margin="0,4"/>
                   <TextBlock Text="Already have a measured upload result?" Classes="muted"/>
                   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                    <TextBox x:Name="ManualUploadBox" PlaceholderText="Upload Mbps, e.g. 24.3" ToolTip.Tip="Enter a measured upload result from your ISP/speed-test tool. Ground Control will still apply the same ÷4 conservative budget."/>
-                    <Button Grid.Column="1" x:Name="CalculateManualBandwidthButton" Classes="small" Content="Calculate" ToolTip.Tip="Calculate a recommendation from the entered measured upload speed without running Ground Control's upload test."/>
+                    <TextBox x:Name="ManualUploadBox" PlaceholderText="Upload Mbps, e.g. 24.3" ToolTip.Tip="Enter a measured upload result from your ISP/speed-test tool. Mission Control will still apply the same ÷4 conservative budget."/>
+                    <Button Grid.Column="1" x:Name="CalculateManualBandwidthButton" Classes="small" Content="Calculate" ToolTip.Tip="Calculate a recommendation from the entered measured upload speed without running Mission Control's upload test."/>
                   </Grid>
                 </StackPanel>
               </Border>
@@ -196,9 +196,9 @@
                   <TextBlock Text="3. Stable upload ÷ 4 = conservative total stream budget." Classes="muted"/>
                   <TextBlock Text="4. Reserve audio and protocol overhead." Classes="muted"/>
                   <TextBlock Text="5. Choose resolution/FPS based on platform + motion." Classes="muted"/>
-                  <TextBlock Text="Recommendations favor reliability over maximum theoretical quality." Foreground="#FFB96B" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                  <TextBlock Text="Recommendations favor reliability over maximum theoretical quality." Foreground="#F59E0B" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,0"/>
                   <Button x:Name="OpenCloudflareSpeedTestButton" Classes="small" Content="Open Cloudflare Speed Test" HorizontalAlignment="Left"
-                          ToolTip.Tip="Open Cloudflare's browser speed test if you want to compare Ground Control's conservative upload result with a full browser test."/>
+                          ToolTip.Tip="Open Cloudflare's browser speed test if you want to compare Mission Control's conservative upload result with a full browser test."/>
                 </StackPanel>
               </Border>
             </Grid>
@@ -207,7 +207,7 @@
               <StackPanel Spacing="8">
                 <TextBlock Text="RECOMMENDATION" Classes="eyebrow"/>
                 <TextBlock x:Name="BandwidthSummaryText" Text="Run the upload scan to get a bitrate, resolution, FPS, codec, and confidence recommendation." FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                <TextBlock x:Name="CurrentObsOutputText" Text="Current OBS output: not inspected yet." Foreground="#C7CCD5" TextWrapping="Wrap"/>
+                <TextBlock x:Name="CurrentObsOutputText" Text="Current OBS output: not inspected yet." Foreground="#D8D1EA" TextWrapping="Wrap"/>
                 <TextBlock x:Name="BandwidthDetailText" Classes="muted" TextWrapping="Wrap"/>
                 <TextBlock x:Name="BandwidthProgressText" Classes="muted" Text="No scan running."/>
                 <ProgressBar x:Name="BandwidthProgress" IsIndeterminate="True" IsVisible="False"/>
@@ -231,7 +231,7 @@
               <StackPanel Spacing="3">
                 <TextBlock Text="UPDATE CENTER" Classes="eyebrow"/>
                 <TextBlock Text="Software, creator hardware, audio &amp; operating system" FontSize="24" FontWeight="Bold"/>
-                <TextBlock Text="Ground Control reports local state and uses official destinations for downloads. It does not silently install drivers or operating-system updates." Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="Mission Control reports local state and uses official destinations for downloads. It does not silently install drivers or operating-system updates." Classes="muted" TextWrapping="Wrap"/>
               </StackPanel>
               <Button Grid.Column="1" x:Name="CheckAllUpdatesButton" Classes="primary" Content="Check Everything" VerticalAlignment="Center"
                       ToolTip.Tip="Run OBS, GPU/driver, Elgato, SteelSeries Sonar, Mix It Up, Streamer.bot, Firebot, and Windows main-update checks. Downloads remain manual."/>
@@ -295,8 +295,8 @@
                   <TextBlock Text="WINDOWS UPDATE" Classes="eyebrow"/>
                   <TextBlock x:Name="WindowsUpdateText" Text="Main updates only. Driver, preview, optional, Defender-definition, and other non-main updates are excluded." TextWrapping="Wrap"/>
                   <WrapPanel ItemSpacing="8">
-                    <Button x:Name="CheckWindowsButton" Classes="small" Content="Check Main Updates" ToolTip.Tip="Check normal Windows software updates only; Ground Control excludes driver, preview, optional, definition, and other non-main categories."/>
-                    <Button x:Name="OpenWindowsUpdateButton" Classes="small" Content="Open Windows Update" ToolTip.Tip="Open the native Windows Update settings page. Ground Control never installs Windows updates itself."/>
+                    <Button x:Name="CheckWindowsButton" Classes="small" Content="Check Main Updates" ToolTip.Tip="Check normal Windows software updates only; Mission Control excludes driver, preview, optional, definition, and other non-main categories."/>
+                    <Button x:Name="OpenWindowsUpdateButton" Classes="small" Content="Open Windows Update" ToolTip.Tip="Open the native Windows Update settings page. Mission Control never installs Windows updates itself."/>
                   </WrapPanel>
                 </StackPanel>
               </Border>
@@ -307,7 +307,7 @@
                   <TextBlock x:Name="MixItUpUpdateText" Text="Detecting local installation…" TextWrapping="Wrap"/>
                   <WrapPanel ItemSpacing="8">
                     <Button x:Name="CheckMixItUpButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Mix It Up, read MixItUp.exe version, and compare it with the latest stable release from the official MixItUpBot/Desktop GitHub repository."/>
-                    <Button x:Name="OpenMixItUpUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Mix It Up release source. Ground Control never silently installs or replaces Mix It Up."/>
+                    <Button x:Name="OpenMixItUpUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Mix It Up release source. Mission Control never silently installs or replaces Mix It Up."/>
                   </WrapPanel>
                 </StackPanel>
               </Border>
@@ -318,7 +318,7 @@
                   <TextBlock x:Name="StreamerBotUpdateText" Text="Detecting local portable installation…" TextWrapping="Wrap"/>
                   <WrapPanel ItemSpacing="8">
                     <Button x:Name="CheckStreamerBotButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Streamer.bot, read Streamer.bot.exe version, and compare it with the latest public stable version from the official Streamer.bot Downloads service."/>
-                    <Button x:Name="OpenStreamerBotUpdateButton" Classes="small" Content="Official Downloads" ToolTip.Tip="Open Streamer.bot's official Downloads page. Ground Control does not overwrite portable files."/>
+                    <Button x:Name="OpenStreamerBotUpdateButton" Classes="small" Content="Official Downloads" ToolTip.Tip="Open Streamer.bot's official Downloads page. Mission Control does not overwrite portable files."/>
                   </WrapPanel>
                 </StackPanel>
               </Border>
@@ -329,7 +329,7 @@
                   <TextBlock x:Name="FirebotUpdateText" Text="Detecting local installation…" TextWrapping="Wrap"/>
                   <WrapPanel ItemSpacing="8">
                     <Button x:Name="CheckFirebotButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Firebot locally, read its executable version, and compare it with the latest stable release from the official crowbartools/Firebot GitHub repository."/>
-                    <Button x:Name="OpenFirebotUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Firebot GitHub Releases page. Ground Control never silently installs or replaces Firebot."/>
+                    <Button x:Name="OpenFirebotUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Firebot GitHub Releases page. Mission Control never silently installs or replaces Firebot."/>
                   </WrapPanel>
                 </StackPanel>
               </Border>
@@ -337,7 +337,7 @@
               <Border Grid.Row="4" Grid.Column="1" Classes="card">
                 <StackPanel Spacing="7">
                   <TextBlock Text="CREATOR BOT UPDATE POLICY" Classes="eyebrow"/>
-                  <TextBlock Text="Ground Control checks stable releases only." FontWeight="Bold"/>
+                  <TextBlock Text="Mission Control checks stable releases only." FontWeight="Bold"/>
                   <TextBlock Text="Detection and version reads are local. Online checks only query official release sources when enabled. Updates always open the official destination; nothing is installed silently." Classes="muted" TextWrapping="Wrap"/>
                 </StackPanel>
               </Border>
@@ -351,7 +351,7 @@
           <StackPanel>
             <TextBlock Text="PLUGIN CONTROL" Classes="eyebrow"/>
             <TextBlock Text="Installed, updates, discovery &amp; reversible quarantine" FontSize="24" FontWeight="Bold"/>
-            <TextBlock Text="Ground Control separates what is installed on this PC from plugins you can discover online." Classes="muted" TextWrapping="Wrap"/>
+            <TextBlock Text="Mission Control separates what is installed on this PC from plugins you can discover online." Classes="muted" TextWrapping="Wrap"/>
           </StackPanel>
 
           <TabControl x:Name="PluginTabs">
@@ -374,8 +374,8 @@
                       <ComboBox x:Name="PluginSelect" ToolTip.Tip="Choose an installed third-party plugin to review its detected version, trusted source status, and maintenance actions."/>
                       <TextBlock x:Name="PluginDetailText" Classes="muted" TextWrapping="Wrap"/>
                       <WrapPanel ItemSpacing="10" LineSpacing="10">
-                        <Button x:Name="OpenPluginObsResourceButton" Content="Official OBS Page" ToolTip.Tip="Open the plugin's verified OBS Resource page when Ground Control has one registered."/>
-                        <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Latest Release" ToolTip.Tip="Open the exact verified latest GitHub release when one has been checked. Ground Control never installs plugin updates automatically."/>
+                        <Button x:Name="OpenPluginObsResourceButton" Content="Official OBS Page" ToolTip.Tip="Open the plugin's verified OBS Resource page when Mission Control has one registered."/>
+                        <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Latest Release" ToolTip.Tip="Open the exact verified latest GitHub release when one has been checked. Mission Control never installs plugin updates automatically."/>
                         <Button x:Name="QuarantineButton" Classes="danger" Content="Quarantine Plugin" ToolTip.Tip="Move a safely identifiable complete plugin bundle out of OBS and store a restore manifest. OBS must be closed."/>
                       </WrapPanel>
                     </StackPanel>
@@ -411,9 +411,9 @@
                       <ComboBox x:Name="PluginUpdateSelect" ToolTip.Tip="Choose a registered installed plugin to review its installed and latest verified versions."/>
                       <TextBlock x:Name="PluginUpdateDetailText" Classes="muted" TextWrapping="Wrap"/>
                       <WrapPanel ItemSpacing="10" LineSpacing="10">
-                        <Button x:Name="OpenPluginUpdateButton" Classes="primary" Content="Open Update" ToolTip.Tip="Open the exact verified latest release page. Ground Control does not download or install the plugin itself."/>
+                        <Button x:Name="OpenPluginUpdateButton" Classes="primary" Content="Open Update" ToolTip.Tip="Open the exact verified latest release page. Mission Control does not download or install the plugin itself."/>
                         <Button x:Name="SnoozePluginButton" Content="Remind in 1 Week" ToolTip.Tip="Defer this exact plugin update for one week. A newer version will still be detected."/>
-                        <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin release. Ground Control will alert again when a newer version appears."/>
+                        <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin release. Mission Control will alert again when a newer version appears."/>
                         <Button x:Name="ClearPluginDeferralButton" Content="Clear Reminder" ToolTip.Tip="Remove the reminder or skip state for the selected plugin update."/>
                       </WrapPanel>
                     </StackPanel>
@@ -428,10 +428,10 @@
                   <Grid ColumnDefinitions="*,Auto,Auto">
                     <StackPanel>
                       <TextBlock Text="DISCOVER OBS PLUGINS" FontWeight="Bold"/>
-                      <TextBlock Text="Search Ground Control's preloaded official OBS resource catalog. Source links are marked verified only when the OBS resource page publishes them." Classes="muted" TextWrapping="Wrap"/>
+                      <TextBlock Text="Search Mission Control's preloaded official OBS resource catalog. Source links are marked verified only when the OBS resource page publishes them." Classes="muted" TextWrapping="Wrap"/>
                     </StackPanel>
                     <Button Grid.Column="1" x:Name="DiscoverCheckVersionsButton" Margin="8,0" Content="Refresh Versions" ToolTip.Tip="Check latest releases only for catalog entries whose OBS resource page publishes a GitHub source repository. This uses the internet but does not download plugin files."/>
-                    <Button Grid.Column="2" x:Name="BrowseOfficialPluginsButton" Classes="primary" Content="Browse Official OBS Plugins" ToolTip.Tip="Open the live official OBS Studio Plugins directory in your browser. Ground Control also ships a release-time snapshot of this catalog."/>
+                    <Button Grid.Column="2" x:Name="BrowseOfficialPluginsButton" Classes="primary" Content="Browse Official OBS Plugins" ToolTip.Tip="Open the live official OBS Studio Plugins directory in your browser. Mission Control also ships a release-time snapshot of this catalog."/>
                   </Grid>
                   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                     <TextBox x:Name="DiscoverPluginSearchBox" Watermark="Search by plugin, author, feature, or repository…" ToolTip.Tip="Search the preloaded official OBS plugin resource catalog. Leave blank to show all Windows-compatible or platform-unspecified entries."/>
@@ -453,7 +453,7 @@
                     </StackPanel>
                   </Border>
                   <Border Classes="card">
-                    <TextBlock Text="Discovery is read-only in this alpha. Ground Control does not automatically download or install third-party plugins. This keeps plugin installation under the streamer's control." Classes="muted" TextWrapping="Wrap"/>
+                    <TextBlock Text="Discovery is read-only in this alpha. Mission Control does not automatically download or install third-party plugins. This keeps plugin installation under the streamer's control." Classes="muted" TextWrapping="Wrap"/>
                   </Border>
                 </StackPanel>
               </ScrollViewer>
@@ -483,9 +483,9 @@
                 <TextBlock Text="Restore scope" FontWeight="SemiBold"/>
                 <ComboBox x:Name="RestoreScopeSelect"/>
                 <WrapPanel ItemSpacing="10">
-                  <Button x:Name="RestoreBackupButton" Classes="danger" Content="Restore Selected" ToolTip.Tip="Restore the selected scope. OBS must be closed; Ground Control can create a safety snapshot first."/>
+                  <Button x:Name="RestoreBackupButton" Classes="danger" Content="Restore Selected" ToolTip.Tip="Restore the selected scope. OBS must be closed; Mission Control can create a safety snapshot first."/>
                   <Button x:Name="CompareBackupButton" Content="Compare to Current" ToolTip.Tip="Compare the selected backup manifest with the current OBS configuration to see added, removed, and changed files."/>
-                  <Button x:Name="OpenBackupFolderButton" Content="Open Backup Folder" ToolTip.Tip="Open the folder containing Ground Control's local OBS backups."/>
+                  <Button x:Name="OpenBackupFolderButton" Content="Open Backup Folder" ToolTip.Tip="Open the folder containing Mission Control's local OBS backups."/>
                 </WrapPanel>
               </StackPanel>
             </Border>
@@ -519,7 +519,7 @@
             <WrapPanel ItemSpacing="10">
               <Button x:Name="DiagnosticButton" Content="Generate Support Report" ToolTip.Tip="Create a sanitized local report for GitHub/Discord support. Sensitive service credentials, stream keys, browser URLs, chat, and scene content are excluded."/>
               <Button x:Name="OpenObsLogsButton" Content="Open OBS Logs" ToolTip.Tip="Open OBS's native log directory."/>
-              <Button x:Name="OpenLogsButton" Content="Open Ground Control Logs" ToolTip.Tip="Open Ground Control's own local event log directory."/>
+              <Button x:Name="OpenLogsButton" Content="Open Mission Control Logs" ToolTip.Tip="Open Mission Control's own local event log directory."/>
             </WrapPanel>
           </StackPanel>
         </ScrollViewer>
@@ -529,7 +529,7 @@
         <ScrollViewer>
           <StackPanel Margin="0,18,0,8" Spacing="14">
             <TextBlock Text="SETTINGS" Classes="eyebrow"/>
-            <TextBlock Text="Ground Control preferences" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="Mission Control preferences" FontSize="24" FontWeight="Bold"/>
             <Border Classes="card">
               <StackPanel Spacing="8">
                 <TextBlock Text="OBS executable / app path" FontWeight="SemiBold"/>
@@ -552,9 +552,9 @@
             <Border Classes="card">
               <StackPanel Spacing="10">
                 <TextBlock Text="BEHAVIOR" FontWeight="Bold"/>
-                <CheckBox x:Name="StartAtLoginToggle" Content="Start Ground Control with the operating system" ToolTip.Tip="Launch Ground Control at sign-in/login so Recovery Protection can be available before OBS starts."/>
+                <CheckBox x:Name="StartAtLoginToggle" Content="Start Mission Control with the operating system" ToolTip.Tip="Launch Mission Control at sign-in/login so Recovery Protection can be available before OBS starts."/>
                 <CheckBox x:Name="OnlineUpdatesToggle" Content="Allow explicit online update checks" ToolTip.Tip="Allow user-triggered version checks against official/trusted release sources. Pre-Flight can still skip them per run."/>
-                <CheckBox x:Name="AutoBackupRestoreToggle" Content="Create a safety backup before restore" ToolTip.Tip="Create a current configuration snapshot before restoring an older Ground Control backup."/>
+                <CheckBox x:Name="AutoBackupRestoreToggle" Content="Create a safety backup before restore" ToolTip.Tip="Create a current configuration snapshot before restoring an older Mission Control backup."/>
               </StackPanel>
             </Border>
             <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
@@ -579,10 +579,10 @@
               <StackPanel Spacing="6">
                 <TextBlock Text="WINDOW BEHAVIOR" Classes="eyebrow"/>
                 <TextBlock Text="Close means exit" FontSize="16" FontWeight="Bold"/>
-                <TextBlock Text="The X button and Exit button fully shut down Ground Control. Use the normal Minimize button if you want the app to stay running while you work." Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="The X button and Exit button fully shut down Mission Control. Use the normal Minimize button if you want the app to stay running while you work." Classes="muted" TextWrapping="Wrap"/>
               </StackPanel>
             </Border>
-            <Button x:Name="SaveSettingsButton" Classes="primary" Content="Save Settings" HorizontalAlignment="Left" ToolTip.Tip="Save Ground Control preferences locally."/>
+            <Button x:Name="SaveSettingsButton" Classes="primary" Content="Save Settings" HorizontalAlignment="Left" ToolTip.Tip="Save Mission Control preferences locally."/>
           </StackPanel>
         </ScrollViewer>
       </TabItem>

@@ -25,17 +25,14 @@ public partial class App : Application
             {
                 try
                 {
-                    await Task.Delay(180);
-                    splash.SetStatus("Loading Ground Control services…");
+                    splash.SetStatus("Loading Streamer Mission Control services…");
                     _mainWindow = AppServices.CreateMainWindow();
-                    await Task.Delay(180);
                     splash.SetStatus("Opening mission control…");
                     desktop.MainWindow = _mainWindow;
                     _mainWindow.Show();
                     if (Environment.GetCommandLineArgs().Any(x => x.Equals("--tray", StringComparison.OrdinalIgnoreCase)))
                         _mainWindow.Hide();
                     desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
-                    await Task.Delay(120);
                     splash.Close();
                 }
                 catch
@@ -82,7 +79,7 @@ public partial class App : Application
         if (_mainWindow is null) return;
         var dialog = new Window
         {
-            Title = "About OBS Ground Control",
+            Title = "About NerdSpace Labs - Streamer Mission Control",
             Width = 440,
             Height = 240,
             CanResize = false,
@@ -92,9 +89,9 @@ public partial class App : Application
                 Spacing = 10,
                 Children =
                 {
-                    new TextBlock { Text = "NERDSPACE LABS", Foreground = Avalonia.Media.Brush.Parse("#FF7900"), FontWeight = Avalonia.Media.FontWeight.Bold },
-                    new TextBlock { Text = "OBS Ground Control", FontSize = 28, FontWeight = Avalonia.Media.FontWeight.Bold },
-                    new TextBlock { Text = $"Nerdspace Labs by OneEyedNerdy • {AppVersion.DisplayVersion}", Foreground = Avalonia.Media.Brush.Parse("#A9AFBC") },
+                    new TextBlock { Text = "NERDSPACE LABS", Foreground = Avalonia.Media.Brush.Parse("#A78BFA"), FontWeight = Avalonia.Media.FontWeight.Bold },
+                    new TextBlock { Text = "STREAMER MISSION CONTROL", FontSize = 26, FontWeight = Avalonia.Media.FontWeight.Bold },
+                    new TextBlock { Text = $"NerdSpace Labs by OneEyedNerdy • {AppVersion.DisplayVersion}", Foreground = Avalonia.Media.Brush.Parse("#948FB0") },
                     new TextBlock { Text = "A local, privacy-first pre-flight, maintenance, backup, recovery, diagnostics, and workstation health utility for OBS Studio.", TextWrapping = Avalonia.Media.TextWrapping.Wrap, Margin = new Thickness(0,8,0,0) }
                 }
             }

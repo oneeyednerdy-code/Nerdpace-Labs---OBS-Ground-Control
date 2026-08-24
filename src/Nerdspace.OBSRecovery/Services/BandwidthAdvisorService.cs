@@ -62,7 +62,7 @@ public sealed class BandwidthAdvisorService
                 ? "Upload speed is usable but inconsistent"
                 : "Bandwidth Advisor completed";
 
-        var detail = "Ground Control uses the conservative stable sample, not the fastest sample. The safe stream budget is stable upload divided by four, leaving substantial headroom for games, voice chat, browser sources, other devices, and normal ISP variation. The Cloudflare upload endpoint receives generated test bytes only; no personal files are uploaded.";
+        var detail = "Mission Control uses the conservative stable sample, not the fastest sample. The safe stream budget is stable upload divided by four, leaving substantial headroom for games, voice chat, browser sources, other devices, and normal ISP variation. The Cloudflare upload endpoint receives generated test bytes only; no personal files are uploaded.";
         _logger.Info($"Bandwidth Advisor: stable={stable:F1} Mbps peak={peak:F1} Mbps budget={recommendation.SafeBudgetMbps:F1} Mbps recommendation={recommendation.Headline}");
         return new BandwidthTestResult(true, samples, average, stable, peak, variation, uploaded, status, detail, recommendation);
     }
@@ -106,13 +106,13 @@ public sealed class BandwidthAdvisorService
             StreamingPlatform.Twitch when twitchEnhancedBroadcasting && target.Resolution == "1440p" =>
                 twitchServerSideTranscode
                     ? "Twitch 2K requires Enhanced Broadcasting. Current Twitch guidance lists roughly 9 Mbps upstream when added server-side transcode support is available."
-                    : "Twitch 2K requires Enhanced Broadcasting. Without added server-side transcode support, current Twitch guidance lists substantially more upstream bandwidth; Ground Control will avoid 1440p unless the conservative budget supports it.",
+                    : "Twitch 2K requires Enhanced Broadcasting. Without added server-side transcode support, current Twitch guidance lists substantially more upstream bandwidth; Mission Control will avoid 1440p unless the conservative budget supports it.",
             StreamingPlatform.Twitch when twitchEnhancedBroadcasting =>
-                "Enhanced Broadcasting can automatically vary the quality ladder and total bandwidth. Ground Control treats its result as a safe maximum budget, not a requirement to manually force every track.",
+                "Enhanced Broadcasting can automatically vary the quality ladder and total bandwidth. Mission Control treats its result as a safe maximum budget, not a requirement to manually force every track.",
             StreamingPlatform.Twitch =>
                 "Standard Twitch recommendation favors a conservative single-stream H.264 profile. Enable Enhanced Broadcasting in the advisor if you use Twitch multitrack/2K features.",
             StreamingPlatform.YouTube =>
-                "YouTube publishes bitrate guidance by resolution and frame rate. Ground Control chooses the highest profile that fits inside the /4 safe upload budget.",
+                "YouTube publishes bitrate guidance by resolution and frame rate. Mission Control chooses the highest profile that fits inside the /4 safe upload budget.",
             _ => "Generic recommendation prioritizes stability and leaves substantial upload headroom."
         };
 

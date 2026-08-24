@@ -1,9 +1,9 @@
-# v0.7.0-alpha.11 Windows Alpha Testing Checklist
+# v0.8.0-alpha.1 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.11` for the branch build.
+- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.1` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -74,7 +74,7 @@
 - [ ] Elgato software and hardware are separate signals.
 - [ ] SteelSeries GG/Sonar check is neutral when absent.
 - [ ] Windows main-update check excludes drivers, previews, optional/browse-only updates, routine Defender definitions, and MSRT.
-- [ ] Ground Control never auto-installs system/vendor updates.
+- [ ] Mission Control never auto-installs system/vendor updates.
 
 ## Backup / plugin / diagnostics
 - [ ] Backup creates valid manifest and ZIP.
@@ -108,24 +108,24 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.7.0-alpha.11+)
+## Windows installer regression checks (v0.8.0-alpha.1+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
-- [ ] Default path is `%LOCALAPPDATA%\Programs\Nerdspace Labs\OBS Ground Control`.
+- [ ] Default path is `%LOCALAPPDATA%\Programs\NerdSpace Labs\Streamer Mission Control`.
 - [ ] Start Menu shortcut launches the installed app.
 - [ ] Optional Desktop shortcut works when selected.
 - [ ] Windows Settings > Apps shows a normal uninstall entry.
-- [ ] Installing a newer alpha upgrades the existing Ground Control install rather than creating a duplicate product entry.
-- [ ] Installer prompts/closes a running Ground Control instance before replacing locked files when required.
+- [ ] Installing a newer alpha upgrades the existing Mission Control install rather than creating a duplicate product entry.
+- [ ] Installer prompts/closes a running Mission Control instance before replacing locked files when required.
 - [ ] Uninstall removes installed program files and shortcuts but does not silently delete user-created backups/logs/settings outside the install directory.
 - [ ] Portable ZIP continues to run independently of the installed build.
 
 
-## Self-contained runtime regression checks (v0.7.0-alpha.11+)
+## Self-contained runtime regression checks (v0.8.0-alpha.1+)
 
 - [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
-- [ ] Ground Control launches normally after installation.
+- [ ] Mission Control launches normally after installation.
 - [ ] Setup never prompts to download/install .NET.
 - [ ] Unplug/disconnect the network during install and confirm setup still completes.
 - [ ] Portable ZIP also launches without installing .NET separately.
@@ -144,7 +144,7 @@
 - Browse Official OBS Plugins opens the official OBS plugin directory.
 - No search result or unknown plugin is treated as an error.
 
-## Full OBS plugin catalog regression checks (v0.7.0-alpha.11+)
+## Full OBS plugin catalog regression checks (v0.8.0-alpha.1+)
 
 - [ ] Release workflow refreshes the official OBS Studio Plugins directory before compilation.
 - [ ] Release fails rather than embedding a suspiciously incomplete catalog below the configured minimum resource threshold.

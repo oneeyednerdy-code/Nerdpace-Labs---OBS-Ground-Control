@@ -22,7 +22,7 @@ public sealed class PluginQuarantineService
     {
         if (_platform.GetObsProcesses().Count > 0) throw new InvalidOperationException("Close OBS before quarantining a plugin.");
         if (!plugin.CanQuarantine || !Directory.Exists(plugin.Path))
-            throw new InvalidOperationException("This plugin cannot be safely quarantined automatically. Ground Control only quarantines complete plugin bundles/directories it can restore.");
+            throw new InvalidOperationException("This plugin cannot be safely quarantined automatically. Mission Control only quarantines complete plugin bundles/directories it can restore.");
 
         var id = $"{DateTime.Now:yyyyMMdd-HHmmss}-{plugin.Id}";
         var destination = Path.Combine(_root, id, "plugin");
@@ -53,7 +53,7 @@ public sealed class PluginQuarantineService
         if (_platform.GetObsProcesses().Count > 0) throw new InvalidOperationException("Close OBS before restoring a quarantined plugin.");
         var m = item.Manifest;
         if (!Directory.Exists(m.QuarantinedPath)) throw new DirectoryNotFoundException("The quarantined plugin directory is missing.");
-        if (Directory.Exists(m.OriginalPath)) throw new IOException("A plugin already exists at the original location. Ground Control will not overwrite it.");
+        if (Directory.Exists(m.OriginalPath)) throw new IOException("A plugin already exists at the original location. Mission Control will not overwrite it.");
         Directory.CreateDirectory(Path.GetDirectoryName(m.OriginalPath)!);
         Directory.Move(m.QuarantinedPath, m.OriginalPath);
         try { Directory.Delete(Path.GetDirectoryName(item.ManifestPath)!, recursive: true); } catch { }

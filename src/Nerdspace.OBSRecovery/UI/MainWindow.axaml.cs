@@ -107,7 +107,7 @@ public partial class MainWindow : Window
         WireEvents();
 
         _logger.EntryWritten += line => Dispatcher.UIThread.Post(() => AddHistory(line));
-        _logger.Info($"OBS Ground Control started on {_platform.PlatformName}.");
+        _logger.Info($"Streamer Mission Control started on {_platform.PlatformName}.");
         _timer.Tick += async (_, _) => await MonitorTickAsync();
         _timer.Start();
         Closing += OnClosing;
@@ -128,7 +128,7 @@ public partial class MainWindow : Window
     {
         PlatformText.Text = _platform.PlatformName;
         VersionBadge.Text = AppVersion.DisplayVersion;
-        FooterBrand.Text = $"Nerdspace Labs by OneEyedNerdy • {AppVersion.DisplayVersion}";
+        FooterBrand.Text = $"NerdSpace Labs - Streamer Mission Control {AppVersion.DisplayVersion} | by OneEyedNerdy";
 
         ObsPathBox.Text = _settings.ObsPath;
         ProtectionToggle.IsChecked = _settings.RecoveryProtection;
@@ -706,7 +706,7 @@ public partial class MainWindow : Window
 
         var source = !string.IsNullOrWhiteSpace(plugin.Repository)
             ? $"Trusted registry: {plugin.Repository}"
-            : "Update source not verified in Ground Control's registry";
+            : "Update source not verified in Mission Control's registry";
         PluginDetailText.Text =
             $"{plugin.Name}\nInstalled version: {plugin.Version}\nLatest verified version: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nUpdate source: {source}\nCompatibility: {plugin.CompatibilityStatus}\nCan quarantine safely: {(plugin.CanQuarantine ? "Yes" : "No")}";
 
@@ -877,7 +877,7 @@ public partial class MainWindow : Window
     {
         var plugin = SelectedPlugin();
         if (plugin is null) return;
-        if (!await ConfirmAsync("Quarantine plugin?", $"Ground Control will move the complete {plugin.Name} plugin bundle out of OBS and keep a restore manifest. OBS must be closed.")) return;
+        if (!await ConfirmAsync("Quarantine plugin?", $"Mission Control will move the complete {plugin.Name} plugin bundle out of OBS and keep a restore manifest. OBS must be closed.")) return;
         try
         {
             await _quarantine.QuarantineAsync(plugin);
@@ -921,7 +921,7 @@ public partial class MainWindow : Window
     {
         var backup = SelectedBackup();
         BackupDetailText.Text = backup is null
-            ? "No Ground Control backup found."
+            ? "No Mission Control backup found."
             : $"{backup.Created.LocalDateTime:g} • {backup.FileCount} files • {backup.SizeBytes / 1024d / 1024d:F1} MB\n{backup.Path}";
     }
 
@@ -1123,7 +1123,7 @@ public partial class MainWindow : Window
             Children =
             {
                 new TextBlock { Text = title, FontSize = 22, FontWeight = FontWeight.Bold },
-                new TextBlock { Text = message, Foreground = Brush.Parse("#A9AFBC"), TextWrapping = TextWrapping.Wrap },
+                new TextBlock { Text = message, Foreground = Brush.Parse("#948FB0"), TextWrapping = TextWrapping.Wrap },
                 new WrapPanel { ItemSpacing = 10, Children = { yes, no } }
             }
         };
@@ -1131,7 +1131,7 @@ public partial class MainWindow : Window
         return result;
     }
 
-    private Task ShowErrorAsync(string message) => ShowInfoAsync("OBS Ground Control", message);
+    private Task ShowErrorAsync(string message) => ShowInfoAsync("Streamer Mission Control", message);
 
     private async Task ShowInfoAsync(string title, string message)
     {
@@ -1145,7 +1145,7 @@ public partial class MainWindow : Window
             Children =
             {
                 new TextBlock { Text = title, FontSize = 21, FontWeight = FontWeight.Bold },
-                new ScrollViewer { MaxHeight = 190, Content = new TextBlock { Text = message, Foreground = Brush.Parse("#A9AFBC"), TextWrapping = TextWrapping.Wrap } },
+                new ScrollViewer { MaxHeight = 190, Content = new TextBlock { Text = message, Foreground = Brush.Parse("#948FB0"), TextWrapping = TextWrapping.Wrap } },
                 close
             }
         };
@@ -1183,7 +1183,7 @@ public partial class MainWindow : Window
             _logger.Warn($"Could not persist window settings during shutdown: {ex.Message}");
         }
 
-        _logger.Info("OBS Ground Control shutting down.");
+        _logger.Info("Streamer Mission Control shutting down.");
     }
 
     public void PrepareForShutdown()

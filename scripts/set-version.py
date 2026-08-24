@@ -31,4 +31,4 @@ for tag, value in replacements.items():
         raise SystemExit(f"Could not update <{tag}> in {project}")
 
 project.write_text(text, encoding="utf-8")
-print(f"Set Nerdspace OBS Ground Control version to {version}")
+print(f"Set Nerdspace Streamer Mission Control version to {version}")

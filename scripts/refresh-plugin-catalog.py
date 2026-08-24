@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Ground Control's preloaded OBS plugin catalog from the official OBS resource directory.
+"""Build Mission Control's preloaded OBS plugin catalog from the official OBS resource directory.
 
 Trust rules:
 - Every catalog entry must be discovered from https://obsproject.com/forum/plugins/.
@@ -22,7 +22,7 @@ from urllib.request import Request, urlopen
 
 BASE = "https://obsproject.com"
 DIRECTORY = f"{BASE}/forum/plugins/"
-UA = "Nerdspace-OBS-Ground-Control-Catalog/0.7 (+https://github.com/)"
+UA = "NerdSpace-Streamer-Mission-Control-Catalog/0.7 (+https://github.com/)"
 RESOURCE_RE = re.compile(r'href=["\'](?P<href>/forum/resources/[^"\'#?]+?\.(?P<id>\d+)/?)["\']', re.I)
 TAG_RE = re.compile(r"<[^>]+>")
 SPACE_RE = re.compile(r"\s+")

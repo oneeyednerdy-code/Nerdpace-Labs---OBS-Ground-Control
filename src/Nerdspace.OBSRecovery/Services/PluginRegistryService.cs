@@ -32,7 +32,7 @@ public sealed class PluginRegistryService
     {
         IEnumerable<PluginCatalogEntry> entries = _entries;
 
-        // Ground Control is Windows-only right now. Resources with explicit platform
+        // Mission Control is Windows-only right now. Resources with explicit platform
         // metadata that excludes Windows are hidden from normal discovery. Entries with
         // no platform metadata remain visible rather than being guessed incompatible.
         entries = entries.Where(entry => entry.SupportedPlatforms.Length == 0 ||

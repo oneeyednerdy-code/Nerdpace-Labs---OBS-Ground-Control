@@ -74,7 +74,7 @@ public sealed class CreatorSoftwareUpdateService
         var executable = FindStreamerBotExecutable();
         if (string.IsNullOrWhiteSpace(executable))
             return NotDetected("streamerbot", "Streamer.bot", StreamerBotDownloadUrl,
-                "Streamer.bot is portable and can be extracted anywhere. Ground Control checked running processes and common user folders but did not find Streamer.bot.exe. Set its executable path in Settings for guaranteed detection.");
+                "Streamer.bot is portable and can be extracted anywhere. Mission Control checked running processes and common user folders but did not find Streamer.bot.exe. Set its executable path in Settings for guaranteed detection.");
 
         var installed = ReadExecutableVersion(executable);
         if (!checkOnline)
@@ -86,7 +86,7 @@ public sealed class CreatorSoftwareUpdateService
         return new(
             "streamerbot", "Streamer.bot", true, installed, latest, status,
             ExplainStatus(status,
-                "Latest stable version comes from the official Streamer.bot Downloads service. Streamer.bot also has its own built-in updater; Ground Control only reports status and opens the official destination."),
+                "Latest stable version comes from the official Streamer.bot Downloads service. Streamer.bot also has its own built-in updater; Mission Control only reports status and opens the official destination."),
             executable, StreamerBotDownloadUrl, "Official Streamer.bot stable Downloads service");
     }
 
@@ -105,7 +105,7 @@ public sealed class CreatorSoftwareUpdateService
         return new(
             id, name, true, installed, latest, status,
             ExplainStatus(status,
-                $"Latest stable version comes from {source}. Ground Control never installs or replaces {name} silently."),
+                $"Latest stable version comes from {source}. Mission Control never installs or replaces {name} silently."),
             executable, release?.Url ?? fallbackUrl, source);
     }
 
@@ -124,8 +124,8 @@ public sealed class CreatorSoftwareUpdateService
     {
         "Update available" => $"A newer stable release is available. {evidence}",
         "Current" => $"Installed version matches the latest stable release. {evidence}",
-        "Newer than catalog" => $"This installation is newer than the public stable release. Ground Control will not recommend a downgrade. {evidence}",
-        "Version unknown" => $"Ground Control could not make a reliable version comparison. {evidence}",
+        "Newer than catalog" => $"This installation is newer than the public stable release. Mission Control will not recommend a downgrade. {evidence}",
+        "Version unknown" => $"Mission Control could not make a reliable version comparison. {evidence}",
         _ => $"Manual verification is recommended. {evidence}"
     };
 

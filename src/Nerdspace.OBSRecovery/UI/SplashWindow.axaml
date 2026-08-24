@@ -1,32 +1,29 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Nerdspace.OBSRecovery.UI.SplashWindow"
-        Title="OBS Ground Control"
-        Width="520" Height="300"
+        Title="NerdSpace Labs - Streamer Mission Control"
+        Width="500" Height="240"
         CanResize="False"
         ShowInTaskbar="True"
+        Icon="/Assets/app.ico"
         SystemDecorations="None"
         WindowStartupLocation="CenterScreen"
-        Background="#0B0D11">
-  <Border Background="#10141A" BorderBrush="#2B323D" BorderThickness="1" CornerRadius="18" Padding="34">
-    <Grid RowDefinitions="Auto,*,Auto,Auto">
-      <StackPanel Spacing="4">
-        <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
-        <TextBlock Text="OBS GROUND CONTROL" FontSize="30" FontWeight="Bold"/>
-        <TextBlock Text="Prepare • protect • maintain • recover" Classes="muted" FontSize="13"/>
-      </StackPanel>
-      <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="126" Height="126">
-        <Ellipse Stroke="#313844" StrokeThickness="8"/>
-        <Ellipse Width="82" Height="82" Stroke="#FF7900" StrokeThickness="7" StrokeDashArray="2 2"/>
-        <Border Width="54" Height="54" CornerRadius="27" Background="#171C24" BorderBrush="#3A424F" BorderThickness="1">
-          <TextBlock Text="N" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" FontWeight="Bold" Foreground="#FF7900"/>
+        Background="#000000">
+  <Border Background="#0D0A14" BorderBrush="#241B3A" BorderThickness="1" CornerRadius="10" Padding="28">
+    <Grid RowDefinitions="*,Auto">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="20" VerticalAlignment="Center">
+        <Border Width="82" Height="82" CornerRadius="10" Background="#150F22" BorderBrush="#766595" BorderThickness="1">
+          <Image Source="/Assets/app.png" Width="68" Height="68" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
+        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+          <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
+          <TextBlock Text="STREAMER MISSION CONTROL" FontSize="25" FontWeight="Bold" Foreground="#F1EDFB"/>
+        </StackPanel>
       </Grid>
-      <StackPanel Grid.Row="2" Spacing="7">
-        <TextBlock x:Name="LaunchStatusText" Text="Starting Ground Control" HorizontalAlignment="Center" Foreground="#D8DCE4" FontWeight="SemiBold"/>
-        <ProgressBar IsIndeterminate="True" Height="5"/>
+      <StackPanel Grid.Row="1" Spacing="8" Margin="0,22,0,0">
+        <TextBlock x:Name="LaunchStatusText" Text="Starting Streamer Mission Control" HorizontalAlignment="Center" Foreground="#948FB0" FontSize="12"/>
+        <ProgressBar IsIndeterminate="True" Height="4"/>
       </StackPanel>
-      <TextBlock Grid.Row="3" Text="Nerdspace Labs by OneEyedNerdy" HorizontalAlignment="Center" Classes="muted" FontSize="11" Margin="0,16,0,0"/>
     </Grid>
   </Border>
 </Window>

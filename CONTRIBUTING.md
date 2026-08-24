@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Nerdspace Labs OBS Ground Control.
+Thanks for helping improve NerdSpace Labs - Streamer Mission Control.
 
 - Keep platform-specific process behavior behind `IObsPlatformService`.
 - Do not add telemetry, tracking, or credential collection.

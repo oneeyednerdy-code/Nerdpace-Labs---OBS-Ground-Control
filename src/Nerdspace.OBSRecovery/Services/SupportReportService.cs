@@ -26,8 +26,8 @@ public sealed class SupportReportService
         var crashes=_crashes.List(); var backups=_backups.ListBackups();
         var path=Path.Combine(_logger.LogDirectory,$"ground-control-support-{DateTime.Now:yyyyMMdd-HHmmss}.txt");
         var lines=new List<string>{
-            "NERDSPACE LABS OBS GROUND CONTROL - SANITIZED SUPPORT REPORT",
-            $"Generated: {DateTimeOffset.Now:O}", $"Ground Control: {AppVersion.DisplayVersion}", $"Platform: {_platform.PlatformName}",
+            "NERDSPACE LABS - STREAMER MISSION CONTROL - SANITIZED SUPPORT REPORT",
+            $"Generated: {DateTimeOffset.Now:O}", $"Mission Control: {AppVersion.DisplayVersion}", $"Platform: {_platform.PlatformName}",
             $"OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}", $"Architecture: {System.Runtime.InteropServices.RuntimeInformation.OSArchitecture}",
             $"Monitoring: {_platform.MonitoringCapability}", $"OBS version: {health.ObsVersion}", $"OBS state: {snapshot.State}",
             $"OBS process count: {health.ObsProcessCount}", $"OBS memory: {health.ObsMemoryMb:F0} MB",

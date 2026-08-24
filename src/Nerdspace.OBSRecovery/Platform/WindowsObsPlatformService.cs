@@ -102,7 +102,7 @@ public sealed class WindowsObsPlatformService : IObsPlatformService
         catch (ArgumentException) { return; }
         catch (System.ComponentModel.Win32Exception) { }
 
-        var executable = Environment.ProcessPath ?? throw new InvalidOperationException("Could not determine Ground Control executable path.");
+        var executable = Environment.ProcessPath ?? throw new InvalidOperationException("Could not determine Mission Control executable path.");
         using var helper = Process.Start(new ProcessStartInfo
         {
             FileName = executable,
@@ -119,7 +119,21 @@ public sealed class WindowsObsPlatformService : IObsPlatformService
     public string GetObsLogDirectory() => Path.Combine(GetObsConfigDirectory(), "logs");
     public string GetObsCrashDirectory() => Path.Combine(GetObsConfigDirectory(), "crashes");
     public string GetObsConfigDirectory() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
-    public string GetSettingsDirectory() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Nerdspace Labs", "OBS Ground Control");
+    public string GetSettingsDirectory()
+    {
+        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var target = Path.Combine(local, "NerdSpace Labs", "Streamer Mission Control");
+        var legacy = Path.Combine(local, "Nerdspace Labs", "OBS Ground Control");
+
+        try
+        {
+            if (!Directory.Exists(target) && Directory.Exists(legacy))
+                CopyDirectory(legacy, target);
+        }
+        catch { /* Migration failure must never block launch. */ }
+
+        return target;
+    }
 
     public IReadOnlyList<string> GetPluginDirectories()
     {
@@ -147,9 +161,27 @@ public sealed class WindowsObsPlatformService : IObsPlatformService
     {
         using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
         if (key is null) return Task.CompletedTask;
-        if (enabled) key.SetValue("Nerdspace Labs OBS Ground Control", $"\"{Environment.ProcessPath}\" --tray");
-        else key.DeleteValue("Nerdspace Labs OBS Ground Control", throwOnMissingValue: false);
+        if (enabled)
+        {
+            key.SetValue("NerdSpace Labs Streamer Mission Control", $"\"{Environment.ProcessPath}\" --tray");
+            key.DeleteValue("Nerdspace Labs OBS Ground Control", throwOnMissingValue: false);
+        }
+        else
+        {
+            key.DeleteValue("NerdSpace Labs Streamer Mission Control", throwOnMissingValue: false);
+            key.DeleteValue("Nerdspace Labs OBS Ground Control", throwOnMissingValue: false);
+        }
         return Task.CompletedTask;
+    }
+
+
+    private static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+        foreach (var file in Directory.EnumerateFiles(source))
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)), overwrite: false);
+        foreach (var directory in Directory.EnumerateDirectories(source))
+            CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
     }
 
     private static async Task WaitForExitAsync(Process process, TimeSpan timeout, CancellationToken cancellationToken)
