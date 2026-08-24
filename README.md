@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.9**
+Current development version: **v0.7.0-alpha.11**
 
 ## Supported platform
 
@@ -37,6 +37,9 @@ Checks include:
 - NVIDIA telemetry when `nvidia-smi` is available
 - Elgato Hardware & Software
 - SteelSeries GG / Sonar
+- Mix It Up installed-version + stable update check
+- Streamer.bot portable detection + stable update check
+- Firebot installed-version + stable update check
 - Windows main updates
 - OBS plugins
 - latest OBS log warnings/errors
@@ -73,7 +76,7 @@ Ground Control separates maintenance from the main OBS controls:
 - SteelSeries GG/Sonar state
 - Windows **main updates only**
 
-Ground Control does **not** silently install drivers, firmware, OBS updates, Elgato/SteelSeries software, or Windows updates.
+Ground Control does **not** silently install drivers, firmware, OBS updates, Elgato/SteelSeries software, Mix It Up, Streamer.bot, Firebot, plugins, or Windows updates.
 
 ### Plugins
 
@@ -164,8 +167,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.9
-git push origin v0.7.0-alpha.9
+git tag v0.7.0-alpha.11
+git push origin v0.7.0-alpha.11
 ```
 
 The release workflow produces:
@@ -200,7 +203,7 @@ A license is intentionally not selected yet. Choose the repository license befor
 After installing .NET 10, Python, and Inno Setup, a maintainer can refresh the OBS catalog, publish the self-contained app, and build Setup.exe with:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.7.0-alpha.9
+.\scripts\build-windows-release.ps1 -Version 0.7.0-alpha.11
 ```
 
 Use `-SkipCatalogRefresh` only for offline development builds. Public release builds should refresh the official OBS resource catalog.

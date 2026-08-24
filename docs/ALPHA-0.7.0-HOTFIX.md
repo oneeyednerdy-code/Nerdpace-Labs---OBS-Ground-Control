@@ -1,4 +1,4 @@
-# v0.7.0-alpha.9 Build Hotfix
+# v0.7.0-alpha.11 Build Hotfix
 
 This alpha hotfix fixes two C# compiler errors that appeared after moving the project to .NET 10.
 

@@ -69,9 +69,17 @@ public sealed class UpdateService
     private static Version? TryParseLooseVersion(string value)
     {
         var clean = NormalizeVersion(value);
-        var core = new string(clean.TakeWhile(c => char.IsDigit(c) || c == '.').ToArray()).Trim('.');
-        if (core.Count(c => c == '.') == 1) core += ".0";
-        return Version.TryParse(core, out var version) ? version : null;
+        var match = System.Text.RegularExpressions.Regex.Match(clean, @"\d+(?:\.\d+){1,3}");
+        if (!match.Success) return null;
+
+        var parts = match.Value
+            .Split('.', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => int.TryParse(x, out var n) ? n : 0)
+            .Take(4)
+            .ToList();
+
+        while (parts.Count < 4) parts.Add(0);
+        return new Version(parts[0], parts[1], parts[2], parts[3]);
     }
 
     public static string NormalizeVersion(string value)

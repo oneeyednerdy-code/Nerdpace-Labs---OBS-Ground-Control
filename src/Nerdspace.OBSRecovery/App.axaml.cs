@@ -18,11 +18,35 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            _mainWindow = AppServices.CreateMainWindow();
-            desktop.MainWindow = _mainWindow;
+            var splash = new SplashWindow();
+            desktop.MainWindow = splash;
 
-            if (Environment.GetCommandLineArgs().Any(a => a.Equals("--tray", StringComparison.OrdinalIgnoreCase)))
-                _mainWindow.Opened += (_, _) => _mainWindow.Hide();
+            splash.Opened += async (_, _) =>
+            {
+                try
+                {
+                    await Task.Delay(180);
+                    splash.SetStatus("Loading Ground Control services…");
+                    _mainWindow = AppServices.CreateMainWindow();
+                    await Task.Delay(180);
+                    splash.SetStatus("Opening mission control…");
+                    desktop.MainWindow = _mainWindow;
+                    _mainWindow.Show();
+                    if (Environment.GetCommandLineArgs().Any(x => x.Equals("--tray", StringComparison.OrdinalIgnoreCase)))
+                        _mainWindow.Hide();
+                    desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                    await Task.Delay(120);
+                    splash.Close();
+                }
+                catch
+                {
+                    splash.Close();
+                    desktop.Shutdown();
+                    throw;
+                }
+            };
+
+            splash.Show();
         }
 
         base.OnFrameworkInitializationCompleted();

@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     private readonly GraphicsDriverService _graphics;
     private readonly ElgatoHealthService _elgato;
     private readonly SteelSeriesSonarService _sonar;
+    private readonly CreatorSoftwareUpdateService _creatorSoftware;
     private readonly WindowsUpdateService _windowsUpdates;
     private readonly CrashHistoryService _crashes;
     private readonly ObsConfigurationInspectorService _obsConfig;
@@ -40,7 +41,6 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<string> _history = new();
     private ObsSnapshot? _lastSnapshot;
     private bool _monitorBusy;
-    private bool _allowClose;
     private IReadOnlyList<PluginInfo> _pluginItems = Array.Empty<PluginInfo>();
     private IReadOnlyList<PluginInfo> _pluginUpdateItems = Array.Empty<PluginInfo>();
     private IReadOnlyList<PluginDiscoveryInfo> _pluginDiscoveryItems = Array.Empty<PluginDiscoveryInfo>();
@@ -67,6 +67,7 @@ public partial class MainWindow : Window
         GraphicsDriverService graphics,
         ElgatoHealthService elgato,
         SteelSeriesSonarService sonar,
+        CreatorSoftwareUpdateService creatorSoftware,
         WindowsUpdateService windowsUpdates,
         CrashHistoryService crashes,
         ObsConfigurationInspectorService obsConfig,
@@ -91,6 +92,7 @@ public partial class MainWindow : Window
         _graphics = graphics;
         _elgato = elgato;
         _sonar = sonar;
+        _creatorSoftware = creatorSoftware;
         _windowsUpdates = windowsUpdates;
         _crashes = crashes;
         _obsConfig = obsConfig;
@@ -99,6 +101,8 @@ public partial class MainWindow : Window
         _support = support;
 
         InitializeComponent();
+        Width = Math.Clamp(_settings.WindowWidth, MinWidth, 2400);
+        Height = Math.Clamp(_settings.WindowHeight, MinHeight, 1600);
         InitializeState();
         WireEvents();
 
@@ -116,6 +120,7 @@ public partial class MainWindow : Window
             await RefreshDiagnosticsAsync();
             UpdatePreflightBandwidthProfile();
             RefreshCurrentObsOutput();
+            await RefreshCreatorSoftwareCoreAsync(false);
         };
     }
 
@@ -134,6 +139,9 @@ public partial class MainWindow : Window
         BackupAgeBox.Text = _settings.BackupWarningAgeDays.ToString();
         DiskWarningBox.Text = _settings.RecordingDiskWarningGb.ToString("0.#");
         BackupDirectoryBox.Text = _settings.BackupDirectory;
+        MixItUpPathBox.Text = _settings.MixItUpPath;
+        StreamerBotPathBox.Text = _settings.StreamerBotPath;
+        FirebotPathBox.Text = _settings.FirebotPath;
         RunBandwidthInPreflightToggle.IsChecked = _settings.RunBandwidthTestInPreflight;
         LaunchAfterReadyToggle.IsChecked = false;
         SkipUpdatesThisRunToggle.IsChecked = false;
@@ -165,6 +173,7 @@ public partial class MainWindow : Window
         RestartButton.Click += async (_, _) => await ConfirmAndRestartAsync(false);
         SafeModeButton.Click += async (_, _) => await LaunchSafeModeAsync();
         ForceCloseButton.Click += async (_, _) => await ConfirmAndForceCloseAsync();
+        ExitButton.Click += (_, _) => Close();
 
         PreflightHeaderButton.Click += (_, _) => MainTabs.SelectedItem = PreflightTab;
         DashboardPreflightButton.Click += (_, _) => MainTabs.SelectedItem = PreflightTab;
@@ -188,6 +197,12 @@ public partial class MainWindow : Window
         OpenElgatoButton.Click += (_, _) => TryAction(_elgato.OpenDownloads);
         CheckSonarButton.Click += async (_, _) => await CheckSonarAsync();
         OpenSonarButton.Click += (_, _) => TryAction(_sonar.OpenSonarPage);
+        CheckMixItUpButton.Click += async (_, _) => await CheckMixItUpAsync();
+        OpenMixItUpUpdateButton.Click += (_, _) => TryAction(() => CreatorSoftwareUpdateService.OpenUrl(CreatorSoftwareUpdateService.MixItUpReleasesUrl));
+        CheckStreamerBotButton.Click += async (_, _) => await CheckStreamerBotAsync();
+        OpenStreamerBotUpdateButton.Click += (_, _) => TryAction(() => CreatorSoftwareUpdateService.OpenUrl(CreatorSoftwareUpdateService.StreamerBotDownloadUrl));
+        CheckFirebotButton.Click += async (_, _) => await CheckFirebotAsync();
+        OpenFirebotUpdateButton.Click += (_, _) => TryAction(() => CreatorSoftwareUpdateService.OpenUrl(CreatorSoftwareUpdateService.FirebotReleasesUrl));
         CheckWindowsButton.Click += async (_, _) => await CheckWindowsUpdatesAsync();
         OpenWindowsUpdateButton.Click += (_, _) => TryAction(_windowsUpdates.OpenWindowsUpdate);
         CheckAllUpdatesButton.Click += async (_, _) => await CheckAllUpdatesAsync();
@@ -350,6 +365,53 @@ public partial class MainWindow : Window
         SteelSeriesText.Text = snapshot.Summary + "\n" + snapshot.Detail;
     }
 
+    private async Task CheckMixItUpAsync()
+    {
+        await WithBusyAsync(CheckMixItUpButton, "Checking…", UpdatesProgress, UpdatesProgressText,
+            "Detecting Mix It Up and checking its official stable release…", async () =>
+            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckMixItUpAsync(_settings.CheckUpdatesOnline)));
+    }
+
+    private async Task CheckStreamerBotAsync()
+    {
+        await WithBusyAsync(CheckStreamerBotButton, "Checking…", UpdatesProgress, UpdatesProgressText,
+            "Detecting Streamer.bot and checking its official stable release…", async () =>
+            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckStreamerBotAsync(_settings.CheckUpdatesOnline)));
+    }
+
+    private async Task CheckFirebotAsync()
+    {
+        await WithBusyAsync(CheckFirebotButton, "Checking…", UpdatesProgress, UpdatesProgressText,
+            "Detecting Firebot and checking its official stable release…", async () =>
+            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckFirebotAsync(_settings.CheckUpdatesOnline)));
+    }
+
+    private async Task RefreshCreatorSoftwareCoreAsync(bool checkOnline)
+    {
+        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckMixItUpAsync(checkOnline && _settings.CheckUpdatesOnline));
+        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckStreamerBotAsync(checkOnline && _settings.CheckUpdatesOnline));
+        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckFirebotAsync(checkOnline && _settings.CheckUpdatesOnline));
+    }
+
+    private void ApplyCreatorSoftwareSnapshot(CreatorSoftwareUpdateSnapshot snapshot)
+    {
+        switch (snapshot.Id)
+        {
+            case "mixitup":
+                MixItUpUpdateText.Text = snapshot.Display;
+                OpenMixItUpUpdateButton.Content = snapshot.UpdateAvailable ? "Open Update" : snapshot.Detected ? "Official Releases" : "Official Download";
+                break;
+            case "streamerbot":
+                StreamerBotUpdateText.Text = snapshot.Display;
+                OpenStreamerBotUpdateButton.Content = snapshot.UpdateAvailable ? "Open Update" : "Official Downloads";
+                break;
+            case "firebot":
+                FirebotUpdateText.Text = snapshot.Display;
+                OpenFirebotUpdateButton.Content = snapshot.UpdateAvailable ? "Open Update" : snapshot.Detected ? "Official Releases" : "Official Download";
+                break;
+        }
+    }
+
     private async Task CheckWindowsUpdatesAsync()
     {
         await WithBusyAsync(CheckWindowsButton, "Checking…", UpdatesProgress, UpdatesProgressText, "Checking Windows main updates…", RefreshWindowsUpdateCoreAsync);
@@ -379,6 +441,8 @@ public partial class MainWindow : Window
             await RefreshElgatoCoreAsync();
             UpdatesProgressText.Text = "Inspecting SteelSeries Sonar…";
             await RefreshSonarCoreAsync();
+            UpdatesProgressText.Text = "Checking Mix It Up, Streamer.bot, and Firebot…";
+            await RefreshCreatorSoftwareCoreAsync(true);
             UpdatesProgressText.Text = "Checking Windows main updates…";
             await RefreshWindowsUpdateCoreAsync();
             UpdatesProgressText.Text = "Update Center scan complete.";
@@ -942,6 +1006,14 @@ public partial class MainWindow : Window
         if (int.TryParse(BackupAgeBox.Text, out var days)) _settings.BackupWarningAgeDays = days;
         if (double.TryParse(DiskWarningBox.Text, out var gb)) _settings.RecordingDiskWarningGb = gb;
         _settings.BackupDirectory = BackupDirectoryBox.Text?.Trim() ?? string.Empty;
+        _settings.MixItUpPath = MixItUpPathBox.Text?.Trim() ?? string.Empty;
+        _settings.StreamerBotPath = StreamerBotPathBox.Text?.Trim() ?? string.Empty;
+        _settings.FirebotPath = FirebotPathBox.Text?.Trim() ?? string.Empty;
+        if (WindowState == WindowState.Normal)
+        {
+            _settings.WindowWidth = Math.Max(MinWidth, Bounds.Width);
+            _settings.WindowHeight = Math.Max(MinHeight, Bounds.Height);
+        }
         await _settingsService.SaveAsync(_settings);
         if (!silent) _logger.Success("Settings saved.");
     }
@@ -1092,15 +1164,40 @@ public partial class MainWindow : Window
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        if (_allowClose || e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown) return;
-        if (_settings.MinimizeToTrayOnClose)
+        _timer.Stop();
+
+        if (WindowState == WindowState.Normal)
         {
-            e.Cancel = true;
-            Hide();
+            _settings.WindowWidth = Math.Max(MinWidth, Bounds.Width);
+            _settings.WindowHeight = Math.Max(MinHeight, Bounds.Height);
         }
+
+        _settings.MinimizeToTrayOnClose = false;
+
+        try
+        {
+            _settingsService.SaveAsync(_settings).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not persist window settings during shutdown: {ex.Message}");
+        }
+
+        _logger.Info("OBS Ground Control shutting down.");
     }
 
-    public void PrepareForShutdown() => _allowClose = true;
+    public void PrepareForShutdown()
+    {
+        _timer.Stop();
+        if (WindowState == WindowState.Normal)
+        {
+            _settings.WindowWidth = Math.Max(MinWidth, Bounds.Width);
+            _settings.WindowHeight = Math.Max(MinHeight, Bounds.Height);
+        }
+
+        try { _settingsService.SaveAsync(_settings).GetAwaiter().GetResult(); }
+        catch { }
+    }
     public void LaunchObsFromTray() => _ = RunActionAsync(() => _recovery.LaunchAsync());
     public Task RestartObsFromTrayAsync() => RunActionAsync(() => _recovery.RestartAsync());
 }

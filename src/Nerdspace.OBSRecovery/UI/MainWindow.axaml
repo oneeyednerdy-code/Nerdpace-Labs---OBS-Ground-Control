@@ -2,23 +2,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Nerdspace.OBSRecovery.UI.MainWindow"
         Title="Nerdspace Labs OBS Ground Control"
-        Width="1220" Height="900" MinWidth="920" MinHeight="720"
+        Width="1060" Height="700" MinWidth="760" MinHeight="540" CanResize="True"
         Icon="/Assets/app.ico"
         WindowStartupLocation="CenterScreen">
-  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="30,24,30,18">
-    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,18">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="22,18,22,14">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,14">
       <StackPanel Spacing="3">
         <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
-        <TextBlock Text="OBS GROUND CONTROL" FontSize="34" FontWeight="Bold"/>
+        <TextBlock Text="OBS GROUND CONTROL" FontSize="30" FontWeight="Bold"/>
         <TextBlock Text="Prepare • protect • maintain • recover" Classes="muted" FontSize="14"/>
       </StackPanel>
-      <Border Grid.Column="1" Classes="subtleCard" VerticalAlignment="Center" Padding="14,9">
-        <StackPanel Orientation="Horizontal" Spacing="10">
+      <Border Grid.Column="1" Classes="subtleCard" VerticalAlignment="Center" Padding="12,8" Margin="0,0,10,0">
+        <StackPanel Orientation="Horizontal" Spacing="8">
           <TextBlock x:Name="PlatformText" FontWeight="SemiBold"/>
           <TextBlock Text="•" Foreground="#626A76"/>
           <TextBlock x:Name="VersionBadge" Foreground="#FF7900" FontWeight="Bold"/>
         </StackPanel>
       </Border>
+      <Button Grid.Column="2" x:Name="ExitButton" Classes="small" Content="Exit"
+              VerticalAlignment="Center"
+              ToolTip.Tip="Fully shut down OBS Ground Control. Closing the window with X does the same thing."/>
     </Grid>
 
     <Border Grid.Row="1" Classes="card" Margin="0,0,0,16">
@@ -231,12 +234,12 @@
                 <TextBlock Text="Ground Control reports local state and uses official destinations for downloads. It does not silently install drivers or operating-system updates." Classes="muted" TextWrapping="Wrap"/>
               </StackPanel>
               <Button Grid.Column="1" x:Name="CheckAllUpdatesButton" Classes="primary" Content="Check Everything" VerticalAlignment="Center"
-                      ToolTip.Tip="Run OBS, GPU/driver, Elgato hardware/software, SteelSeries Sonar, and Windows main-update checks. Vendor downloads remain manual."/>
+                      ToolTip.Tip="Run OBS, GPU/driver, Elgato, SteelSeries Sonar, Mix It Up, Streamer.bot, Firebot, and Windows main-update checks. Downloads remain manual."/>
             </Grid>
             <TextBlock x:Name="UpdatesProgressText" Text="No update scan running." Classes="muted"/>
             <ProgressBar x:Name="UpdatesProgress" IsIndeterminate="True" IsVisible="False"/>
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
               <Border Classes="card">
                 <StackPanel Spacing="9">
                   <TextBlock Text="OBS STUDIO" Classes="eyebrow"/>
@@ -295,6 +298,47 @@
                     <Button x:Name="CheckWindowsButton" Classes="small" Content="Check Main Updates" ToolTip.Tip="Check normal Windows software updates only; Ground Control excludes driver, preview, optional, definition, and other non-main categories."/>
                     <Button x:Name="OpenWindowsUpdateButton" Classes="small" Content="Open Windows Update" ToolTip.Tip="Open the native Windows Update settings page. Ground Control never installs Windows updates itself."/>
                   </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="3" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="MIX IT UP" Classes="eyebrow"/>
+                  <TextBlock x:Name="MixItUpUpdateText" Text="Detecting local installation…" TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckMixItUpButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Mix It Up, read MixItUp.exe version, and compare it with the latest stable release from the official MixItUpBot/Desktop GitHub repository."/>
+                    <Button x:Name="OpenMixItUpUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Mix It Up release source. Ground Control never silently installs or replaces Mix It Up."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="3" Grid.Column="1" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="STREAMER.BOT" Classes="eyebrow"/>
+                  <TextBlock x:Name="StreamerBotUpdateText" Text="Detecting local portable installation…" TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckStreamerBotButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Streamer.bot, read Streamer.bot.exe version, and compare it with the latest public stable version from the official Streamer.bot Downloads service."/>
+                    <Button x:Name="OpenStreamerBotUpdateButton" Classes="small" Content="Official Downloads" ToolTip.Tip="Open Streamer.bot's official Downloads page. Ground Control does not overwrite portable files."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="4" Classes="card">
+                <StackPanel Spacing="9">
+                  <TextBlock Text="FIREBOT" Classes="eyebrow"/>
+                  <TextBlock x:Name="FirebotUpdateText" Text="Detecting local installation…" TextWrapping="Wrap"/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="CheckFirebotButton" Classes="small" Content="Scan &amp; Check" ToolTip.Tip="Detect Firebot locally, read its executable version, and compare it with the latest stable release from the official crowbartools/Firebot GitHub repository."/>
+                    <Button x:Name="OpenFirebotUpdateButton" Classes="small" Content="Official Releases" ToolTip.Tip="Open the official Firebot GitHub Releases page. Ground Control never silently installs or replaces Firebot."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="4" Grid.Column="1" Classes="card">
+                <StackPanel Spacing="7">
+                  <TextBlock Text="CREATOR BOT UPDATE POLICY" Classes="eyebrow"/>
+                  <TextBlock Text="Ground Control checks stable releases only." FontWeight="Bold"/>
+                  <TextBlock Text="Detection and version reads are local. Online checks only query official release sources when enabled. Updates always open the official destination; nothing is installed silently." Classes="muted" TextWrapping="Wrap"/>
                 </StackPanel>
               </Border>
             </Grid>
@@ -494,6 +538,18 @@
               </StackPanel>
             </Border>
             <Border Classes="card">
+              <StackPanel Spacing="9">
+                <TextBlock Text="CREATOR TOOL PATHS" FontWeight="Bold"/>
+                <TextBlock Text="Optional executable overrides for portable or non-standard installs. Leave blank to use automatic detection." Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="Mix It Up executable" Classes="muted"/>
+                <TextBox x:Name="MixItUpPathBox" Watermark="Path to MixItUp.exe (optional)" ToolTip.Tip="Useful for the Mix It Up ZIP/portable build or a custom install folder."/>
+                <TextBlock Text="Streamer.bot executable" Classes="muted"/>
+                <TextBox x:Name="StreamerBotPathBox" Watermark="Path to Streamer.bot.exe (optional)" ToolTip.Tip="Streamer.bot is portable and may live anywhere; set this path if automatic detection misses it."/>
+                <TextBlock Text="Firebot executable" Classes="muted"/>
+                <TextBox x:Name="FirebotPathBox" Watermark="Path to Firebot v5.exe / Firebot.exe (optional)" ToolTip.Tip="Set this only if Firebot lives outside its normal Windows or Electron install locations."/>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
               <StackPanel Spacing="10">
                 <TextBlock Text="BEHAVIOR" FontWeight="Bold"/>
                 <CheckBox x:Name="StartAtLoginToggle" Content="Start Ground Control with the operating system" ToolTip.Tip="Launch Ground Control at sign-in/login so Recovery Protection can be available before OBS starts."/>
@@ -519,6 +575,13 @@
                 </StackPanel>
               </Border>
             </Grid>
+            <Border Classes="subtleCard">
+              <StackPanel Spacing="6">
+                <TextBlock Text="WINDOW BEHAVIOR" Classes="eyebrow"/>
+                <TextBlock Text="Close means exit" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="The X button and Exit button fully shut down Ground Control. Use the normal Minimize button if you want the app to stay running while you work." Classes="muted" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
             <Button x:Name="SaveSettingsButton" Classes="primary" Content="Save Settings" HorizontalAlignment="Left" ToolTip.Tip="Save Ground Control preferences locally."/>
           </StackPanel>
         </ScrollViewer>

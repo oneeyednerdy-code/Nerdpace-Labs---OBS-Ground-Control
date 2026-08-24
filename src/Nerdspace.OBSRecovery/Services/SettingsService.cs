@@ -53,6 +53,9 @@ public sealed class SettingsService
         settings.StuckShutdownThresholdSeconds = Math.Clamp(settings.StuckShutdownThresholdSeconds, 5, 120);
         settings.BackupWarningAgeDays = Math.Clamp(settings.BackupWarningAgeDays, 1, 365);
         settings.RecordingDiskWarningGb = Math.Clamp(settings.RecordingDiskWarningGb, 1, 5000);
+        settings.WindowWidth = Math.Clamp(settings.WindowWidth <= 0 ? 1060 : settings.WindowWidth, 760, 2400);
+        settings.WindowHeight = Math.Clamp(settings.WindowHeight <= 0 ? 700 : settings.WindowHeight, 540, 1600);
+        settings.MinimizeToTrayOnClose = false;
         if (!Enum.TryParse<Nerdspace.OBSRecovery.Models.StreamingPlatform>(settings.PreferredStreamingPlatform, out _))
             settings.PreferredStreamingPlatform = Nerdspace.OBSRecovery.Models.StreamingPlatform.Twitch.ToString();
         if (!Enum.TryParse<Nerdspace.OBSRecovery.Models.MotionProfile>(settings.PreferredMotionProfile, out _))

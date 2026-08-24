@@ -1,4 +1,4 @@
-# GitHub Alpha Release Checklist — 0.7.0-alpha.9
+# GitHub Alpha Release Checklist — 0.7.0-alpha.11
 
 ## Repository
 - [ ] Repository root contains `.github`, `src`, `installer`, `scripts`, and `README.md`.
@@ -17,7 +17,7 @@
 - [ ] App installs without requiring .NET separately.
 - [ ] Start Menu shortcut launches Ground Control.
 - [ ] Optional Desktop shortcut works.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.9`.
+- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.11`.
 - [ ] OBS detection works.
 - [ ] Third-party plugin scanner excludes stock OBS modules.
 - [ ] Plugin update comparison works for a known supported plugin.
@@ -26,7 +26,7 @@
 - [ ] Uninstall works.
 
 ## Public alpha
-- [ ] Tag `v0.7.0-alpha.9` is created only after the main artifact is tested.
+- [ ] Tag `v0.7.0-alpha.11` is created only after the main artifact is tested.
 - [ ] `Release Windows` completes successfully.
 - [ ] GitHub marks the alpha as a Pre-release.
 - [ ] Setup EXE appears under Release Assets.
@@ -39,3 +39,14 @@
 - [ ] Ground Control cannot reliably identify third-party plugins
 - [ ] recovery behavior has not been tested with OBS open and closed
 - [ ] a failed Pre-Flight can accidentally launch OBS
+
+## 0.7.0-alpha.11 creator-bot regression checks
+- [ ] Mix It Up installed copy is detected and reports its executable version.
+- [ ] Mix It Up compares against the official stable GitHub release.
+- [ ] Streamer.bot portable copy is detected or can be supplied via Settings.
+- [ ] Streamer.bot compares against the official stable Downloads page.
+- [ ] Firebot installed copy is detected and reports its executable version.
+- [ ] Firebot compares against the official stable `crowbartools/Firebot` release.
+- [ ] Missing creator bots are informational, not errors.
+- [ ] Update buttons open official destinations only.
+- [ ] Check Everything includes all three creator bots.

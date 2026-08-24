@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.7.0-alpha.11 - Creator Bot Update Checks
+
+- Added installed-version detection and stable update checks for **Mix It Up**, **Streamer.bot**, and **Firebot**.
+- Mix It Up uses the official `MixItUpBot/Desktop` GitHub Releases feed.
+- Firebot uses the official `crowbartools/Firebot` GitHub Releases feed.
+- Streamer.bot uses the official Streamer.bot stable Downloads page because its GitHub repository is not the current release feed.
+- Added automatic detection through running processes, standard locations, Windows uninstall metadata where applicable, and common portable folders.
+- Added optional executable-path overrides for all three tools in Settings.
+- Added all three creator bots to **Check Everything**.
+- Added `Current`, `Update available`, `Newer than catalog`, `Version unknown`, and `Not detected automatically` states.
+- Ground Control opens official release/download destinations only; it never silently installs or overwrites creator tools.
+- Improved loose version comparison so equivalent versions such as `1.0.4` and `1.0.4.0` compare correctly.
+
+## 0.7.0-alpha.10 - Window & Launch UX
+
+- Closing the main window with **X** now fully shuts down Ground Control instead of hiding it to the tray.
+- Added an explicit **Exit** button with full-shutdown behavior.
+- Added a branded animated startup screen with an indeterminate loading animation.
+- Reduced the default window size for 14-inch/smaller laptops.
+- Reduced minimum window dimensions to `760 × 540` and kept tab contents scrollable.
+- Ground Control now remembers the last normal window size.
+- Tightened general button/tab spacing for smaller displays.
+- Added Settings copy explaining the difference between Close/Exit and Minimize.
+
 ## 0.7.0-alpha.9 - GitHub Release Guide
 
 - Added a complete GitHub repository and first-publish walkthrough.
@@ -8,7 +32,7 @@
 - Release publishing now fails when expected installer/portable artifacts are missing.
 - Preserves automatic .NET 10 self-contained publishing, Inno Setup packaging, plugin-catalog refresh, and SHA-256 generation.
 
-## 0.7.0-alpha.9 - Full OBS Resource Catalog
+## 0.7.0-alpha.8 - Full OBS Resource Catalog
 
 - Added a build-time catalog generator for the official OBS Studio Plugins resource directory.
 - Release builds enumerate the OBS plugin resource catalog and embed the resulting JSON into Ground Control.
@@ -20,7 +44,7 @@
 - Windows-only discovery hides resources explicitly marked non-Windows while retaining entries with unspecified platform metadata.
 - Added maintainer overrides for reliable local module matching without weakening catalog trust.
 
-## 0.7.0-alpha.9 - Trusted Plugin Registry & Discovery
+## 0.7.0-alpha.7 - Trusted Plugin Registry & Discovery
 
 - Split Plugin Control into **Installed**, **Updates**, and **Discover** views.
 - Added a curated trusted plugin registry with verified OBS resource pages and official GitHub repositories.

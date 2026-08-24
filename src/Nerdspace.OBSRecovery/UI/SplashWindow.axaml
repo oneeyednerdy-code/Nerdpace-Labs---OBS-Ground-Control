@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Nerdspace.OBSRecovery.UI.SplashWindow"
+        Title="OBS Ground Control"
+        Width="520" Height="300"
+        CanResize="False"
+        ShowInTaskbar="True"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        Background="#0B0D11">
+  <Border Background="#10141A" BorderBrush="#2B323D" BorderThickness="1" CornerRadius="18" Padding="34">
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="NERDSPACE LABS" Classes="eyebrow"/>
+        <TextBlock Text="OBS GROUND CONTROL" FontSize="30" FontWeight="Bold"/>
+        <TextBlock Text="Prepare • protect • maintain • recover" Classes="muted" FontSize="13"/>
+      </StackPanel>
+      <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="126" Height="126">
+        <Ellipse Stroke="#313844" StrokeThickness="8"/>
+        <Ellipse Width="82" Height="82" Stroke="#FF7900" StrokeThickness="7" StrokeDashArray="2 2"/>
+        <Border Width="54" Height="54" CornerRadius="27" Background="#171C24" BorderBrush="#3A424F" BorderThickness="1">
+          <TextBlock Text="N" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" FontWeight="Bold" Foreground="#FF7900"/>
+        </Border>
+      </Grid>
+      <StackPanel Grid.Row="2" Spacing="7">
+        <TextBlock x:Name="LaunchStatusText" Text="Starting Ground Control" HorizontalAlignment="Center" Foreground="#D8DCE4" FontWeight="SemiBold"/>
+        <ProgressBar IsIndeterminate="True" Height="5"/>
+      </StackPanel>
+      <TextBlock Grid.Row="3" Text="Nerdspace Labs by OneEyedNerdy" HorizontalAlignment="Center" Classes="muted" FontSize="11" Margin="0,16,0,0"/>
+    </Grid>
+  </Border>
+</Window>
