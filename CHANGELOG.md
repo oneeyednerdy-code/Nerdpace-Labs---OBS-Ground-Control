@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.7.0-alpha.4 - .NET 10 SDK / Runtime Baseline
+## 0.7.0-alpha.5 - .NET 10 Compile Fix
+
+- Fixed `string.Split` overload usage in `ObsConfigurationInspectorService`.
+- Fixed the same overload issue in `PluginInventoryService`.
+- Restores successful compilation under the .NET 10 SDK without changing user-facing behavior.
+
+## 0.7.0-alpha.5 - .NET 10 SDK / Runtime Baseline
 
 - Moved the Windows application target from `net8.0-windows` to `net10.0-windows`.
 - Pinned developer/build tooling to the .NET 10 SDK 10.0.400 baseline with feature-band roll-forward enabled.

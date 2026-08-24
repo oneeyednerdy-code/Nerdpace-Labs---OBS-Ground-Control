@@ -1,9 +1,9 @@
-# v0.7.0-alpha.4 Windows Alpha Testing Checklist
+# v0.7.0-alpha.5 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.4` for the branch build.
+- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.5` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -104,7 +104,7 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.7.0-alpha.4+)
+## Windows installer regression checks (v0.7.0-alpha.5+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
@@ -118,7 +118,7 @@
 - [ ] Portable ZIP continues to run independently of the installed build.
 
 
-## Self-contained runtime regression checks (v0.7.0-alpha.4+)
+## Self-contained runtime regression checks (v0.7.0-alpha.5+)
 
 - [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
 - [ ] Ground Control launches normally after installation.

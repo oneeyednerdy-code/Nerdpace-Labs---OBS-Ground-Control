@@ -115,7 +115,7 @@ public sealed class ObsConfigurationInspectorService
         var common = StringValue(ini, "Video", "FPSCommon");
         if (!string.IsNullOrWhiteSpace(common))
         {
-            var first = common.Split(' ', '/', '.', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            var first = common.Split(new[] { ' ', '/', '.' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             if (int.TryParse(first, out var fps)) return fps;
         }
         var num = IntValue(ini, "Video", "FPSInt");

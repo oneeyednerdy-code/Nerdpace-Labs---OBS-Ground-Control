@@ -1,6 +1,6 @@
 #define MyAppName "Nerdspace Labs OBS Ground Control"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.7.0-alpha.4"
+  #define MyAppVersion "0.7.0-alpha.5"
 #endif
 #define MyAppPublisher "Nerdspace Labs by OneEyedNerdy"
 #define MyAppExeName "Nerdspace.OBSRecovery.exe"

@@ -134,7 +134,7 @@ public sealed class PluginInventoryService
             if (!Directory.Exists(logDir)) return "Not verified";
             var latest = Directory.EnumerateFiles(logDir, "*.txt").OrderByDescending(File.GetLastWriteTimeUtc).FirstOrDefault();
             if (latest is null) return "Not verified";
-            var tokens = pluginName.Split(' ', '-', '_', StringSplitOptions.RemoveEmptyEntries).Where(t => t.Length >= 4).ToArray();
+            var tokens = pluginName.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries).Where(t => t.Length >= 4).ToArray();
             var seen = false;
             foreach (var line in File.ReadLines(latest))
             {

@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.4**
+Current development version: **v0.7.0-alpha.5**
 
 ## Supported platform
 
@@ -149,8 +149,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.4
-git push origin v0.7.0-alpha.4
+git tag v0.7.0-alpha.5
+git push origin v0.7.0-alpha.5
 ```
 
 The release workflow produces:

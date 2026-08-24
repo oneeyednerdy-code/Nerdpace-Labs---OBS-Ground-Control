@@ -1,6 +1,6 @@
 # Windows platform notes
 
-OBS Ground Control v0.7.0-alpha.4 is developed and released for **Windows 10/11 x64 only**.
+OBS Ground Control v0.7.0-alpha.5 is developed and released for **Windows 10/11 x64 only**.
 
 ## Why Windows first?
 
