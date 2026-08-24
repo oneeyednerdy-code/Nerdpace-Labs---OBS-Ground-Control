@@ -116,6 +116,7 @@ public partial class MainWindow : Window
             await MonitorTickAsync();
             RefreshHealthLocal();
             RefreshBackupList();
+            await RefreshSceneMediaEstimateAsync();
             RefreshQuarantineList();
             await RefreshDiagnosticsAsync();
             UpdatePreflightBandwidthProfile();
@@ -136,6 +137,9 @@ public partial class MainWindow : Window
         StartAtLoginToggle.IsChecked = _settings.StartWithOperatingSystem;
         OnlineUpdatesToggle.IsChecked = _settings.CheckUpdatesOnline;
         AutoBackupRestoreToggle.IsChecked = _settings.AutoBackupBeforeRestore;
+        IncludeSceneMediaBackupToggle.IsChecked = _settings.IncludeSceneMediaInBackups;
+        RestoreSceneMediaToggle.IsChecked = false;
+        OverwriteSceneMediaToggle.IsChecked = false;
         BackupAgeBox.Text = _settings.BackupWarningAgeDays.ToString();
         DiskWarningBox.Text = _settings.RecordingDiskWarningGb.ToString("0.#");
         BackupDirectoryBox.Text = _settings.BackupDirectory;
@@ -217,6 +221,7 @@ public partial class MainWindow : Window
         SnoozePluginButton.Click += async (_, _) => await SnoozeSelectedPluginAsync();
         SkipPluginVersionButton.Click += async (_, _) => await SkipSelectedPluginVersionAsync();
         ClearPluginDeferralButton.Click += async (_, _) => await ClearSelectedPluginDeferralAsync();
+        BrowsePluginUpdatesDirectoryButton.Click += (_, _) => OpenUrl(PluginDiscoveryService.OfficialObsPluginDirectoryUrl);
         QuarantineButton.Click += async (_, _) => await QuarantineSelectedAsync();
         RestorePluginButton.Click += async (_, _) => await RestoreQuarantinedAsync();
 
@@ -228,6 +233,8 @@ public partial class MainWindow : Window
         BrowseOfficialPluginsButton.Click += (_, _) => OpenUrl(PluginDiscoveryService.OfficialObsPluginDirectoryUrl);
         DiscoverCatalogSummaryText.Text = _pluginDiscovery.CatalogSummary;
 
+        IncludeSceneMediaBackupToggle.IsCheckedChanged += async (_, _) => { await SaveSettingsAsync(true); await RefreshSceneMediaEstimateAsync(); };
+        RestoreSceneMediaToggle.IsCheckedChanged += (_, _) => OverwriteSceneMediaToggle.IsEnabled = RestoreSceneMediaToggle.IsChecked == true;
         CreateBackupButton.Click += async (_, _) => await CreateBackupAsync();
         BackupSelect.SelectionChanged += (_, _) => UpdateBackupDetail();
         RestoreBackupButton.Click += async (_, _) => await RestoreBackupAsync();
@@ -334,10 +341,10 @@ public partial class MainWindow : Window
         var amd = _graphicsSnapshot.Adapters.Where(x => x.Vendor.Equals("AMD", StringComparison.OrdinalIgnoreCase)).ToList();
 
         NvidiaUpdateText.Text = nvidia.Count == 0
-            ? "Not detected — No NVIDIA GPU found. Check skipped."
+            ? "Nothing found — No NVIDIA GPU was detected. Check skipped."
             : $"{string.Join("\n", nvidia.Select(x => x.Display))}\nInstalled state detected. Use the official NVIDIA page to verify the newest compatible driver.";
         AmdUpdateText.Text = amd.Count == 0
-            ? "Not detected — No AMD GPU found. Check skipped."
+            ? "Nothing found — No AMD GPU was detected. Check skipped."
             : $"{string.Join("\n", amd.Select(x => x.Display))}\nInstalled state detected. Use the official AMD page to verify the newest compatible driver.";
     }
 
@@ -348,10 +355,9 @@ public partial class MainWindow : Window
 
     private async Task RefreshElgatoCoreAsync()
     {
-        var snapshot = await _elgato.InspectAsync();
-        ElgatoText.Text = !snapshot.AnyDetected
-            ? "Not detected — No supported Elgato hardware or software found. Check skipped."
-            : $"{snapshot.Summary}\n{snapshot.Detail}";
+        var snapshot = await _elgato.InspectAsync(_settings.CheckUpdatesOnline);
+        ElgatoText.Text = $"{snapshot.Summary}\n\n{snapshot.Status}\n{snapshot.Detail}";
+        OpenElgatoButton.Content = snapshot.HasSoftwareUpdates ? "Open Elgato Updates" : "Official Downloads";
     }
 
     private async Task CheckSonarAsync()
@@ -666,13 +672,17 @@ public partial class MainWindow : Window
             online ? "Checking trusted plugin release sources…" : "Scanning installed third-party OBS plugins…", async () =>
             {
                 _pluginItems = await _plugins.ScanAsync(online);
-                PluginList.ItemsSource = _pluginItems.Select(x => x.Display).ToList();
+                PluginList.ItemsSource = _pluginItems.Count == 0
+                    ? new[] { "Nothing found — No third-party OBS plugins were detected." }
+                    : _pluginItems.Select(x => x.Display).ToList();
                 PluginSelect.ItemsSource = _pluginItems.Select(x => x.Name).ToList();
                 PluginSelect.SelectedIndex = _pluginItems.Count > 0 ? 0 : -1;
                 UpdatePluginDetail();
 
-                _pluginUpdateItems = _pluginItems.Where(x => !string.IsNullOrWhiteSpace(x.Repository)).ToList();
-                PluginUpdateList.ItemsSource = _pluginUpdateItems.Select(x => x.Display).ToList();
+                _pluginUpdateItems = _pluginItems.ToList();
+                PluginUpdateList.ItemsSource = _pluginUpdateItems.Count == 0
+                    ? new[] { "Nothing found — No installed third-party OBS plugins were detected." }
+                    : _pluginUpdateItems.Select(x => x.Display).ToList();
                 PluginUpdateSelect.ItemsSource = _pluginUpdateItems.Select(x => x.Name).ToList();
                 PluginUpdateSelect.SelectedIndex = _pluginUpdateItems.Count > 0 ? 0 : -1;
                 UpdatePluginUpdateDetail();
@@ -682,14 +692,16 @@ public partial class MainWindow : Window
                 var current = _pluginUpdateItems.Count(x => x.UpdateStatus.Equals("Current", StringComparison.OrdinalIgnoreCase));
                 var unknown = _pluginItems.Count(x => string.IsNullOrWhiteSpace(x.Repository));
                 PluginUpdateSummaryText.Text = online
-                    ? $"{available} update(s) available • {current} current • {deferred} deferred/skipped • {unknown} unverified source(s)."
-                    : $"{_pluginItems.Count} installed third-party plugin(s) found • {_pluginUpdateItems.Count} matched to the trusted registry. Run Check Updates for latest versions.";
+                    ? $"{available} update(s) available • {current} current • {deferred} deferred/skipped • {unknown} unverified source(s). Unverified plugins can be looked up in the official OBS plugin directory."
+                    : $"{_pluginItems.Count} installed third-party plugin(s) found • {_pluginItems.Count - unknown} matched to the trusted registry • {unknown} unverified. Run Check Updates for latest versions.";
 
                 RefreshQuarantineList();
                 if (online)
-                    PluginUpdateProgressText.Text = $"Update check complete • {_pluginUpdateItems.Count} trusted installed plugin(s) reviewed.";
+                    PluginUpdateProgressText.Text = $"Update check complete • {_pluginUpdateItems.Count} installed third-party plugin(s) reviewed.";
                 else
-                    PluginProgressText.Text = $"Plugin scan complete • {_pluginItems.Count} installed third-party plugin(s).";
+                    PluginProgressText.Text = _pluginItems.Count == 0
+                        ? "Scan complete • Nothing found — No third-party OBS plugins were detected."
+                        : $"Plugin scan complete • {_pluginItems.Count} installed third-party plugin(s).";
             });
     }
 
@@ -698,7 +710,7 @@ public partial class MainWindow : Window
         var plugin = SelectedPlugin();
         if (plugin is null)
         {
-            PluginDetailText.Text = "No installed third-party plugin selected.";
+            PluginDetailText.Text = "Nothing found — No installed third-party plugin is selected.";
             OpenPluginPageButton.IsEnabled = false;
             OpenPluginObsResourceButton.IsEnabled = false;
             return;
@@ -719,20 +731,35 @@ public partial class MainWindow : Window
         var plugin = SelectedUpdatePlugin();
         if (plugin is null)
         {
-            PluginUpdateDetailText.Text = "Run Check Updates, then select a registered installed plugin.";
+            PluginUpdateDetailText.Text = "Run Check Updates, then select an installed third-party plugin.";
             OpenPluginUpdateButton.IsEnabled = false;
+            OpenPluginUpdateButton.Content = "Open Update";
             SnoozePluginButton.IsEnabled = false;
             SkipPluginVersionButton.IsEnabled = false;
             ClearPluginDeferralButton.IsEnabled = false;
             return;
         }
 
+        var fallback = !string.IsNullOrWhiteSpace(plugin.ReleaseUrl)
+            ? "Verified release page available"
+            : !string.IsNullOrWhiteSpace(plugin.Repository)
+                ? "Verified source repository available"
+                : plugin.HasOfficialObsResource
+                    ? "No verified release source; official OBS resource page available"
+                    : "No verified source found; use the official OBS plugin directory";
+
         PluginUpdateDetailText.Text =
-            $"{plugin.Name}\nInstalled: {plugin.Version}\nLatest verified: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nRepository: {plugin.Repository ?? "Not verified"}";
+            $"{plugin.Name}\nInstalled: {plugin.Version}\nLatest verified: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nRepository: {plugin.Repository ?? "Not verified"}\nNext step: {fallback}";
 
         var updateKnown = plugin.HasKnownLatestVersion && plugin.HasKnownInstalledVersion &&
             (plugin.IsUpdateAvailable || plugin.IsDeferred);
-        OpenPluginUpdateButton.IsEnabled = plugin.HasVerifiedRelease || !string.IsNullOrWhiteSpace(plugin.Repository);
+        OpenPluginUpdateButton.IsEnabled = true;
+        OpenPluginUpdateButton.Content =
+            (!string.IsNullOrWhiteSpace(plugin.ReleaseUrl) || !string.IsNullOrWhiteSpace(plugin.Repository))
+                ? "Open Update"
+                : plugin.HasOfficialObsResource
+                    ? "Official OBS Page"
+                    : "Find on OBS Plugins";
         SnoozePluginButton.IsEnabled = updateKnown;
         SkipPluginVersionButton.IsEnabled = updateKnown;
         ClearPluginDeferralButton.IsEnabled = plugin.HasKnownLatestVersion &&
@@ -776,7 +803,13 @@ public partial class MainWindow : Window
             OpenUrl($"https://github.com/{plugin.Repository}/releases");
             return;
         }
-        _logger.Warn("No verified update source is registered for this plugin.");
+        if (!string.IsNullOrWhiteSpace(plugin.ObsResourceUrl))
+        {
+            OpenUrl(plugin.ObsResourceUrl);
+            return;
+        }
+        _logger.Info($"No verified update source was found for {plugin.Name}; opening the official OBS Studio Plugins directory.");
+        OpenUrl(PluginDiscoveryService.OfficialObsPluginDirectoryUrl);
     }
 
     private async Task SnoozeSelectedPluginAsync()
@@ -841,7 +874,7 @@ public partial class MainWindow : Window
         var item = SelectedDiscoveryPlugin();
         if (item is null)
         {
-            DiscoverPluginDetailText.Text = "No discovery result selected.";
+            DiscoverPluginDetailText.Text = "Nothing found — No plugin discovery result is selected.";
             OpenDiscoverObsPageButton.IsEnabled = false;
             OpenDiscoverRepositoryButton.IsEnabled = false;
             return;
@@ -921,19 +954,56 @@ public partial class MainWindow : Window
     {
         var backup = SelectedBackup();
         BackupDetailText.Text = backup is null
-            ? "No Mission Control backup found."
-            : $"{backup.Created.LocalDateTime:g} • {backup.FileCount} files • {backup.SizeBytes / 1024d / 1024d:F1} MB\n{backup.Path}";
+            ? "Nothing found — No Mission Control backup exists yet."
+            : $"{backup.Created.LocalDateTime:g} • {backup.FileCount} config files • {backup.MediaFileCount} scene media files • {backup.SizeBytes / 1024d / 1024d:F1} MB archive\n{backup.Path}";
+        RestoreSceneMediaToggle.IsEnabled = backup?.MediaFileCount > 0;
+        if (backup?.MediaFileCount <= 0)
+        {
+            RestoreSceneMediaToggle.IsChecked = false;
+            OverwriteSceneMediaToggle.IsChecked = false;
+            OverwriteSceneMediaToggle.IsEnabled = false;
+        }
     }
 
     private async Task CreateBackupAsync()
     {
-        await WithBusyAsync(CreateBackupButton, "Creating…", BackupProgress, BackupProgressText, "Creating a sanitized OBS configuration checkpoint…", async () =>
+        var includeMedia = IncludeSceneMediaBackupToggle.IsChecked == true;
+        if (includeMedia)
         {
-            var backup = await _backups.CreateBackupAsync();
+            var estimate = await Task.Run(_backups.EstimateSceneMedia);
+            if (estimate.ExistingFileCount > 0 && estimate.ExistingSizeBytes >= 2L * 1024 * 1024 * 1024)
+            {
+                var proceed = await ConfirmAsync("Large scene-media backup?",
+                    $"Mission Control found {estimate.ExistingFileCount} referenced media files totaling approximately {estimate.ExistingSizeBytes / 1024d / 1024d / 1024d:F1} GB. Continue?");
+                if (!proceed) return;
+            }
+        }
+        await WithBusyAsync(CreateBackupButton, "Creating…", BackupProgress, BackupProgressText,
+            includeMedia ? "Creating OBS checkpoint and copying referenced scene media…" : "Creating a sanitized OBS configuration checkpoint…", async () =>
+        {
+            var backup = await Task.Run(() => _backups.CreateBackupAsync("Manual", includeMedia));
             RefreshBackupList();
-            BackupProgressText.Text = "Backup created successfully.";
-            await ShowInfoAsync("Backup created", backup.Path);
+            BackupProgressText.Text = includeMedia
+                ? $"Backup created successfully • {backup.MediaFileCount} scene media file(s) included."
+                : "Backup created successfully.";
+            await ShowInfoAsync("Backup created", $"{backup.Path}\n\nScene media included: {backup.MediaFileCount}");
         });
+    }
+
+    private async Task RefreshSceneMediaEstimateAsync()
+    {
+        if (IncludeSceneMediaBackupToggle.IsChecked != true)
+        {
+            SceneMediaEstimateText.Text = "Scene media is not included by default.";
+            return;
+        }
+        SceneMediaEstimateText.Text = "Scanning referenced scene media…";
+        try
+        {
+            var estimate = await Task.Run(_backups.EstimateSceneMedia);
+            SceneMediaEstimateText.Text = estimate.Display;
+        }
+        catch (Exception ex) { SceneMediaEstimateText.Text = $"Scene media scan failed: {ex.Message}"; }
     }
 
     private async Task RestoreBackupAsync()
@@ -941,13 +1011,22 @@ public partial class MainWindow : Window
         var backup = SelectedBackup();
         if (backup is null) return;
         var scope = Enum.TryParse<BackupRestoreScope>(RestoreScopeSelect.SelectedItem?.ToString(), out var parsed) ? parsed : BackupRestoreScope.Everything;
-        if (!await ConfirmAsync("Restore OBS backup?", $"Restore {scope} from {backup.Name}? OBS must be closed. Existing files in this scope can be overwritten.")) return;
+        var restoreMedia = RestoreSceneMediaToggle.IsChecked == true && backup.MediaFileCount > 0;
+        var overwriteMedia = restoreMedia && OverwriteSceneMediaToggle.IsChecked == true;
+        var mediaWarning = restoreMedia
+            ? overwriteMedia
+                ? "\n\nScene media will be restored to original locations and EXISTING MEDIA FILES MAY BE OVERWRITTEN."
+                : "\n\nScene media will be restored only where the original file is currently missing."
+            : string.Empty;
+        if (!await ConfirmAsync("Restore OBS backup?",
+                $"Restore {scope} from {backup.Name}? OBS must be closed. Existing OBS configuration files in this scope can be overwritten.{mediaWarning}")) return;
 
         await WithBusyAsync(RestoreBackupButton, "Restoring…", BackupProgress, BackupProgressText, "Restoring the selected OBS checkpoint…", async () =>
         {
-            await _backups.RestoreAsync(backup, scope, IsObsRunning);
+            await Task.Run(() => _backups.RestoreAsync(backup, scope, IsObsRunning, restoreMedia, overwriteMedia));
             BackupProgressText.Text = "Restore complete.";
-            await ShowInfoAsync("Restore complete", $"Restored {scope} from {backup.Name}.");
+            await ShowInfoAsync("Restore complete", $"Restored {scope} from {backup.Name}." +
+                (restoreMedia ? (overwriteMedia ? "\nScene media restore was enabled with overwrite." : "\nScene media restore was enabled for missing files only.") : string.Empty));
         });
     }
 
@@ -957,7 +1036,7 @@ public partial class MainWindow : Window
         if (backup is null) return;
         await WithBusyAsync(CompareBackupButton, "Comparing…", BackupProgress, BackupProgressText, "Comparing the checkpoint with the current OBS configuration…", async () =>
         {
-            var diff = await _backups.CompareToCurrentAsync(backup);
+            var diff = await Task.Run(() => _backups.CompareToCurrentAsync(backup));
             BackupProgressText.Text = "Comparison complete.";
             await ShowInfoAsync("Backup comparison", $"{diff.Summary}\n\nAdded:\n{string.Join("\n", diff.Added.Take(8))}\n\nRemoved:\n{string.Join("\n", diff.Removed.Take(8))}\n\nChanged:\n{string.Join("\n", diff.Changed.Take(8))}");
         });
@@ -998,6 +1077,7 @@ public partial class MainWindow : Window
         _settings.StartWithOperatingSystem = StartAtLoginToggle.IsChecked == true;
         _settings.CheckUpdatesOnline = OnlineUpdatesToggle.IsChecked == true;
         _settings.AutoBackupBeforeRestore = AutoBackupRestoreToggle.IsChecked == true;
+        _settings.IncludeSceneMediaInBackups = IncludeSceneMediaBackupToggle.IsChecked == true;
         _settings.RunBandwidthTestInPreflight = RunBandwidthInPreflightToggle.IsChecked == true;
         _settings.PreferredStreamingPlatform = SelectedStreamingPlatform().ToString();
         _settings.PreferredMotionProfile = SelectedMotionProfile().ToString();

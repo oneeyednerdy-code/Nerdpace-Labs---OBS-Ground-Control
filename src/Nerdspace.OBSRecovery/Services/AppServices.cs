@@ -20,9 +20,9 @@ public static class AppServices
         var recovery = new RecoveryService(settings, settingsService, logger, platform, detector);
         var plugins = new PluginInventoryService(platform, logger, updates, updateDeferrals, pluginRegistry);
         var quarantine = new PluginQuarantineService(platform, logger);
-        var backups = new BackupService(settings, platform, logger);
-        var logs = new LogAnalyzerService(platform, logger);
         var assets = new SceneAssetScannerService(platform, logger);
+        var backups = new BackupService(settings, platform, logger, assets);
+        var logs = new LogAnalyzerService(platform, logger);
         var health = new SystemHealthService(settings, platform, updates, logger);
         var graphics = new GraphicsDriverService(logger);
         var elgato = new ElgatoHealthService(logger);

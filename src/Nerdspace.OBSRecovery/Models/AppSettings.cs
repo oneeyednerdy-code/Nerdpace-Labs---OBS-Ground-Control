@@ -14,6 +14,7 @@ public sealed class AppSettings
     public int StuckShutdownThresholdSeconds { get; set; } = 12;
 
     public bool AutoBackupBeforeRestore { get; set; } = true;
+    public bool IncludeSceneMediaInBackups { get; set; }
     public bool PreflightCheckBackupAge { get; set; } = true;
     public int BackupWarningAgeDays { get; set; } = 14;
     public double RecordingDiskWarningGb { get; set; } = 25;

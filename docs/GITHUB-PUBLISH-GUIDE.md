@@ -1,18 +1,18 @@
 # GitHub Publish Guide
 
-This guide takes **NerdSpace Labs - Streamer Mission Control 0.8.0-alpha.2** from the source folder to a downloadable Windows installer on GitHub.
+This guide takes **NerdSpace Labs - Streamer Mission Control 0.8.0-alpha.4** from the source folder to a downloadable Windows installer on GitHub.
 
 ## What GitHub builds
 
 The repository contains two Windows workflows:
 
 - **Build Windows** runs on pushes to `main`, pull requests, and manual runs.
-- **Release Windows** runs when you push a version tag such as `v0.8.0-alpha.2`.
+- **Release Windows** runs when you push a version tag such as `v0.8.0-alpha.4`.
 
 The release workflow builds:
 
-- `Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.2.exe` — recommended installer
-- `Nerdspace-OBS-Ground-Control-v0.8.0-alpha.2-win-x64.zip` — portable build
+- `Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.4.exe` — recommended installer
+- `Nerdspace-OBS-Ground-Control-v0.8.0-alpha.4-win-x64.zip` — portable build
 - `SHA256SUMS.txt` — integrity hashes
 
 The Windows application is a self-contained .NET 10 x64 build. Testers do not need to install the .NET SDK or Desktop Runtime.
@@ -80,7 +80,7 @@ Then run:
 ```powershell
 git init
 git add .
-git commit -m "Streamer Mission Control 0.8.0-alpha.2"
+git commit -m "Streamer Mission Control 0.8.0-alpha.4"
 git branch -M main
 git remote add origin https://github.com/YOUR-GITHUB-NAME/nerdspace-obs-ground-control.git
 git push -u origin main
@@ -162,7 +162,7 @@ Recommended alpha checks:
 - Start Menu shortcut works
 - optional Desktop shortcut works
 - Mission Control launches
-- footer reports `0.8.0-alpha.2`
+- footer reports `0.8.0-alpha.4`
 - OBS is detected
 - third-party plugin scanner excludes bundled OBS modules
 - plugin update checks work
@@ -179,8 +179,8 @@ Do not treat a successful compiler build as equivalent to a successful applicati
 After the `main` build has been tested:
 
 ```powershell
-git tag v0.8.0-alpha.2
-git push origin v0.8.0-alpha.2
+git tag v0.8.0-alpha.4
+git push origin v0.8.0-alpha.4
 ```
 
 The `Release Windows` workflow starts automatically.
@@ -194,7 +194,7 @@ Because the version contains `-alpha`, GitHub will publish it as a **Pre-release
 The tagged release performs:
 
 ```text
-v0.8.0-alpha.2
+v0.8.0-alpha.4
       ↓
 Refresh full OBS plugin catalog
       ↓
@@ -220,8 +220,8 @@ Create GitHub Pre-release
 The GitHub Release should contain:
 
 ```text
-Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.2.exe
-Nerdspace-OBS-Ground-Control-v0.8.0-alpha.2-win-x64.zip
+Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.4.exe
+Nerdspace-OBS-Ground-Control-v0.8.0-alpha.4-win-x64.zip
 SHA256SUMS.txt
 ```
 
@@ -232,10 +232,10 @@ SHA256SUMS.txt
 On the repository:
 
 1. Open **Releases**.
-2. Select `v0.8.0-alpha.2`.
+2. Select `v0.8.0-alpha.4`.
 3. Under **Assets**, download:
 
-   `Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.2.exe`
+   `Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.4.exe`
 
 The Setup EXE should be the recommended download.
 
@@ -328,7 +328,7 @@ winget install --id JRSoftware.InnoSetup -e
 The included Windows release script searches common Inno Setup locations automatically:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.2
+.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.4
 ```
 
 For GitHub builds, Inno Setup is installed automatically on the GitHub Windows runner.
@@ -346,7 +346,7 @@ After installing:
 run:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.2
+.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.4
 ```
 
 This performs the catalog refresh, version update, self-contained publish, and installer compilation.
@@ -379,8 +379,8 @@ git add .
 git commit -m "Prepare next Streamer Mission Control alpha"
 git push
 
-git tag v0.8.0-alpha.2
-git push origin v0.8.0-alpha.2
+git tag v0.8.0-alpha.4
+git push origin v0.8.0-alpha.4
 ```
 
 Never reuse an already-published tag for a different build.

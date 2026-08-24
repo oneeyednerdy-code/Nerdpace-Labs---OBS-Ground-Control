@@ -23,7 +23,7 @@ public sealed class SteelSeriesSonarService
         {
             return Task.FromResult(new SteelSeriesSonarSnapshot(
                 true, false, "Not installed", false, false, false,
-                "Not detected — SteelSeries GG / Sonar not found. Check skipped.",
+                "Nothing found — SteelSeries GG / Sonar was not detected. Check skipped.",
                 "This is normal if you do not use SteelSeries Sonar. Sonar is installed and managed through SteelSeries GG."));
         }
 

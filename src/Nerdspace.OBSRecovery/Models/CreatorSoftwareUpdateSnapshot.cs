@@ -16,5 +16,5 @@ public sealed record CreatorSoftwareUpdateSnapshot(
 
     public string Display => Detected
         ? $"Installed: {InstalledVersion}\nLatest stable: {LatestVersion}\nStatus: {Status}\n{Detail}"
-        : $"Status: {Status}\n{Detail}";
+        : $"Nothing found — {Name} was not detected.\nStatus: {Status}\n{Detail}";
 }

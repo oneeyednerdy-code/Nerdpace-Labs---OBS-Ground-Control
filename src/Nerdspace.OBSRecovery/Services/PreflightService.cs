@@ -87,20 +87,20 @@ public sealed class PreflightService
         var amd = graphics.Adapters.Where(x => x.Vendor.Equals("AMD", StringComparison.OrdinalIgnoreCase)).ToList();
 
         results.Add(nvidia.Count == 0
-            ? new("NVIDIA", CheckSeverity.Info, "Not detected — No NVIDIA GPU found. Check skipped.", "This is normal on systems that do not use NVIDIA graphics.")
+            ? new("NVIDIA", CheckSeverity.Info, "Nothing found — No NVIDIA GPU was detected. Check skipped.", "This is normal on systems that do not use NVIDIA graphics.")
             : new("NVIDIA", nvidia.Any(x => x.TemperatureC >= 85) ? CheckSeverity.Warning : CheckSeverity.Info,
                 string.Join(" | ", nvidia.Select(x => x.Display)),
                 "Installed driver and local telemetry detected. Use Updates for the official NVIDIA driver page."));
 
         results.Add(amd.Count == 0
-            ? new("AMD", CheckSeverity.Info, "Not detected — No AMD GPU found. Check skipped.", "This is normal on systems that do not use AMD graphics.")
+            ? new("AMD", CheckSeverity.Info, "Nothing found — No AMD GPU was detected. Check skipped.", "This is normal on systems that do not use AMD graphics.")
             : new("AMD", CheckSeverity.Info, string.Join(" | ", amd.Select(x => x.Display)),
                 "Installed AMD graphics state detected. Use Updates for the official AMD driver page."));
 
         progress?.Report("Inspecting Elgato hardware and software…");
         var elgato = await _elgato.InspectAsync(cancellationToken);
         results.Add(!elgato.AnyDetected
-            ? new("Elgato Hardware & Software", CheckSeverity.Info, "Not detected — No supported Elgato hardware or software found. Check skipped.", "This is normal if you do not use Elgato products on this computer.")
+            ? new("Elgato Hardware & Software", CheckSeverity.Info, "Nothing found — No supported Elgato hardware or software was detected. Check skipped.", "This is normal if you do not use Elgato products on this computer.")
             : new("Elgato Hardware & Software", elgato.AttentionRecommended ? CheckSeverity.Warning : CheckSeverity.Info, elgato.Summary, elgato.Detail));
 
         progress?.Report("Inspecting SteelSeries Sonar…");
@@ -108,7 +108,7 @@ public sealed class PreflightService
         results.Add(!sonar.Supported
             ? new("SteelSeries Sonar", CheckSeverity.Info, sonar.Status, sonar.Detail)
             : !sonar.AnyDetected
-                ? new("SteelSeries Sonar", CheckSeverity.Info, "Not detected — SteelSeries GG / Sonar not found. Check skipped.", "This is normal if you do not use SteelSeries Sonar on this computer.")
+                ? new("SteelSeries Sonar", CheckSeverity.Info, "Nothing found — SteelSeries GG / Sonar was not detected. Check skipped.", "This is normal if you do not use SteelSeries Sonar on this computer.")
                 : new("SteelSeries Sonar", CheckSeverity.Info, sonar.Summary, sonar.Detail));
 
         if (options.SkipUpdateChecks)

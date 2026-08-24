@@ -1,6 +1,6 @@
 # Start Here — Publish Streamer Mission Control to GitHub
 
-Current alpha: **v0.8.0-alpha.2**
+Current alpha: **v0.8.0-alpha.4**
 
 1. Create a GitHub repository named `nerdspace-obs-ground-control`.
 2. Push the **contents of this folder** to the repository.
@@ -9,15 +9,15 @@ Current alpha: **v0.8.0-alpha.2**
 5. When the installer passes your alpha test, run:
 
 ```powershell
-git tag v0.8.0-alpha.2
-git push origin v0.8.0-alpha.2
+git tag v0.8.0-alpha.4
+git push origin v0.8.0-alpha.4
 ```
 
 6. Open GitHub → Actions → **Release Windows**.
 7. When it succeeds, open GitHub → Releases.
 8. The recommended download is:
 
-`Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.2.exe`
+`Nerdspace-OBS-Ground-Control-Setup-v0.8.0-alpha.4.exe`
 
 Detailed instructions:
 

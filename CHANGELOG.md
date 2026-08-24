@@ -1,13 +1,36 @@
 # Changelog
 
-## 0.8.0-alpha.2 - Creator Update Compile Fix
+## 0.8.0-alpha.4 - Plugin Fallback & Scene Media Backups
+
+- Installed plugins without a verified update source now remain visible in the Plugin Updates view.
+- Added a fallback path for unknown plugin updates: verified release, verified source repository, exact official OBS resource page, or the official OBS Studio Plugins directory.
+- Added optional scene-media backup support for local images, video, and audio referenced by OBS scene collections.
+- Scene media is opt-in, deduplicated, size-estimated, hashed, and stored separately in the backup archive.
+- Remote URLs are never downloaded. Missing referenced media is recorded in the manifest instead of failing the backup.
+- Large media backups require an additional confirmation.
+- Restore can optionally restore included scene media to original locations. Existing media is preserved by default; overwrite requires a second explicit option.
+- Legacy Ground Control backup manifests remain readable.
+
+## 0.8.0-alpha.4 - Scan Feedback & Elgato Software Updates
+
+- Added explicit **Nothing found** results so successful empty scans no longer leave blank UI.
+- Third-party OBS plugin scans now show a clear empty-result message.
+- Creator software, GPU vendor, Elgato, SteelSeries Sonar, backup, and discovery empty states use consistent wording.
+- Elgato software inventory now reports **Installed**, **Latest verified**, and **Status** for supported Elgato desktop applications.
+- Added online Elgato update comparison against Elgato's official release-note catalogs for Stream Deck, Wave Link, Camera Hub, Control Center, 4K Capture Utility, and Elgato Studio.
+- Elgato update checks reject macOS/iOS/Android-only release entries when running the Windows build.
+- Elgato update checks never guess: unavailable or unparseable release metadata is reported as **Latest version unavailable** or **Update check unavailable**.
+- Elgato hardware remains a separate currently-connected inventory; hardware firmware is left to the applicable official Elgato application.
+- The Elgato action changes to **Open Elgato Updates** when an installed Elgato app has a verified newer release.
+
+## 0.8.0-alpha.4 - Creator Update Compile Fix
 
 - Fixed the creator software update checker to use `GitHubReleaseInfo.ReleaseUrl`.
 - Resolves CS1061 in `CreatorSoftwareUpdateService.cs`.
 - Verified all remaining `GitHubReleaseInfo` usages reference the current model members: `Version`, `TagName`, `ReleaseUrl`, and `PublishedAt`.
 - No user-facing feature behavior changed.
 
-## 0.8.0-alpha.2 - Streamer Mission Control Rebrand
+## 0.8.0-alpha.4 - Streamer Mission Control Rebrand
 
 - Rebranded the public product to **NerdSpace Labs - Streamer Mission Control**.
 - Matched the shared NerdSpace Labs black/violet design system.
@@ -19,7 +42,7 @@
 - Added migration from the legacy `Nerdspace Labs\OBS Ground Control` local settings/backups directory.
 - Renamed the published executable to `NerdSpace.StreamerMissionControl.exe`.
 
-## 0.8.0-alpha.2 - Creator Bot Update Checks
+## 0.8.0-alpha.4 - Creator Bot Update Checks
 
 - Added installed-version detection and stable update checks for **Mix It Up**, **Streamer.bot**, and **Firebot**.
 - Mix It Up uses the official `MixItUpBot/Desktop` GitHub Releases feed.

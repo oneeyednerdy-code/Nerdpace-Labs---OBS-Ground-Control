@@ -408,13 +408,14 @@
                   <Border Classes="card">
                     <StackPanel Spacing="10">
                       <TextBlock Text="SELECTED UPDATE" FontWeight="Bold"/>
-                      <ComboBox x:Name="PluginUpdateSelect" ToolTip.Tip="Choose a registered installed plugin to review its installed and latest verified versions."/>
+                      <ComboBox x:Name="PluginUpdateSelect" ToolTip.Tip="Choose an installed third-party plugin to review its installed version, verified update evidence when available, and the official OBS directory fallback."/>
                       <TextBlock x:Name="PluginUpdateDetailText" Classes="muted" TextWrapping="Wrap"/>
                       <WrapPanel ItemSpacing="10" LineSpacing="10">
-                        <Button x:Name="OpenPluginUpdateButton" Classes="primary" Content="Open Update" ToolTip.Tip="Open the exact verified latest release page. Mission Control does not download or install the plugin itself."/>
+                        <Button x:Name="OpenPluginUpdateButton" Classes="primary" Content="Open Update" ToolTip.Tip="Open the verified release/source when known. If no update source is verified, Mission Control opens the exact OBS resource page when known or the official OBS plugin directory."/>
                         <Button x:Name="SnoozePluginButton" Content="Remind in 1 Week" ToolTip.Tip="Defer this exact plugin update for one week. A newer version will still be detected."/>
                         <Button x:Name="SkipPluginVersionButton" Content="Skip This Version" ToolTip.Tip="Suppress this exact plugin release. Mission Control will alert again when a newer version appears."/>
                         <Button x:Name="ClearPluginDeferralButton" Content="Clear Reminder" ToolTip.Tip="Remove the reminder or skip state for the selected plugin update."/>
+                        <Button x:Name="BrowsePluginUpdatesDirectoryButton" Content="OBS Plugin Directory" ToolTip.Tip="Open the official OBS Studio Plugins directory. Useful when Mission Control cannot verify an update source for an installed plugin."/>
                       </WrapPanel>
                     </StackPanel>
                   </Border>
@@ -471,8 +472,16 @@
                 <TextBlock Text="Reversible OBS checkpoints" FontSize="24" FontWeight="Bold"/>
                 <TextBlock Text="Local snapshots include manifests and hashes while excluding known credential/service files by default." Classes="muted"/>
               </StackPanel>
-              <Button Grid.Column="1" x:Name="CreateBackupButton" Classes="primary" Content="Create Backup" ToolTip.Tip="Create a local OBS configuration checkpoint. Credential/service files and caches are excluded by default."/>
+              <Button Grid.Column="1" x:Name="CreateBackupButton" Classes="primary" Content="Create Backup" ToolTip.Tip="Create a local OBS checkpoint. Credential/service files and caches are excluded. Scene media is included only when explicitly selected."/>
             </Grid>
+            <Border Classes="card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="BACKUP CONTENT" FontWeight="Bold"/>
+                <CheckBox x:Name="IncludeSceneMediaBackupToggle" Content="Include local images, video, and audio referenced by OBS scenes/sources" ToolTip.Tip="Optional. Copies existing local image/audio/video files referenced by OBS scene collections into the backup. Remote browser URLs are never downloaded."/>
+                <TextBlock x:Name="SceneMediaEstimateText" Text="Scene media is not included by default." Classes="muted" TextWrapping="Wrap"/>
+                <TextBlock Text="Media backups can become large. Mission Control deduplicates repeated file references, records missing media, and never downloads remote URLs." Classes="muted" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
             <TextBlock x:Name="BackupProgressText" Text="No backup operation running." Classes="muted"/>
             <ProgressBar x:Name="BackupProgress" IsIndeterminate="True" IsVisible="False"/>
             <Border Classes="card">
@@ -482,6 +491,8 @@
                 <TextBlock x:Name="BackupDetailText" Classes="muted" TextWrapping="Wrap"/>
                 <TextBlock Text="Restore scope" FontWeight="SemiBold"/>
                 <ComboBox x:Name="RestoreScopeSelect"/>
+                <CheckBox x:Name="RestoreSceneMediaToggle" Content="Restore scene media included in this backup" ToolTip.Tip="Optional. Restores backed-up local scene images/audio/video to their original file locations. Existing files are preserved unless overwrite is also selected."/>
+                <CheckBox x:Name="OverwriteSceneMediaToggle" Content="Allow media restore to overwrite existing files" IsEnabled="False" ToolTip.Tip="Off by default for safety. Enable only when you intentionally want the backup copy to replace an existing local media file."/>
                 <WrapPanel ItemSpacing="10">
                   <Button x:Name="RestoreBackupButton" Classes="danger" Content="Restore Selected" ToolTip.Tip="Restore the selected scope. OBS must be closed; Mission Control can create a safety snapshot first."/>
                   <Button x:Name="CompareBackupButton" Content="Compare to Current" ToolTip.Tip="Compare the selected backup manifest with the current OBS configuration to see added, removed, and changed files."/>

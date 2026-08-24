@@ -1,6 +1,6 @@
 # Windows platform notes
 
-Streamer Mission Control v0.8.0-alpha.2 is developed and released for **Windows 10/11 x64 only**.
+Streamer Mission Control v0.8.0-alpha.4 is developed and released for **Windows 10/11 x64 only**.
 
 ## Why Windows first?
 
