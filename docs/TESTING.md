@@ -1,9 +1,9 @@
-# v0.8.0-alpha.8 Windows Alpha Testing Checklist
+# v0.8.0-alpha.9 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.8` for the branch build.
+- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.9` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -108,7 +108,7 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.8.0-alpha.8+)
+## Windows installer regression checks (v0.8.0-alpha.9+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
@@ -122,7 +122,7 @@
 - [ ] Portable ZIP continues to run independently of the installed build.
 
 
-## Self-contained runtime regression checks (v0.8.0-alpha.8+)
+## Self-contained runtime regression checks (v0.8.0-alpha.9+)
 
 - [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
 - [ ] Mission Control launches normally after installation.
@@ -144,7 +144,7 @@
 - Browse Official OBS Plugins opens the official OBS plugin directory.
 - No search result or unknown plugin is treated as an error.
 
-## Full OBS plugin catalog regression checks (v0.8.0-alpha.8+)
+## Full OBS plugin catalog regression checks (v0.8.0-alpha.9+)
 
 - [ ] Release workflow refreshes the official OBS Studio Plugins directory before compilation.
 - [ ] Release fails rather than embedding a suspiciously incomplete catalog below the configured minimum resource threshold.
@@ -156,7 +156,7 @@
 - [ ] Blank Discover search remains usable without performing hundreds of live GitHub API requests.
 - [ ] Installed plugin update checks continue to use only matched local third-party plugins, not the entire discovery catalog.
 
-## Manifest-first plugin intelligence (v0.8.0-alpha.8)
+## Manifest-first plugin intelligence (v0.8.0-alpha.9)
 
 - [ ] Scan a modern third-party plugin with `manifest.json`; UI reports **Metadata: OBS manifest**.
 - [ ] Confirm plugin ID/version/repository/website/support are read without loading the DLL.

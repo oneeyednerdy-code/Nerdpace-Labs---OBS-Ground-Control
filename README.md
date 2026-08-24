@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.8.0-alpha.8**
+Current development version: **v0.8.0-alpha.9**
 
 ## Supported platform
 
@@ -167,8 +167,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.8.0-alpha.8
-git push origin v0.8.0-alpha.8
+git tag v0.8.0-alpha.9
+git push origin v0.8.0-alpha.9
 ```
 
 The release workflow produces:
@@ -203,7 +203,7 @@ A license is intentionally not selected yet. Choose the repository license befor
 After installing .NET 10, Python, and Inno Setup, a maintainer can refresh the OBS catalog, publish the self-contained app, and build Setup.exe with:
 
 ```powershell
-.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.8
+.\scripts\build-windows-release.ps1 -Version 0.8.0-alpha.9
 ```
 
 Use `-SkipCatalogRefresh` only for offline development builds. Public release builds should refresh the official OBS resource catalog.
@@ -211,7 +211,7 @@ Use `-SkipCatalogRefresh` only for offline development builds. Public release bu
 
 ## Self-updates
 
-Streamer Mission Control 0.8.0-alpha.8 includes a signed in-app updater powered by NetSparkle's core library. Users can check for updates, choose Update Now, snooze reminders, or view release notes from the Update Center.
+Streamer Mission Control 0.8.0-alpha.9 includes a signed in-app updater powered by NetSparkle's core library. Users can check for updates, choose Update Now, snooze reminders, or view release notes from the Update Center.
 
 The updater is fail-safe: unsigned/unconfigured feeds cannot enable Update Now.
 
@@ -220,5 +220,11 @@ Maintainer setup: `docs/SELF-UPDATES.md`.
 
 ### alpha.7 updater bootstrap
 
-`v0.8.0-alpha.7` is the signed-updater bootstrap release. Install the GitHub-generated alpha.7 installer manually once and verify **Check Now** reaches the signed Preview feed. `v0.8.0-alpha.8` is the first real **Update Now** test and adds manifest-first plugin intelligence.
+`v0.8.0-alpha.7` is the signed-updater bootstrap release. Install the GitHub-generated alpha.7 installer manually once and verify **Check Now** reaches the signed Preview feed. `v0.8.0-alpha.9` is the first real **Update Now** test and adds manifest-first plugin intelligence.
+
+
+
+### Public updater distribution
+
+Mission Control may be developed in a private repository, but installed applications must be able to anonymously fetch the signed update metadata and installer. Configure a separate public release-only repository with `UPDATE_DISTRIBUTION_REPOSITORY` and `UPDATE_DISTRIBUTION_TOKEN`. See `docs/PUBLIC-UPDATER-DISTRIBUTION.md`.
 

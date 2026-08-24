@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.8.0-alpha.8 - Manifest-First Plugin Intelligence
+## 0.8.0-alpha.9 - Public Updater Distribution Fix
+
+- Fixed the self-updater path that could report **Could not determine update status** when the signed appcast was hosted in a private GitHub repository.
+- `UpdateStatus.CouldNotDetermine` is now surfaced as **Update feed unavailable** with a useful explanation instead of a generic status.
+- Added support for a separate public, binary-only GitHub release repository while keeping the Mission Control source repository private.
+- Added `UPDATE_DISTRIBUTION_REPOSITORY` Actions variable support.
+- Added `UPDATE_DISTRIBUTION_TOKEN` Actions secret support for cross-repository release publishing.
+- Release workflow now verifies that the updater distribution repository is public and fails closed if anonymous clients could not fetch it.
+- Installer, portable ZIP, and SHA256SUMS are mirrored to the public versioned release.
+- NetSparkle appcast installer URLs now point to the public distribution repository.
+- The signed `update-feed` release is published to the public distribution repository.
+- No GitHub credential is embedded in Mission Control.
+- Existing Ed25519 signing identity remains unchanged.
+
+## 0.8.0-alpha.9 - Manifest-First Plugin Intelligence
 
 - Installed plugin scanning now reads OBS `manifest.json` metadata before consulting the bundled catalog.
 - Reads plugin ID, display name, version, description, repository, website, and support URLs without loading the plugin DLL.

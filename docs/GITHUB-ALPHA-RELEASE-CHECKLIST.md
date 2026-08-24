@@ -1,4 +1,4 @@
-# GitHub Alpha Release Checklist — 0.8.0-alpha.8
+# GitHub Alpha Release Checklist — 0.8.0-alpha.9
 
 ## Repository
 - [ ] Repository root contains `.github`, `src`, `installer`, `scripts`, and `README.md`.
@@ -17,7 +17,7 @@
 - [ ] App installs without requiring .NET separately.
 - [ ] Start Menu shortcut launches Mission Control.
 - [ ] Optional Desktop shortcut works.
-- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.8`.
+- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.9`.
 - [ ] OBS detection works.
 - [ ] Third-party plugin scanner excludes stock OBS modules.
 - [ ] Plugin update comparison works for a known supported plugin.
@@ -26,7 +26,7 @@
 - [ ] Uninstall works.
 
 ## Public alpha
-- [ ] Tag `v0.8.0-alpha.8` is created only after the main artifact is tested.
+- [ ] Tag `v0.8.0-alpha.9` is created only after the main artifact is tested.
 - [ ] `Release Windows` completes successfully.
 - [ ] GitHub marks the alpha as a Pre-release.
 - [ ] Setup EXE appears under Release Assets.
@@ -40,7 +40,7 @@
 - [ ] recovery behavior has not been tested with OBS open and closed
 - [ ] a failed Pre-Flight can accidentally launch OBS
 
-## 0.8.0-alpha.8 creator-bot regression checks
+## 0.8.0-alpha.9 creator-bot regression checks
 - [ ] Mix It Up installed copy is detected and reports its executable version.
 - [ ] Mix It Up compares against the official stable GitHub release.
 - [ ] Streamer.bot portable copy is detected or can be supplied via Settings.
@@ -52,7 +52,7 @@
 - [ ] Check Everything includes all three creator bots.
 
 
-## 0.8.0-alpha.8 self-update checks
+## 0.8.0-alpha.9 self-update checks
 - [ ] GitHub Actions variable `NETSPARKLE_PUBLIC_KEY` is configured.
 - [ ] GitHub Actions secret `NETSPARKLE_PRIVATE_KEY` is configured.
 - [ ] Versioned release completes successfully.

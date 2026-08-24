@@ -4,7 +4,11 @@ import json
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--repository", required=True, help="GitHub owner/repository")
+parser.add_argument(
+    "--repository",
+    required=True,
+    help="Public GitHub owner/repository that hosts Mission Control release assets",
+)
 parser.add_argument("--public-key", default="", help="NetSparkle Ed25519 public key (base64)")
 args = parser.parse_args()
 
@@ -25,9 +29,9 @@ path = Path("src/Nerdspace.OBSRecovery/Data/update-config.json")
 path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 
 if public_key:
-    print(f"Configured signed self-update feed for {repo}.")
+    print(f"Configured signed self-update distribution for {repo}.")
 else:
     print(
-        f"Configured repository URLs for {repo}, but NETSPARKLE_PUBLIC_KEY is empty. "
+        f"Configured public release URLs for {repo}, but NETSPARKLE_PUBLIC_KEY is empty. "
         "The application will safely disable Update Now until signing is configured."
     )

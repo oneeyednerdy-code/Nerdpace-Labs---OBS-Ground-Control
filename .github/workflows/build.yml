@@ -23,8 +23,14 @@ jobs:
         shell: pwsh
         env:
           NETSPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+          UPDATE_DISTRIBUTION_REPOSITORY: ${{ vars.UPDATE_DISTRIBUTION_REPOSITORY }}
         run: |
-          python scripts/configure-self-update.py --repository "$env:GITHUB_REPOSITORY" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
+          $distributionRepo = $env:UPDATE_DISTRIBUTION_REPOSITORY
+          if ([string]::IsNullOrWhiteSpace($distributionRepo)) {
+            $distributionRepo = $env:GITHUB_REPOSITORY
+            Write-Warning "UPDATE_DISTRIBUTION_REPOSITORY is not set. Falling back to the source repository. This only works for anonymous updater clients when that repository is public."
+          }
+          python scripts/configure-self-update.py --repository "$distributionRepo" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
 
       - name: Refresh preloaded OBS plugin catalog
         continue-on-error: true

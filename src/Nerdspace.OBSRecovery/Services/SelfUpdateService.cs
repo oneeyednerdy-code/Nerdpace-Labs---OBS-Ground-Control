@@ -181,14 +181,30 @@ public sealed class SelfUpdateService
                         $"{RepositoryUrl}/releases",
                         checkedAt);
 
+                case UpdateStatus.CouldNotDetermine:
+                    _selectedUpdate = null;
+                    _logger.Warn(
+                        $"NetSparkle could not fetch or validate the {channel} appcast from {_activeFeedUrl}.");
+                    return Snapshot(
+                        true,
+                        channel,
+                        "Unavailable",
+                        "Update feed unavailable",
+                        "The signed update feed could not be fetched or validated. Mission Control update assets must be anonymously readable. If the source repository is private, publish the installer and signed appcast from a separate public release repository. Nothing was downloaded or executed.",
+                        false,
+                        false,
+                        $"{RepositoryUrl}/releases",
+                        checkedAt);
+
                 default:
                     _selectedUpdate = null;
+                    _logger.Warn($"Unexpected NetSparkle update status: {info.Status}.");
                     return Snapshot(
                         true,
                         channel,
                         "Unknown",
-                        "Could not determine update status",
-                        "Mission Control could not verify whether a newer signed release is available. Nothing was downloaded or executed.",
+                        $"Unexpected updater status: {info.Status}",
+                        "Mission Control received an updater status it does not recognize. Nothing was downloaded or executed.",
                         false,
                         false,
                         $"{RepositoryUrl}/releases",

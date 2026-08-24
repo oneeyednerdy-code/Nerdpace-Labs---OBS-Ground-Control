@@ -24,8 +24,13 @@ jobs:
         shell: pwsh
         env:
           NETSPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+          UPDATE_DISTRIBUTION_REPOSITORY: ${{ vars.UPDATE_DISTRIBUTION_REPOSITORY }}
         run: |
-          python scripts/configure-self-update.py --repository "$env:GITHUB_REPOSITORY" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
+          $distributionRepo = $env:UPDATE_DISTRIBUTION_REPOSITORY
+          if ([string]::IsNullOrWhiteSpace($distributionRepo)) {
+            $distributionRepo = $env:GITHUB_REPOSITORY
+          }
+          python scripts/configure-self-update.py --repository "$distributionRepo" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
 
       - name: Build preloaded OBS plugin catalog
         run: python scripts/refresh-plugin-catalog.py --require-min-resources 250
@@ -42,6 +47,46 @@ jobs:
         run: |
           $version = $env:GITHUB_REF_NAME.TrimStart('v')
           python scripts/set-version.py $version
+
+      - name: Validate public updater distribution
+        id: updater_distribution
+        shell: pwsh
+        env:
+          UPDATE_DISTRIBUTION_REPOSITORY: ${{ vars.UPDATE_DISTRIBUTION_REPOSITORY }}
+          UPDATE_DISTRIBUTION_TOKEN: ${{ secrets.UPDATE_DISTRIBUTION_TOKEN }}
+          SOURCE_REPOSITORY_TOKEN: ${{ github.token }}
+        run: |
+          $distributionRepo = $env:UPDATE_DISTRIBUTION_REPOSITORY
+          if ([string]::IsNullOrWhiteSpace($distributionRepo)) {
+            $distributionRepo = $env:GITHUB_REPOSITORY
+          }
+
+          $crossRepo = -not $distributionRepo.Equals(
+            $env:GITHUB_REPOSITORY,
+            [System.StringComparison]::OrdinalIgnoreCase)
+
+          if ($crossRepo -and [string]::IsNullOrWhiteSpace($env:UPDATE_DISTRIBUTION_TOKEN)) {
+            throw "UPDATE_DISTRIBUTION_TOKEN is required when UPDATE_DISTRIBUTION_REPOSITORY points to a separate public release repository."
+          }
+
+          $env:GH_TOKEN = if ($crossRepo) {
+            $env:UPDATE_DISTRIBUTION_TOKEN
+          } else {
+            $env:SOURCE_REPOSITORY_TOKEN
+          }
+
+          $isPrivate = gh api "repos/$distributionRepo" --jq '.private'
+          if ($LASTEXITCODE -ne 0) {
+            throw "Could not access updater distribution repository '$distributionRepo'. Check UPDATE_DISTRIBUTION_REPOSITORY and UPDATE_DISTRIBUTION_TOKEN."
+          }
+
+          if ($isPrivate.Trim().ToLowerInvariant() -eq "true") {
+            throw "Updater distribution repository '$distributionRepo' is private. Installed copies of Mission Control cannot anonymously fetch a GitHub release appcast from a private repository. Use a separate PUBLIC release-only repository."
+          }
+
+          "repository=$distributionRepo" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "cross_repo=$($crossRepo.ToString().ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Updater distribution repository verified public: $distributionRepo"
 
       - name: Restore
         run: dotnet restore src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj
@@ -110,6 +155,52 @@ jobs:
             NerdSpace-Streamer-Mission-Control-*-win-x64.zip
             SHA256SUMS.txt
 
+      - name: Publish public updater distribution release
+        shell: pwsh
+        env:
+          DISTRIBUTION_REPOSITORY: ${{ steps.updater_distribution.outputs.repository }}
+          CROSS_REPOSITORY: ${{ steps.updater_distribution.outputs.cross_repo }}
+          UPDATE_DISTRIBUTION_TOKEN: ${{ secrets.UPDATE_DISTRIBUTION_TOKEN }}
+          SOURCE_REPOSITORY_TOKEN: ${{ github.token }}
+        run: |
+          if ($env:CROSS_REPOSITORY -ne "true") {
+            Write-Host "Source repository is already the public updater distribution repository; versioned assets were published by the normal release step."
+            exit 0
+          }
+
+          $env:GH_TOKEN = $env:UPDATE_DISTRIBUTION_TOKEN
+          $tag = $env:GITHUB_REF_NAME
+          $version = $tag.TrimStart('v')
+          $isPreview = $version.Contains("-")
+
+          gh release view $tag --repo "$env:DISTRIBUTION_REPOSITORY" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            $createArgs = @(
+              "release", "create", $tag,
+              "--repo", $env:DISTRIBUTION_REPOSITORY,
+              "--title", "NerdSpace Labs - Streamer Mission Control $tag",
+              "--notes", "Binary-only public distribution release for Streamer Mission Control. Source code is maintained separately."
+            )
+            if ($isPreview) { $createArgs += "--prerelease" }
+            & gh @createArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to create public updater distribution release $tag."
+            }
+          }
+
+          $assets = @(
+            (Get-ChildItem "dist\NerdSpace-Streamer-Mission-Control-Setup-*.exe" | Select-Object -First 1).FullName,
+            (Get-ChildItem "NerdSpace-Streamer-Mission-Control-*-win-x64.zip" | Select-Object -First 1).FullName,
+            (Resolve-Path "SHA256SUMS.txt").Path
+          )
+
+          foreach ($asset in $assets) {
+            gh release upload $tag $asset --repo "$env:DISTRIBUTION_REPOSITORY" --clobber
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to upload $asset to public updater distribution release $tag."
+            }
+          }
+
       - name: Check updater signing configuration
         id: updater_signing
         shell: pwsh
@@ -136,9 +227,10 @@ jobs:
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.NETSPARKLE_PRIVATE_KEY }}
           SPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+          DISTRIBUTION_REPOSITORY: ${{ steps.updater_distribution.outputs.repository }}
         run: |
           $version = $env:GITHUB_REF_NAME.TrimStart('v')
-          $baseUrl = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/$env:GITHUB_REF_NAME"
+          $baseUrl = "https://github.com/$env:DISTRIBUTION_REPOSITORY/releases/download/$env:GITHUB_REF_NAME"
           $stage = Join-Path $env:RUNNER_TEMP "mission-control-update-feed"
           $binary = Join-Path $stage "binary"
           $out = Join-Path $stage "out"
@@ -192,23 +284,33 @@ jobs:
         if: steps.updater_signing.outputs.configured == 'true'
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
+          DISTRIBUTION_REPOSITORY: ${{ steps.updater_distribution.outputs.repository }}
+          CROSS_REPOSITORY: ${{ steps.updater_distribution.outputs.cross_repo }}
+          UPDATE_DISTRIBUTION_TOKEN: ${{ secrets.UPDATE_DISTRIBUTION_TOKEN }}
+          SOURCE_REPOSITORY_TOKEN: ${{ github.token }}
         run: |
           $feed = "${{ steps.generate_appcast.outputs.feed_dir }}"
+          $env:GH_TOKEN = if ($env:CROSS_REPOSITORY -eq "true") {
+            $env:UPDATE_DISTRIBUTION_TOKEN
+          } else {
+            $env:SOURCE_REPOSITORY_TOKEN
+          }
 
-          gh release view update-feed --repo "$env:GITHUB_REPOSITORY" *> $null
+          gh release view update-feed --repo "$env:DISTRIBUTION_REPOSITORY" *> $null
           if ($LASTEXITCODE -ne 0) {
             gh release create update-feed `
-              --repo "$env:GITHUB_REPOSITORY" `
-              --target main `
+              --repo "$env:DISTRIBUTION_REPOSITORY" `
               --title "Streamer Mission Control Update Feed" `
-              --notes "Machine-readable signed update metadata used by Streamer Mission Control. Normal users should download versioned releases instead." `
+              --notes "Machine-readable signed update metadata used by Streamer Mission Control. This repository contains distribution assets only." `
               --prerelease
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to create public update-feed release."
+            }
           }
 
           Get-ChildItem $feed -File | ForEach-Object {
             gh release upload update-feed $_.FullName `
-              --repo "$env:GITHUB_REPOSITORY" `
+              --repo "$env:DISTRIBUTION_REPOSITORY" `
               --clobber
-            if ($LASTEXITCODE -ne 0) { throw "Failed to upload $($_.Name) to update-feed release." }
+            if ($LASTEXITCODE -ne 0) { throw "Failed to upload $($_.Name) to public update-feed release." }
           }

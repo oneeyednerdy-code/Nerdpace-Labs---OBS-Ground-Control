@@ -1,4 +1,4 @@
-# Plugin Manifest Intelligence — v0.8.0-alpha.8
+# Plugin Manifest Intelligence — v0.8.0-alpha.9
 
 Streamer Mission Control now identifies installed OBS plugins **manifest first** instead of requiring every plugin to be hardcoded into Mission Control's catalog.
 
