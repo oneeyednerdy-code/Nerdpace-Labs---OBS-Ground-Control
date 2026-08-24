@@ -1,9 +1,9 @@
-# v0.8.0-alpha.7 Windows Alpha Testing Checklist
+# v0.8.0-alpha.8 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.7` for the branch build.
+- [ ] Footer shows `NerdSpace Labs by OneEyedNerdy • v0.8.0-alpha.8` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -108,7 +108,7 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.8.0-alpha.7+)
+## Windows installer regression checks (v0.8.0-alpha.8+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
@@ -122,7 +122,7 @@
 - [ ] Portable ZIP continues to run independently of the installed build.
 
 
-## Self-contained runtime regression checks (v0.8.0-alpha.7+)
+## Self-contained runtime regression checks (v0.8.0-alpha.8+)
 
 - [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
 - [ ] Mission Control launches normally after installation.
@@ -144,7 +144,7 @@
 - Browse Official OBS Plugins opens the official OBS plugin directory.
 - No search result or unknown plugin is treated as an error.
 
-## Full OBS plugin catalog regression checks (v0.8.0-alpha.7+)
+## Full OBS plugin catalog regression checks (v0.8.0-alpha.8+)
 
 - [ ] Release workflow refreshes the official OBS Studio Plugins directory before compilation.
 - [ ] Release fails rather than embedding a suspiciously incomplete catalog below the configured minimum resource threshold.
@@ -155,3 +155,14 @@
 - [ ] GitHub live version refresh is limited to 25 or fewer matching Discover results to avoid accidental API-rate-limit storms.
 - [ ] Blank Discover search remains usable without performing hundreds of live GitHub API requests.
 - [ ] Installed plugin update checks continue to use only matched local third-party plugins, not the entire discovery catalog.
+
+## Manifest-first plugin intelligence (v0.8.0-alpha.8)
+
+- [ ] Scan a modern third-party plugin with `manifest.json`; UI reports **Metadata: OBS manifest**.
+- [ ] Confirm plugin ID/version/repository/website/support are read without loading the DLL.
+- [ ] Scan a plugin absent from the bundled catalog but with a GitHub repository in its manifest; Check Updates uses that repository.
+- [ ] Scan an older plugin without a manifest; DLL/catalog fallback still identifies it where possible.
+- [ ] A plugin with no source metadata stays neutral and offers the official OBS directory rather than a guessed URL.
+- [ ] Find Plugins search ranks useful multi-term queries such as `vertical output`.
+- [ ] Get Plugin opens latest release, official source, or OBS resource page in that order.
+- [ ] Mission Control does not execute or automatically install any third-party plugin package.

@@ -1,6 +1,6 @@
 # Streamer Mission Control Self-Updates
 
-Version: 0.8.0-alpha.7
+Version: 0.8.0-alpha.8
 
 Streamer Mission Control uses **NetSparkleUpdater.SparkleUpdater 3.1.0** with Mission Control's own Avalonia UI.
 
@@ -35,7 +35,7 @@ Normal SemVer releases such as:
 
 Alpha/beta builds such as:
 
-`v0.8.0-alpha.7`
+`v0.8.0-alpha.8`
 
 A stable release refreshes both the Stable and Preview feeds so preview testers can move naturally onto a stable build.
 
@@ -100,8 +100,8 @@ This is intentional fail-safe behavior.
 For a tag such as:
 
 ```powershell
-git tag v0.8.0-alpha.7
-git push origin v0.8.0-alpha.7
+git tag v0.8.0-alpha.8
+git push origin v0.8.0-alpha.8
 ```
 
 GitHub:

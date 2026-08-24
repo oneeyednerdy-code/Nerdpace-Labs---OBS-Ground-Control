@@ -848,10 +848,11 @@ public partial class MainWindow : Window
                 var available = _pluginUpdateItems.Count(x => x.IsUpdateAvailable);
                 var deferred = _pluginUpdateItems.Count(x => x.IsDeferred);
                 var current = _pluginUpdateItems.Count(x => x.UpdateStatus.Equals("Current", StringComparison.OrdinalIgnoreCase));
-                var unknown = _pluginItems.Count(x => string.IsNullOrWhiteSpace(x.Repository));
+                var unknown = _pluginItems.Count(x => !x.HasSourcePage);
+                var manifestDriven = _pluginItems.Count(x => x.HasManifest);
                 PluginUpdateSummaryText.Text = online
-                    ? $"{available} update(s) available • {current} current • {deferred} deferred/skipped • {unknown} unverified source(s). Unverified plugins can be looked up in the official OBS plugin directory."
-                    : $"{_pluginItems.Count} installed third-party plugin(s) found • {_pluginItems.Count - unknown} matched to the trusted registry • {unknown} unverified. Run Check Updates for latest versions.";
+                    ? $"{available} update(s) available • {current} current • {deferred} deferred/skipped • {manifestDriven} identified by OBS manifest • {unknown} without a source link."
+                    : $"{_pluginItems.Count} installed third-party plugin(s) found • {manifestDriven} identified directly from OBS manifests • {_pluginItems.Count - manifestDriven} using DLL/catalog fallback. Run Check Updates for latest versions.";
 
                 RefreshQuarantineList();
                 if (online)
@@ -874,13 +875,18 @@ public partial class MainWindow : Window
             return;
         }
 
-        var source = !string.IsNullOrWhiteSpace(plugin.Repository)
-            ? $"Trusted registry: {plugin.Repository}"
-            : "Update source not verified in Mission Control's registry";
+        var source = !string.IsNullOrWhiteSpace(plugin.SourceUrl)
+            ? plugin.SourceUrl
+            : !string.IsNullOrWhiteSpace(plugin.Repository)
+                ? $"https://github.com/{plugin.Repository}"
+                : plugin.ObsResourceUrl ?? "No source URL found";
+        var website = string.IsNullOrWhiteSpace(plugin.WebsiteUrl) ? "Not listed" : plugin.WebsiteUrl;
+        var support = string.IsNullOrWhiteSpace(plugin.SupportUrl) ? "Not listed" : plugin.SupportUrl;
+        var publisher = string.IsNullOrWhiteSpace(plugin.Publisher) ? "Not listed" : plugin.Publisher;
         PluginDetailText.Text =
-            $"{plugin.Name}\nInstalled version: {plugin.Version}\nLatest verified version: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nUpdate source: {source}\nCompatibility: {plugin.CompatibilityStatus}\nCan quarantine safely: {(plugin.CanQuarantine ? "Yes" : "No")}";
+            $"{plugin.Name}\nPlugin ID: {plugin.Id}\nInstalled version: {plugin.Version}\nMetadata: {plugin.MetadataSource}\nSource confidence: {plugin.SourceConfidence}\nSource: {source}\nWebsite: {website}\nSupport: {support}\nDLL publisher: {publisher}\nCompatibility: {plugin.CompatibilityStatus}\nCan quarantine safely: {(plugin.CanQuarantine ? "Yes" : "No")}";
 
-        OpenPluginPageButton.IsEnabled = plugin.HasVerifiedRelease || !string.IsNullOrWhiteSpace(plugin.Repository);
+        OpenPluginPageButton.IsEnabled = plugin.HasSourcePage;
         OpenPluginObsResourceButton.IsEnabled = plugin.HasOfficialObsResource;
     }
 
@@ -899,22 +905,24 @@ public partial class MainWindow : Window
         }
 
         var fallback = !string.IsNullOrWhiteSpace(plugin.ReleaseUrl)
-            ? "Verified release page available"
-            : !string.IsNullOrWhiteSpace(plugin.Repository)
-                ? "Verified source repository available"
-                : plugin.HasOfficialObsResource
-                    ? "No verified release source; official OBS resource page available"
-                    : "No verified source found; use the official OBS plugin directory";
+            ? "Release/download page available"
+            : !string.IsNullOrWhiteSpace(plugin.SourceUrl)
+                ? "Plugin manifest/source page available"
+                : !string.IsNullOrWhiteSpace(plugin.Repository)
+                    ? "GitHub repository available"
+                    : plugin.HasOfficialObsResource
+                        ? "Official OBS resource page available"
+                        : "No source found; use Find Plugins or the official OBS plugin directory";
 
         PluginUpdateDetailText.Text =
-            $"{plugin.Name}\nInstalled: {plugin.Version}\nLatest verified: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nRepository: {plugin.Repository ?? "Not verified"}\nNext step: {fallback}";
+            $"{plugin.Name}\nInstalled: {plugin.Version}\nLatest: {plugin.LatestVersion ?? "Not checked"}\nStatus: {plugin.UpdateStatus}\nMetadata: {plugin.MetadataSource}\nSource confidence: {plugin.SourceConfidence}\nRepository: {plugin.Repository ?? "Not a GitHub source"}\nNext step: {fallback}";
 
         var updateKnown = plugin.HasKnownLatestVersion && plugin.HasKnownInstalledVersion &&
             (plugin.IsUpdateAvailable || plugin.IsDeferred);
         OpenPluginUpdateButton.IsEnabled = true;
         OpenPluginUpdateButton.Content =
-            (!string.IsNullOrWhiteSpace(plugin.ReleaseUrl) || !string.IsNullOrWhiteSpace(plugin.Repository))
-                ? "Open Update"
+            (!string.IsNullOrWhiteSpace(plugin.ReleaseUrl) || !string.IsNullOrWhiteSpace(plugin.SourceUrl) || !string.IsNullOrWhiteSpace(plugin.Repository))
+                ? "Open Update / Source"
                 : plugin.HasOfficialObsResource
                     ? "Official OBS Page"
                     : "Find on OBS Plugins";
@@ -956,9 +964,19 @@ public partial class MainWindow : Window
             OpenUrl(plugin.ReleaseUrl);
             return;
         }
+        if (!string.IsNullOrWhiteSpace(plugin.SourceUrl))
+        {
+            OpenUrl(plugin.SourceUrl);
+            return;
+        }
         if (!string.IsNullOrWhiteSpace(plugin.Repository))
         {
             OpenUrl($"https://github.com/{plugin.Repository}/releases");
+            return;
+        }
+        if (!string.IsNullOrWhiteSpace(plugin.WebsiteUrl))
+        {
+            OpenUrl(plugin.WebsiteUrl);
             return;
         }
         if (!string.IsNullOrWhiteSpace(plugin.ObsResourceUrl))
@@ -1017,8 +1035,8 @@ public partial class MainWindow : Window
                 DiscoverPluginSelect.SelectedIndex = _pluginDiscoveryItems.Count > 0 ? 0 : -1;
                 UpdateDiscoveryDetail();
                 DiscoverPluginProgressText.Text = _pluginDiscoveryItems.Count == 0
-                    ? "No preloaded OBS resource matches this search. Try Browse Official OBS Plugins for the live directory."
-                    : $"{_pluginDiscoveryItems.Count} catalog result(s) • {(checkLatestVersions ? "verified GitHub release sources refreshed where available" : "online version lookup skipped")}.";
+                    ? "Nothing found — No catalog plugin matches this search. Try a shorter feature term or Browse Official OBS Plugins."
+                    : $"{_pluginDiscoveryItems.Count} ranked result(s) • {(checkLatestVersions ? "download/release links refreshed where available" : "select a result and use Get Plugin")}.";
             });
     }
 
@@ -1045,7 +1063,8 @@ public partial class MainWindow : Window
         DiscoverPluginDetailText.Text =
             $"{item.Entry.DisplayName}\nAuthor: {item.Entry.Author}\n{item.Entry.Description}\nPlatforms: {item.Entry.PlatformSummary}\nMinimum OBS: {minimumObs}\nLocal status: {(item.Installed ? $"Installed {item.InstalledVersion}" : "Not detected on this PC")}\nLatest release check: {item.LatestVersion}\n{sourceLabel}";
         OpenDiscoverObsPageButton.IsEnabled = !string.IsNullOrWhiteSpace(item.Entry.ObsResourceUrl);
-        OpenDiscoverRepositoryButton.IsEnabled = item.Entry.HasVerifiedSource;
+        OpenDiscoverRepositoryButton.IsEnabled = !string.IsNullOrWhiteSpace(item.LatestReleaseUrl) ||
+            item.Entry.HasVerifiedSource || !string.IsNullOrWhiteSpace(item.Entry.ObsResourceUrl);
     }
 
     private void OpenSelectedDiscoveryObsPage()
@@ -1057,10 +1076,14 @@ public partial class MainWindow : Window
     private void OpenSelectedDiscoveryRepository()
     {
         var item = SelectedDiscoveryPlugin();
-        if (item is null || !item.Entry.HasVerifiedSource) return;
+        if (item is null) return;
         var target = !string.IsNullOrWhiteSpace(item.LatestReleaseUrl)
             ? item.LatestReleaseUrl
-            : item.Entry.HasGitHubRepository ? item.Entry.ReleasesUrl : item.Entry.SourceUrl ?? string.Empty;
+            : item.Entry.HasGitHubRepository
+                ? item.Entry.ReleasesUrl
+                : !string.IsNullOrWhiteSpace(item.Entry.SourceUrl)
+                    ? item.Entry.SourceUrl
+                    : item.Entry.ObsResourceUrl;
         if (!string.IsNullOrWhiteSpace(target)) OpenUrl(target);
     }
 

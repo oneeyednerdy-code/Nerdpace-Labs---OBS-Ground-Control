@@ -1,6 +1,6 @@
 # .NET 10 baseline
 
-Streamer Mission Control v0.8.0-alpha.7 targets `net10.0-windows` and is built with the .NET 10 SDK.
+Streamer Mission Control v0.8.0-alpha.8 targets `net10.0-windows` and is built with the .NET 10 SDK.
 
 ## Developers / GitHub Actions
 

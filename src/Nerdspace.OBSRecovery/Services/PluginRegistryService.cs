@@ -40,27 +40,62 @@ public sealed class PluginRegistryService
 
         if (!string.IsNullOrWhiteSpace(query))
         {
-            var q = query.Trim();
-            entries = entries.Where(entry =>
-                entry.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                entry.Author.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                entry.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                (entry.Repository?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (entry.SourceUrl?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                entry.MatchTokens.Any(token => token.Contains(q, StringComparison.OrdinalIgnoreCase)));
+            var terms = query.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            entries = entries
+                .Select(entry => new { Entry = entry, Score = SearchScore(entry, terms) })
+                .Where(item => item.Score > 0)
+                .OrderByDescending(item => item.Score)
+                .ThenBy(item => item.Entry.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .Select(item => item.Entry);
+        }
+        else
+        {
+            entries = entries.OrderBy(x => x.DisplayName, StringComparer.OrdinalIgnoreCase);
         }
 
-        return entries.OrderBy(x => x.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+        return entries.ToList();
+    }
+
+
+    private static int SearchScore(PluginCatalogEntry entry, IReadOnlyList<string> terms)
+    {
+        var score = 0;
+        foreach (var term in terms)
+        {
+            var matched = false;
+            if (entry.DisplayName.Equals(term, StringComparison.OrdinalIgnoreCase)) { score += 100; matched = true; }
+            else if (entry.DisplayName.StartsWith(term, StringComparison.OrdinalIgnoreCase)) { score += 70; matched = true; }
+            else if (entry.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase)) { score += 50; matched = true; }
+
+            if (entry.Author.Contains(term, StringComparison.OrdinalIgnoreCase)) { score += 25; matched = true; }
+            if (entry.Description.Contains(term, StringComparison.OrdinalIgnoreCase)) { score += 15; matched = true; }
+            if (entry.MatchTokens.Any(token => token.Contains(term, StringComparison.OrdinalIgnoreCase))) { score += 35; matched = true; }
+            if (entry.Repository?.Contains(term, StringComparison.OrdinalIgnoreCase) == true) { score += 20; matched = true; }
+            if (entry.SourceUrl?.Contains(term, StringComparison.OrdinalIgnoreCase) == true) { score += 10; matched = true; }
+
+            // Every search term must match somewhere. This makes multi-word searches
+            // useful for intent such as "vertical output" instead of broad OR matching.
+            if (!matched) return 0;
+        }
+        return score;
     }
 
     public PluginCatalogEntry? Match(string name, string path)
     {
         var haystack = $"{name} {path}";
-        return _entries.FirstOrDefault(entry => IsMatch(entry, haystack));
+        var normalizedHaystack = Normalize(haystack);
+        return _entries.FirstOrDefault(entry =>
+            (!string.IsNullOrWhiteSpace(entry.Id) && Normalize(entry.Id).Length >= 4 && normalizedHaystack.Contains(Normalize(entry.Id), StringComparison.OrdinalIgnoreCase)) ||
+            IsMatch(entry, haystack));
     }
 
     public bool MatchesInstalledPlugin(PluginCatalogEntry entry, PluginInfo plugin)
-        => IsMatch(entry, $"{plugin.Name} {plugin.Path}");
+    {
+        var haystack = $"{plugin.Id} {plugin.Name} {plugin.Path}";
+        var normalizedHaystack = Normalize(haystack);
+        return (!string.IsNullOrWhiteSpace(entry.Id) && Normalize(entry.Id).Length >= 4 && normalizedHaystack.Contains(Normalize(entry.Id), StringComparison.OrdinalIgnoreCase)) ||
+               IsMatch(entry, haystack);
+    }
 
     private static bool IsMatch(PluginCatalogEntry entry, string haystack)
     {

@@ -406,7 +406,7 @@
                       <TextBlock Text="THIRD-PARTY PLUGINS ON THIS PC" FontWeight="Bold"/>
                       <TextBlock Text="Bundled OBS modules are hidden from this inventory." Classes="muted"/>
                     </StackPanel>
-                    <Button Grid.Column="1" x:Name="ScanPluginsButton" Content="Scan Installed" ToolTip.Tip="Inventory third-party OBS plugins without going online. Bundled OBS modules are hidden."/>
+                    <Button Grid.Column="1" x:Name="ScanPluginsButton" Content="Scan Installed" ToolTip.Tip="Inventory third-party OBS plugins without loading their DLLs. OBS manifest.json metadata is preferred; DLL/catalog metadata is used only as fallback."/>
                   </Grid>
                   <TextBlock x:Name="PluginProgressText" Text="No plugin scan running." Classes="muted"/>
                   <ProgressBar x:Name="PluginProgress" IsIndeterminate="True" IsVisible="False"/>
@@ -418,7 +418,7 @@
                       <TextBlock x:Name="PluginDetailText" Classes="muted" TextWrapping="Wrap"/>
                       <WrapPanel ItemSpacing="10" LineSpacing="10">
                         <Button x:Name="OpenPluginObsResourceButton" Content="Official OBS Page" ToolTip.Tip="Open the plugin's verified OBS Resource page when Mission Control has one registered."/>
-                        <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Latest Release" ToolTip.Tip="Open the exact verified latest GitHub release when one has been checked. Mission Control never installs plugin updates automatically."/>
+                        <Button x:Name="OpenPluginPageButton" Classes="primary" Content="Open Source / Update" ToolTip.Tip="Open the plugin manifest source, latest release, website, or official OBS resource page using the best available metadata."/>
                         <Button x:Name="QuarantineButton" Classes="danger" Content="Quarantine Plugin" ToolTip.Tip="Move a safely identifiable complete plugin bundle out of OBS and store a restore manifest. OBS must be closed."/>
                       </WrapPanel>
                     </StackPanel>
@@ -439,10 +439,10 @@
                 <StackPanel Margin="0,14,0,8" Spacing="14">
                   <Grid ColumnDefinitions="*,Auto">
                     <StackPanel>
-                      <TextBlock Text="VERIFIED PLUGIN UPDATES" FontWeight="Bold"/>
-                      <TextBlock Text="Compare installed versions against trusted official release sources." Classes="muted"/>
+                      <TextBlock Text="PLUGIN UPDATES" FontWeight="Bold"/>
+                      <TextBlock Text="Compare installed versions using manifest-declared sources first, with the official OBS catalog as a legacy fallback." Classes="muted"/>
                     </StackPanel>
-                    <Button Grid.Column="1" x:Name="CheckPluginUpdatesButton" Classes="primary" Content="Check Updates" ToolTip.Tip="Check trusted GitHub release sources for installed registered plugins. Unverified plugins remain neutral rather than being guessed."/>
+                    <Button Grid.Column="1" x:Name="CheckPluginUpdatesButton" Classes="primary" Content="Check Updates" ToolTip.Tip="Use each plugin's OBS manifest repository when available, then fall back to official catalog metadata. Mission Control never guesses an update source from a filename alone."/>
                   </Grid>
                   <TextBlock x:Name="PluginUpdateProgressText" Text="No update check running." Classes="muted" TextWrapping="Wrap"/>
                   <ProgressBar x:Name="PluginUpdateProgress" IsIndeterminate="True" IsVisible="False"/>
@@ -466,19 +466,19 @@
               </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="DISCOVER">
+            <TabItem Header="FIND PLUGINS">
               <ScrollViewer>
                 <StackPanel Margin="0,14,0,8" Spacing="14">
                   <Grid ColumnDefinitions="*,Auto,Auto">
                     <StackPanel>
-                      <TextBlock Text="DISCOVER OBS PLUGINS" FontWeight="Bold"/>
-                      <TextBlock Text="Search Mission Control's preloaded official OBS resource catalog. Source links are marked verified only when the OBS resource page publishes them." Classes="muted" TextWrapping="Wrap"/>
+                      <TextBlock Text="FIND OBS PLUGINS" FontWeight="Bold"/>
+                      <TextBlock Text="Search the OBS plugin catalog by name, author, or what you need. Mission Control sends you to the best official download/source page it can verify." Classes="muted" TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="1" x:Name="DiscoverCheckVersionsButton" Margin="8,0" Content="Refresh Versions" ToolTip.Tip="Check latest releases only for catalog entries whose OBS resource page publishes a GitHub source repository. This uses the internet but does not download plugin files."/>
+                    <Button Grid.Column="1" x:Name="DiscoverCheckVersionsButton" Margin="8,0" Content="Refresh Downloads" ToolTip.Tip="Refresh latest release links for narrowed search results when an official GitHub source is available."/>
                     <Button Grid.Column="2" x:Name="BrowseOfficialPluginsButton" Classes="primary" Content="Browse Official OBS Plugins" ToolTip.Tip="Open the live official OBS Studio Plugins directory in your browser. Mission Control also ships a release-time snapshot of this catalog."/>
                   </Grid>
                   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                    <TextBox x:Name="DiscoverPluginSearchBox" Watermark="Search by plugin, author, feature, or repository…" ToolTip.Tip="Search the preloaded official OBS plugin resource catalog. Leave blank to show all Windows-compatible or platform-unspecified entries."/>
+                    <TextBox x:Name="DiscoverPluginSearchBox" Watermark="Try: vertical output, captions, transition, Aitum…" ToolTip.Tip="Ranked search across plugin name, author, description, match terms, and official source metadata."/>
                     <Button Grid.Column="1" x:Name="DiscoverPluginSearchButton" Content="Search"/>
                   </Grid>
                   <TextBlock x:Name="DiscoverCatalogSummaryText" Text="Loading preloaded OBS plugin catalog…" Classes="muted" TextWrapping="Wrap"/>
@@ -491,13 +491,13 @@
                       <ComboBox x:Name="DiscoverPluginSelect" ToolTip.Tip="Choose a discovered plugin to see its official OBS resource page, source verification state, supported platforms, and local installation status."/>
                       <TextBlock x:Name="DiscoverPluginDetailText" Classes="muted" TextWrapping="Wrap"/>
                       <WrapPanel ItemSpacing="10" LineSpacing="10">
-                        <Button x:Name="OpenDiscoverObsPageButton" Classes="primary" Content="Official OBS Page" ToolTip.Tip="Open this plugin's verified page in the official OBS resource directory."/>
-                        <Button x:Name="OpenDiscoverRepositoryButton" Content="Source / Releases" ToolTip.Tip="Open the source URL published by the official OBS resource page, or the exact GitHub release when version information has been refreshed. Disabled when no source URL is published."/>
+                        <Button x:Name="OpenDiscoverObsPageButton" Classes="primary" Content="OBS Details" ToolTip.Tip="Open this plugin's page in the official OBS resource directory."/>
+                        <Button x:Name="OpenDiscoverRepositoryButton" Content="Get Plugin" ToolTip.Tip="Open the exact latest release when known, otherwise the official source/download page or OBS resource page."/>
                       </WrapPanel>
                     </StackPanel>
                   </Border>
                   <Border Classes="card">
-                    <TextBlock Text="Discovery is read-only in this alpha. Mission Control does not automatically download or install third-party plugins. This keeps plugin installation under the streamer's control." Classes="muted" TextWrapping="Wrap"/>
+                    <TextBlock Text="Get Plugin opens an official release, source, or OBS resource page so you can use the plugin's supported installer. Automatic installation is intentionally disabled until Mission Control can validate each package format and install path safely." Classes="muted" TextWrapping="Wrap"/>
                   </Border>
                 </StackPanel>
               </ScrollViewer>

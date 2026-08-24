@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.0-alpha.8 - Manifest-First Plugin Intelligence
+
+- Installed plugin scanning now reads OBS `manifest.json` metadata before consulting the bundled catalog.
+- Reads plugin ID, display name, version, description, repository, website, and support URLs without loading the plugin DLL.
+- DLL version/product/company metadata remains a safe local fallback.
+- GitHub repositories declared by plugin manifests can be checked directly for releases.
+- Non-GitHub manifest source URLs remain actionable without pretending Mission Control can automatically compare their versions.
+- The bundled catalog is now a legacy fallback/cross-check rather than a requirement for installed-plugin identification.
+- Renamed the passive Discover view to **Find Plugins**.
+- Find Plugins now uses ranked multi-term search and a **Get Plugin** action that opens the best available official release/source/OBS resource page.
+- Automatic third-party plugin installation remains disabled until package formats and install destinations can be validated safely.
+
 ## 0.8.0-alpha.7 - Signed Updater Bootstrap
 
 - Prepared the first clean GitHub build intended to embed the configured NetSparkle public verification key.

@@ -7,10 +7,10 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyName>NerdSpace.StreamerMissionControl</AssemblyName>
     <RootNamespace>Nerdspace.OBSRecovery</RootNamespace>
-    <Version>0.8.0-alpha.7</Version>
+    <Version>0.8.0-alpha.8</Version>
     <AssemblyVersion>0.8.0.0</AssemblyVersion>
     <FileVersion>0.8.0.0</FileVersion>
-    <InformationalVersion>0.8.0-alpha.7</InformationalVersion>
+    <InformationalVersion>0.8.0-alpha.8</InformationalVersion>
     <Company>NerdSpace Labs by OneEyedNerdy</Company>
     <Product>NerdSpace Labs - Streamer Mission Control</Product>
     <Description>Windows-first streamer workstation pre-flight, OBS maintenance, update checks, backup, recovery, diagnostics, and creator-tool health utility by NerdSpace Labs.</Description>

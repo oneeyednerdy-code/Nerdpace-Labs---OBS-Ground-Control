@@ -1,6 +1,6 @@
 #define MyAppName "NerdSpace Labs - Streamer Mission Control"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.8.0-alpha.7"
+  #define MyAppVersion "0.8.0-alpha.8"
 #endif
 #define MyAppPublisher "NerdSpace Labs by OneEyedNerdy"
 #define MyAppExeName "NerdSpace.StreamerMissionControl.exe"
