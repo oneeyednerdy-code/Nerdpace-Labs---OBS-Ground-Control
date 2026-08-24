@@ -1,4 +1,4 @@
-# v0.7.0-alpha.1 Alpha Patch Notes
+# v0.7.0-alpha.2 Alpha Patch Notes
 
 ## Focus: verified OBS plugin updates
 
@@ -28,3 +28,12 @@ Unknown plugins remain inventoried and can still expose load-health signals, but
 ## Alpha test priority
 
 Test with OBS fully closed first, then test plugin inventory/update checks with the plugins you actually use. Report the detected plugin name, installed version, latest version/status, and whether the release link went to the expected official project. Do not include stream keys, OAuth tokens, or private URLs in bug reports.
+
+
+## Installer patch
+
+- Added a normal Windows Setup EXE build using Inno Setup.
+- Per-user install path avoids an unnecessary installer UAC prompt.
+- Adds Start Menu entry, optional Desktop shortcut, Windows uninstall entry, and launch-after-install option.
+- GitHub Releases now publish both the recommended installer and portable ZIP.
+- The installer is unsigned until the separate Authenticode signing step is configured.

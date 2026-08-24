@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0-alpha.2
+
+### Added
+- Windows Setup EXE installer project using Inno Setup 6.
+- Per-user installation under LocalAppData with Start Menu integration and optional Desktop shortcut.
+- GitHub Actions installer build and release artifact.
+- Installer documentation and alpha regression coverage.
+
+### Changed
+- GitHub releases now publish the installer as the recommended Windows alpha package while keeping the portable ZIP available.
+
 ## 0.7.0-alpha.1 - Verified Plugin Updates & Deferrals
 
 ### Added

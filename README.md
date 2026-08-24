@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.1**
+Current development version: **v0.7.0-alpha.2**
 
 ## Supported platform
 
@@ -149,16 +149,21 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.1
-git push origin v0.7.0-alpha.1
+git tag v0.7.0-alpha.2
+git push origin v0.7.0-alpha.2
 ```
 
 The release workflow produces:
 
+- `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`
 - `Nerdspace-OBS-Ground-Control-vX.Y.Z-win-x64.zip`
 - `SHA256SUMS.txt`
 
-Code signing and a proper Windows installer are the next release-hardening steps.
+The Setup EXE is the recommended alpha download. The portable ZIP remains available for no-install testing. Code signing is the next release-hardening step.
+
+## Windows installer
+
+Ground Control now includes an Inno Setup project and GitHub release automation for a normal per-user Windows installer. See `docs/INSTALLER.md`.
 
 ## Future platforms
 

@@ -28,11 +28,32 @@ jobs:
       - name: Publish Windows x64
         run: dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/win-x64
 
-      - name: Package
+      - name: Package portable build
         shell: pwsh
         run: Compress-Archive -Path publish/win-x64/* -DestinationPath Nerdspace-OBS-Ground-Control-win-x64.zip
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj
+          $version = $project.Project.PropertyGroup.Version | Select-Object -First 1
+          $publishDir = (Resolve-Path 'publish/win-x64').Path
+          $iscc = @(
+            "${env:ProgramFiles}\Inno Setup 7\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { throw "Inno Setup compiler not found after installation." }
+          & $iscc "/DMyAppVersion=$version" "/DPublishDir=$publishDir" "installer\GroundControl.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Nerdspace-OBS-Ground-Control-win-x64
-          path: Nerdspace-OBS-Ground-Control-win-x64.zip
+          name: Nerdspace-OBS-Ground-Control-Windows
+          path: |
+            Nerdspace-OBS-Ground-Control-win-x64.zip
+            dist/Nerdspace-OBS-Ground-Control-Setup-*.exe
