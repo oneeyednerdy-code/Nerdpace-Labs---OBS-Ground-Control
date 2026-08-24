@@ -7,10 +7,10 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyName>NerdSpace.StreamerMissionControl</AssemblyName>
     <RootNamespace>Nerdspace.OBSRecovery</RootNamespace>
-    <Version>0.8.0-alpha.4</Version>
+    <Version>0.8.0-alpha.5</Version>
     <AssemblyVersion>0.8.0.0</AssemblyVersion>
     <FileVersion>0.8.0.0</FileVersion>
-    <InformationalVersion>0.8.0-alpha.4</InformationalVersion>
+    <InformationalVersion>0.8.0-alpha.5</InformationalVersion>
     <Company>NerdSpace Labs by OneEyedNerdy</Company>
     <Product>NerdSpace Labs - Streamer Mission Control</Product>
     <Description>Windows-first streamer workstation pre-flight, OBS maintenance, update checks, backup, recovery, diagnostics, and creator-tool health utility by NerdSpace Labs.</Description>
@@ -21,6 +21,7 @@
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <!-- MainWindow is created through AppServices dependency injection rather than Avalonia runtime construction. -->
     <NoWarn>$(NoWarn);AVLN3001</NoWarn>
   </PropertyGroup>
@@ -30,10 +31,12 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="NetSparkleUpdater.SparkleUpdater" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <EmbeddedResource Include="Data\plugin-catalog.json" />
+    <EmbeddedResource Include="Data\update-config.json" />
   </ItemGroup>
 </Project>

@@ -16,7 +16,16 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Configure Mission Control self-update feed
+        shell: pwsh
+        env:
+          NETSPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+        run: |
+          python scripts/configure-self-update.py --repository "$env:GITHUB_REPOSITORY" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
 
       - name: Build preloaded OBS plugin catalog
         run: python scripts/refresh-plugin-catalog.py --require-min-resources 250
@@ -100,3 +109,106 @@ jobs:
             dist/NerdSpace-Streamer-Mission-Control-Setup-*.exe
             NerdSpace-Streamer-Mission-Control-*-win-x64.zip
             SHA256SUMS.txt
+
+      - name: Check updater signing configuration
+        id: updater_signing
+        shell: pwsh
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.NETSPARKLE_PRIVATE_KEY }}
+          SPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY) -or
+              [string]::IsNullOrWhiteSpace($env:SPARKLE_PUBLIC_KEY)) {
+            Write-Warning "NetSparkle signing keys are not configured. GitHub release succeeded, but the in-app Update Now feed will not be refreshed."
+            "configured=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            exit 0
+          }
+          "configured=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Install NetSparkle appcast generator
+        if: steps.updater_signing.outputs.configured == 'true'
+        shell: pwsh
+        run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 3.1.0
+
+      - name: Generate signed Mission Control appcast
+        if: steps.updater_signing.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.NETSPARKLE_PRIVATE_KEY }}
+          SPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          $baseUrl = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/$env:GITHUB_REF_NAME"
+          $stage = Join-Path $env:RUNNER_TEMP "mission-control-update-feed"
+          $binary = Join-Path $stage "binary"
+          $out = Join-Path $stage "out"
+
+          New-Item -ItemType Directory -Force -Path $binary, $out | Out-Null
+          Copy-Item (Get-ChildItem "dist\NerdSpace-Streamer-Mission-Control-Setup-*.exe" | Select-Object -First 1).FullName $binary
+
+          $args = @(
+            "-a", $out,
+            "-b", $binary,
+            "-e", "exe",
+            "-o", "windows",
+            "-n", "NerdSpace Labs - Streamer Mission Control",
+            "-u", $baseUrl,
+            "--file-version", $version
+          )
+
+          $isPreview = $version.Contains("-")
+          if ($isPreview) {
+            $args += @("--channel", "preview")
+          }
+
+          & netsparkle-generate-appcast @args
+          if ($LASTEXITCODE -ne 0) { throw "NetSparkle appcast generation failed." }
+
+          $sourceCast = Join-Path $out "appcast.xml"
+          $sourceSig = "$sourceCast.signature"
+          if (-not (Test-Path $sourceCast) -or -not (Test-Path $sourceSig)) {
+            throw "NetSparkle did not produce appcast.xml and appcast.xml.signature."
+          }
+
+          $publish = Join-Path $stage "publish"
+          New-Item -ItemType Directory -Force -Path $publish | Out-Null
+
+          if ($isPreview) {
+            Copy-Item $sourceCast (Join-Path $publish "appcast-preview.xml")
+            Copy-Item $sourceSig (Join-Path $publish "appcast-preview.xml.signature")
+          } else {
+            # Stable releases refresh both feeds so preview testers naturally
+            # graduate to the newest stable release.
+            Copy-Item $sourceCast (Join-Path $publish "appcast-stable.xml")
+            Copy-Item $sourceSig (Join-Path $publish "appcast-stable.xml.signature")
+            Copy-Item $sourceCast (Join-Path $publish "appcast-preview.xml")
+            Copy-Item $sourceSig (Join-Path $publish "appcast-preview.xml.signature")
+          }
+
+          "feed_dir=$publish" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        id: generate_appcast
+
+      - name: Publish fixed signed update feed
+        if: steps.updater_signing.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $feed = "${{ steps.generate_appcast.outputs.feed_dir }}"
+
+          gh release view update-feed --repo "$env:GITHUB_REPOSITORY" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create update-feed `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --target main `
+              --title "Streamer Mission Control Update Feed" `
+              --notes "Machine-readable signed update metadata used by Streamer Mission Control. Normal users should download versioned releases instead." `
+              --prerelease
+          }
+
+          Get-ChildItem $feed -File | ForEach-Object {
+            gh release upload update-feed $_.FullName `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --clobber
+            if ($LASTEXITCODE -ne 0) { throw "Failed to upload $($_.Name) to update-feed release." }
+          }

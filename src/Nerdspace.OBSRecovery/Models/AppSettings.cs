@@ -19,6 +19,10 @@ public sealed class AppSettings
     public int BackupWarningAgeDays { get; set; } = 14;
     public double RecordingDiskWarningGb { get; set; } = 25;
     public bool CheckUpdatesOnline { get; set; } = true;
+    public bool AutoCheckMissionControlUpdates { get; set; } = true;
+    public string MissionControlUpdateChannel { get; set; } = "Preview";
+    public DateTimeOffset? LastMissionControlUpdateCheckUtc { get; set; }
+    public DateTimeOffset? MissionControlUpdateSnoozedUntilUtc { get; set; }
     public string BackupDirectory { get; set; } = string.Empty;
 
     // Optional executable overrides for creator tools, especially portable installs.

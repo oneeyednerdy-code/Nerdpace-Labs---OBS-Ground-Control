@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private readonly ElgatoHealthService _elgato;
     private readonly SteelSeriesSonarService _sonar;
     private readonly CreatorSoftwareUpdateService _creatorSoftware;
+    private readonly SelfUpdateService _selfUpdates;
     private readonly WindowsUpdateService _windowsUpdates;
     private readonly CrashHistoryService _crashes;
     private readonly ObsConfigurationInspectorService _obsConfig;
@@ -48,6 +49,7 @@ public partial class MainWindow : Window
     private IReadOnlyList<BackupInfo> _backupItems = Array.Empty<BackupInfo>();
     private GraphicsDriverSnapshot? _graphicsSnapshot;
     private BandwidthTestResult? _lastBandwidthResult;
+    private SelfUpdateSnapshot? _missionControlUpdateSnapshot;
 
     public MainWindow(
         IObsPlatformService platform,
@@ -68,6 +70,7 @@ public partial class MainWindow : Window
         ElgatoHealthService elgato,
         SteelSeriesSonarService sonar,
         CreatorSoftwareUpdateService creatorSoftware,
+        SelfUpdateService selfUpdates,
         WindowsUpdateService windowsUpdates,
         CrashHistoryService crashes,
         ObsConfigurationInspectorService obsConfig,
@@ -93,6 +96,7 @@ public partial class MainWindow : Window
         _elgato = elgato;
         _sonar = sonar;
         _creatorSoftware = creatorSoftware;
+        _selfUpdates = selfUpdates;
         _windowsUpdates = windowsUpdates;
         _crashes = crashes;
         _obsConfig = obsConfig;
@@ -107,6 +111,7 @@ public partial class MainWindow : Window
         WireEvents();
 
         _logger.EntryWritten += line => Dispatcher.UIThread.Post(() => AddHistory(line));
+        _selfUpdates.CloseApplicationRequested += () => Dispatcher.UIThread.Post(Close);
         _logger.Info($"Streamer Mission Control started on {_platform.PlatformName}.");
         _timer.Tick += async (_, _) => await MonitorTickAsync();
         _timer.Start();
@@ -122,6 +127,7 @@ public partial class MainWindow : Window
             UpdatePreflightBandwidthProfile();
             RefreshCurrentObsOutput();
             await RefreshCreatorSoftwareCoreAsync(false);
+            await MaybeAutoCheckMissionControlUpdateAsync();
         };
     }
 
@@ -136,6 +142,10 @@ public partial class MainWindow : Window
         RelaunchToggle.IsChecked = _settings.RelaunchAfterHungRecovery;
         StartAtLoginToggle.IsChecked = _settings.StartWithOperatingSystem;
         OnlineUpdatesToggle.IsChecked = _settings.CheckUpdatesOnline;
+        AutoMissionControlUpdatesToggle.IsChecked = _settings.AutoCheckMissionControlUpdates;
+        MissionControlUpdateChannelSelect.ItemsSource = new[] { "Preview", "Stable" };
+        MissionControlUpdateChannelSelect.SelectedItem = string.Equals(_settings.MissionControlUpdateChannel, "Stable", StringComparison.OrdinalIgnoreCase) ? "Stable" : "Preview";
+        MissionControlUpdateText.Text = $"Installed: {AppVersion.DisplayVersion}\nLatest: Not checked\nStatus: Not checked yet";
         AutoBackupRestoreToggle.IsChecked = _settings.AutoBackupBeforeRestore;
         IncludeSceneMediaBackupToggle.IsChecked = _settings.IncludeSceneMediaInBackups;
         RestoreSceneMediaToggle.IsChecked = false;
@@ -192,6 +202,29 @@ public partial class MainWindow : Window
         BandwidthEnhancedToggle.IsCheckedChanged += async (_, _) => { UpdateTwitchBandwidthControls(); UpdatePreflightBandwidthProfile(); await SaveSettingsAsync(true); };
         BandwidthServerTranscodeToggle.IsCheckedChanged += async (_, _) => { UpdatePreflightBandwidthProfile(); await SaveSettingsAsync(true); };
         RunBandwidthInPreflightToggle.IsCheckedChanged += async (_, _) => await SaveSettingsAsync(true);
+
+        CheckMissionControlUpdateButton.Click += async (_, _) => await CheckMissionControlUpdateAsync(true);
+        UpdateMissionControlButton.Click += async (_, _) => await UpdateMissionControlAsync();
+        LaterMissionControlUpdateButton.Click += async (_, _) => await SnoozeMissionControlUpdateAsync();
+        ViewMissionControlReleaseButton.Click += (_, _) => TryAction(() => _selfUpdates.OpenReleasePage(_missionControlUpdateSnapshot?.ReleaseUrl));
+        MissionControlUpdateChannelSelect.SelectionChanged += async (_, _) =>
+        {
+            _settings.MissionControlUpdateChannel = MissionControlUpdateChannelSelect.SelectedItem?.ToString() ?? "Preview";
+            _selfUpdates.ClearSnooze();
+            await SaveSettingsAsync(true);
+            ApplyMissionControlUpdateSnapshot(new SelfUpdateSnapshot(
+                _selfUpdates.IsConfigured,
+                _settings.MissionControlUpdateChannel,
+                AppVersion.DisplayVersion,
+                "Not checked",
+                "Channel changed",
+                "Use Check Now to query the selected signed update feed.",
+                false,
+                false,
+                null,
+                _settings.LastMissionControlUpdateCheckUtc));
+        };
+        AutoMissionControlUpdatesToggle.IsCheckedChanged += async (_, _) => await SaveSettingsAsync(true);
 
         CheckObsUpdateButton.Click += async (_, _) => await CheckObsUpdateAsync();
         CheckGraphicsButton.Click += async (_, _) => await CheckGraphicsAsync();
@@ -311,6 +344,129 @@ public partial class MainWindow : Window
         var disk = health.RecordingFreeGb.HasValue ? $"{health.RecordingFreeGb.Value:F1} GB recording disk free" : "recording disk unknown";
         HealthSummaryText.Text = $"OBS {health.ObsVersion} • {health.ObsProcessCount} process(es) • {health.ObsMemoryMb:F0} MB • {cpu} • {disk}";
         ObsUpdateText.Text = $"OBS update status: {health.UpdateStatus} • latest check: {health.LatestObsVersion}";
+    }
+
+    private async Task MaybeAutoCheckMissionControlUpdateAsync()
+    {
+        if (!_settings.AutoCheckMissionControlUpdates ||
+            !_settings.CheckUpdatesOnline)
+            return;
+
+        var last = _settings.LastMissionControlUpdateCheckUtc;
+        if (last.HasValue && DateTimeOffset.UtcNow - last.Value < TimeSpan.FromHours(24))
+            return;
+
+        await CheckMissionControlUpdateAsync(false);
+    }
+
+    private async Task CheckMissionControlUpdateAsync(bool userInitiated)
+    {
+        var original = CheckMissionControlUpdateButton.Content;
+        CheckMissionControlUpdateButton.IsEnabled = false;
+        CheckMissionControlUpdateButton.Content = "Checking…";
+        MissionControlUpdateProgress.IsVisible = true;
+        MissionControlUpdateProgressText.Text = "Checking signed Streamer Mission Control update feed…";
+
+        try
+        {
+            _settings.MissionControlUpdateChannel =
+                MissionControlUpdateChannelSelect.SelectedItem?.ToString() ?? "Preview";
+
+            var snapshot = await _selfUpdates.CheckAsync(userInitiated);
+            _missionControlUpdateSnapshot = snapshot;
+            ApplyMissionControlUpdateSnapshot(snapshot);
+            MissionControlUpdateProgressText.Text = snapshot.Status;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex.Message);
+            MissionControlUpdateProgressText.Text = "Mission Control update check failed.";
+            if (userInitiated)
+                await ShowErrorAsync(ex.Message);
+        }
+        finally
+        {
+            MissionControlUpdateProgress.IsVisible = false;
+            CheckMissionControlUpdateButton.Content = original;
+            CheckMissionControlUpdateButton.IsEnabled = true;
+        }
+    }
+
+    private void ApplyMissionControlUpdateSnapshot(SelfUpdateSnapshot snapshot)
+    {
+        MissionControlUpdateText.Text = snapshot.Display;
+        UpdateMissionControlButton.IsEnabled = snapshot.UpdateAvailable && snapshot.CanInstall;
+        LaterMissionControlUpdateButton.IsEnabled = snapshot.UpdateAvailable;
+
+        UpdateMissionControlButton.Content = snapshot.UpdateAvailable
+            ? "Update Now"
+            : snapshot.Status.Equals("Up to date", StringComparison.OrdinalIgnoreCase)
+                ? "Up to Date"
+                : "Update Now";
+
+        ViewMissionControlReleaseButton.Content =
+            snapshot.UpdateAvailable ? "View Release Notes" : "View Releases";
+    }
+
+    private async Task UpdateMissionControlAsync()
+    {
+        if (_missionControlUpdateSnapshot is null ||
+            !_missionControlUpdateSnapshot.UpdateAvailable ||
+            !_missionControlUpdateSnapshot.CanInstall)
+        {
+            await ShowInfoAsync(
+                "No installable update",
+                "Run Check Now first. Update Now is only enabled when Mission Control verifies a newer release through the signed update feed.");
+            return;
+        }
+
+        var proceed = await ConfirmAsync(
+            "Update Streamer Mission Control?",
+            $"Install {_missionControlUpdateSnapshot.LatestVersion}? Mission Control will download and cryptographically verify the installer, save settings, fully close, and run the normal upgrade installer.");
+        if (!proceed) return;
+
+        UpdateMissionControlButton.IsEnabled = false;
+        CheckMissionControlUpdateButton.IsEnabled = false;
+        LaterMissionControlUpdateButton.IsEnabled = false;
+        MissionControlUpdateProgress.IsVisible = true;
+
+        try
+        {
+            await SaveSettingsAsync(true);
+            var progress = new Progress<SelfUpdateProgress>(p =>
+            {
+                MissionControlUpdateProgressText.Text = p.Display;
+                MissionControlUpdateProgress.IsIndeterminate = !p.Percent.HasValue;
+                if (p.Percent.HasValue)
+                {
+                    MissionControlUpdateProgress.Minimum = 0;
+                    MissionControlUpdateProgress.Maximum = 100;
+                    MissionControlUpdateProgress.Value = p.Percent.Value;
+                }
+            });
+
+            await _selfUpdates.DownloadAndInstallAsync(progress);
+            MissionControlUpdateProgressText.Text = "Installer verified. Closing Mission Control for update…";
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Mission Control update failed: {ex.Message}");
+            MissionControlUpdateProgressText.Text = "Update stopped safely. No upgrade was installed.";
+            UpdateMissionControlButton.IsEnabled = true;
+            CheckMissionControlUpdateButton.IsEnabled = true;
+            LaterMissionControlUpdateButton.IsEnabled = true;
+            MissionControlUpdateProgress.IsVisible = false;
+            MissionControlUpdateProgress.IsIndeterminate = true;
+            await ShowErrorAsync($"Mission Control could not complete the update:\n\n{ex.Message}");
+        }
+    }
+
+    private async Task SnoozeMissionControlUpdateAsync()
+    {
+        await _selfUpdates.SnoozeAsync(TimeSpan.FromHours(24));
+        LaterMissionControlUpdateButton.IsEnabled = false;
+        MissionControlUpdateProgressText.Text =
+            $"Update reminder snoozed until {DateTimeOffset.Now.AddHours(24):g}. Check Now remains available.";
     }
 
     private async Task CheckObsUpdateAsync()
@@ -439,6 +595,8 @@ public partial class MainWindow : Window
         UpdatesProgress.IsVisible = true;
         try
         {
+            UpdatesProgressText.Text = "Checking Streamer Mission Control…";
+            await CheckMissionControlUpdateAsync(true);
             UpdatesProgressText.Text = "Checking OBS release…";
             await RefreshObsUpdateCoreAsync();
             UpdatesProgressText.Text = "Inspecting graphics drivers…";
@@ -1076,6 +1234,8 @@ public partial class MainWindow : Window
         _settings.RelaunchAfterHungRecovery = RelaunchToggle.IsChecked == true;
         _settings.StartWithOperatingSystem = StartAtLoginToggle.IsChecked == true;
         _settings.CheckUpdatesOnline = OnlineUpdatesToggle.IsChecked == true;
+        _settings.AutoCheckMissionControlUpdates = AutoMissionControlUpdatesToggle.IsChecked == true;
+        _settings.MissionControlUpdateChannel = MissionControlUpdateChannelSelect.SelectedItem?.ToString() ?? "Preview";
         _settings.AutoBackupBeforeRestore = AutoBackupRestoreToggle.IsChecked == true;
         _settings.IncludeSceneMediaInBackups = IncludeSceneMediaBackupToggle.IsChecked == true;
         _settings.RunBandwidthTestInPreflight = RunBandwidthInPreflightToggle.IsChecked == true;

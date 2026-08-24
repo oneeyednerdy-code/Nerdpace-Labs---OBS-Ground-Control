@@ -1,6 +1,23 @@
 # Changelog
 
-## 0.8.0-alpha.4 - Plugin Fallback & Scene Media Backups
+## 0.8.0-alpha.5 - Secure In-App Self Updater
+
+- Added Streamer Mission Control to its own Update Center.
+- Added **Check Now**, **Update Now**, **Later**, and **View Release Notes / Releases**.
+- Added Stable and Preview update channels.
+- Added optional once-per-day automatic update checks; updates are never installed automatically.
+- Added `NetSparkleUpdater.SparkleUpdater` 3.1.0 core package with a custom NerdSpace Labs UI.
+- Added strict Ed25519 verification for the update appcast and downloaded installer.
+- Update Now is disabled when signing/feed configuration is missing or invalid.
+- Added animated download/progress feedback for self-update operations.
+- Added safe full-shutdown handoff to the existing Inno Setup installer.
+- Added fixed GitHub `update-feed` release architecture for permanent appcast URLs.
+- Added GitHub Actions generation and publishing of signed Stable/Preview appcasts.
+- Added `scripts/setup-update-signing.ps1` for one-time Ed25519 key setup.
+- Added `scripts/configure-self-update.py` so GitHub builds automatically embed their own repository/feed URLs.
+- Added `IncludeSourceRevisionInInformationalVersion=false` so Git commit hashes do not confuse update version comparisons.
+
+## 0.8.0-alpha.5 - Plugin Fallback & Scene Media Backups
 
 - Installed plugins without a verified update source now remain visible in the Plugin Updates view.
 - Added a fallback path for unknown plugin updates: verified release, verified source repository, exact official OBS resource page, or the official OBS Studio Plugins directory.
@@ -11,7 +28,7 @@
 - Restore can optionally restore included scene media to original locations. Existing media is preserved by default; overwrite requires a second explicit option.
 - Legacy Ground Control backup manifests remain readable.
 
-## 0.8.0-alpha.4 - Scan Feedback & Elgato Software Updates
+## 0.8.0-alpha.5 - Scan Feedback & Elgato Software Updates
 
 - Added explicit **Nothing found** results so successful empty scans no longer leave blank UI.
 - Third-party OBS plugin scans now show a clear empty-result message.
@@ -23,14 +40,14 @@
 - Elgato hardware remains a separate currently-connected inventory; hardware firmware is left to the applicable official Elgato application.
 - The Elgato action changes to **Open Elgato Updates** when an installed Elgato app has a verified newer release.
 
-## 0.8.0-alpha.4 - Creator Update Compile Fix
+## 0.8.0-alpha.5 - Creator Update Compile Fix
 
 - Fixed the creator software update checker to use `GitHubReleaseInfo.ReleaseUrl`.
 - Resolves CS1061 in `CreatorSoftwareUpdateService.cs`.
 - Verified all remaining `GitHubReleaseInfo` usages reference the current model members: `Version`, `TagName`, `ReleaseUrl`, and `PublishedAt`.
 - No user-facing feature behavior changed.
 
-## 0.8.0-alpha.4 - Streamer Mission Control Rebrand
+## 0.8.0-alpha.5 - Streamer Mission Control Rebrand
 
 - Rebranded the public product to **NerdSpace Labs - Streamer Mission Control**.
 - Matched the shared NerdSpace Labs black/violet design system.
@@ -42,7 +59,7 @@
 - Added migration from the legacy `Nerdspace Labs\OBS Ground Control` local settings/backups directory.
 - Renamed the published executable to `NerdSpace.StreamerMissionControl.exe`.
 
-## 0.8.0-alpha.4 - Creator Bot Update Checks
+## 0.8.0-alpha.5 - Creator Bot Update Checks
 
 - Added installed-version detection and stable update checks for **Mix It Up**, **Streamer.bot**, and **Firebot**.
 - Mix It Up uses the official `MixItUpBot/Desktop` GitHub Releases feed.

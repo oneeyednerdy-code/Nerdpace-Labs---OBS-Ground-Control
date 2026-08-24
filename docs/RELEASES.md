@@ -9,8 +9,8 @@ The release workflow triggers on tags matching:
 Example:
 
 ```powershell
-git tag v0.8.0-alpha.4
-git push origin v0.8.0-alpha.4
+git tag v0.8.0-alpha.5
+git push origin v0.8.0-alpha.5
 ```
 
 Release artifacts:

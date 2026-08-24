@@ -14,6 +14,7 @@ public static class AppServices
         var updates = new UpdateService(logger);
         var creatorSoftware = new CreatorSoftwareUpdateService(settings, updates, logger);
         var updateDeferrals = new UpdateDeferralService(settings, settingsService);
+        var selfUpdates = new SelfUpdateService(settings, settingsService, logger);
         var pluginRegistry = new PluginRegistryService();
         var pluginDiscovery = new PluginDiscoveryService(pluginRegistry, updates, logger);
         var detector = new ObsDetector(settings, logger, platform);
@@ -37,6 +38,6 @@ public static class AppServices
             health, graphics, elgato, sonar, windowsUpdates, backups);
 
         return new MainWindow(platform, settings, settingsService, logger, detector, recovery, plugins, pluginDiscovery, updateDeferrals, quarantine,
-            backups, logs, assets, health, graphics, elgato, sonar, creatorSoftware, windowsUpdates, crashes, obsConfig, bandwidth, preflight, support);
+            backups, logs, assets, health, graphics, elgato, sonar, creatorSoftware, selfUpdates, windowsUpdates, crashes, obsConfig, bandwidth, preflight, support);
     }
 }

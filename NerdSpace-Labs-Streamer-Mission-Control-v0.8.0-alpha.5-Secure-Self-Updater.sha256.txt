@@ -1,0 +1,1 @@
+bd52f2eb9b465cfe8131ac0f215d13ec083258991ef064c0706658da52381ec0  NerdSpace-Labs-Streamer-Mission-Control-v0.8.0-alpha.5-Secure-Self-Updater.zip

@@ -19,6 +19,13 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Configure Mission Control self-update feed
+        shell: pwsh
+        env:
+          NETSPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+        run: |
+          python scripts/configure-self-update.py --repository "$env:GITHUB_REPOSITORY" --public-key "$env:NETSPARKLE_PUBLIC_KEY"
+
       - name: Refresh preloaded OBS plugin catalog
         continue-on-error: true
         run: python scripts/refresh-plugin-catalog.py --require-min-resources 250

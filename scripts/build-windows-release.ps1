@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.8.0-alpha.4",
+    [string]$Version = "0.8.0-alpha.5",
     [switch]$SkipCatalogRefresh,
     [switch]$SkipInstaller
 )

@@ -239,6 +239,49 @@
             <TextBlock x:Name="UpdatesProgressText" Text="No update scan running." Classes="muted"/>
             <ProgressBar x:Name="UpdatesProgress" IsIndeterminate="True" IsVisible="False"/>
 
+            <Border Classes="card">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="STREAMER MISSION CONTROL" Classes="eyebrow"/>
+                  <TextBlock x:Name="MissionControlUpdateText"
+                             Text="Installed version loaded. Update feed has not been checked yet."
+                             TextWrapping="Wrap"/>
+                  <ProgressBar x:Name="MissionControlUpdateProgress"
+                               IsIndeterminate="True"
+                               IsVisible="False"
+                               Height="5"/>
+                  <TextBlock x:Name="MissionControlUpdateProgressText"
+                             Text="No Mission Control update operation running."
+                             Classes="muted"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" MinWidth="210">
+                  <TextBlock Text="Update channel" Classes="muted"/>
+                  <ComboBox x:Name="MissionControlUpdateChannelSelect"
+                            ToolTip.Tip="Stable receives normal releases only. Preview receives alpha/beta builds and also transitions to stable releases when published."/>
+                  <Button x:Name="CheckMissionControlUpdateButton"
+                          Classes="primary"
+                          Content="Check Now"
+                          ToolTip.Tip="Check the signed Streamer Mission Control update feed."/>
+                  <Button x:Name="UpdateMissionControlButton"
+                          Content="Update Now"
+                          IsEnabled="False"
+                          ToolTip.Tip="Download the signed installer, verify its Ed25519 signature, fully close Mission Control, and run the normal installer upgrade."/>
+                  <WrapPanel ItemSpacing="8">
+                    <Button x:Name="LaterMissionControlUpdateButton"
+                            Classes="small"
+                            Content="Later"
+                            IsEnabled="False"
+                            ToolTip.Tip="Snooze automatic Mission Control update reminders for 24 hours."/>
+                    <Button x:Name="ViewMissionControlReleaseButton"
+                            Classes="small"
+                            Content="View Releases"
+                            ToolTip.Tip="Open the official Streamer Mission Control GitHub release page."/>
+                  </WrapPanel>
+                </StackPanel>
+              </Grid>
+            </Border>
+
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
               <Border Classes="card">
                 <StackPanel Spacing="9">
@@ -565,6 +608,9 @@
                 <TextBlock Text="BEHAVIOR" FontWeight="Bold"/>
                 <CheckBox x:Name="StartAtLoginToggle" Content="Start Mission Control with the operating system" ToolTip.Tip="Launch Mission Control at sign-in/login so Recovery Protection can be available before OBS starts."/>
                 <CheckBox x:Name="OnlineUpdatesToggle" Content="Allow explicit online update checks" ToolTip.Tip="Allow user-triggered version checks against official/trusted release sources. Pre-Flight can still skip them per run."/>
+                <CheckBox x:Name="AutoMissionControlUpdatesToggle"
+                          Content="Automatically check Streamer Mission Control for updates once per day"
+                          ToolTip.Tip="Runs a quiet signed-feed check at launch when at least 24 hours have passed. It never installs an update without you choosing Update Now."/>
                 <CheckBox x:Name="AutoBackupRestoreToggle" Content="Create a safety backup before restore" ToolTip.Tip="Create a current configuration snapshot before restoring an older Mission Control backup."/>
               </StackPanel>
             </Border>
