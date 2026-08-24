@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.7.0-alpha.2**
+Current development version: **v0.7.0-alpha.3**
 
 ## Supported platform
 
@@ -149,8 +149,8 @@ GitHub Actions now builds **Windows x64 only**.
 Push a SemVer tag such as:
 
 ```powershell
-git tag v0.7.0-alpha.2
-git push origin v0.7.0-alpha.2
+git tag v0.7.0-alpha.3
+git push origin v0.7.0-alpha.3
 ```
 
 The release workflow produces:
@@ -162,6 +162,9 @@ The release workflow produces:
 The Setup EXE is the recommended alpha download. The portable ZIP remains available for no-install testing. Code signing is the next release-hardening step.
 
 ## Windows installer
+
+**No separate .NET runtime is required.** Release builds are published self-contained for Windows x64, so the installer carries the .NET runtime and managed/native dependencies needed by Ground Control. The installer does not download .NET during setup.
+
 
 Ground Control now includes an Inno Setup project and GitHub release automation for a normal per-user Windows installer. See `docs/INSTALLER.md`.
 

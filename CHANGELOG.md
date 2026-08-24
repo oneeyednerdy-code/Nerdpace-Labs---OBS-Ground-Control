@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0-alpha.3 - Self-Contained Windows Runtime
+
+- Hardened Windows publishing as self-contained `win-x64`.
+- Installer now explicitly carries the required .NET runtime/application dependencies; no separate .NET Desktop Runtime install is required.
+- Added CI verification that release publishing remains self-contained and single-file.
+- Kept trimming disabled during alpha to protect Avalonia/reflection compatibility.
+- Added clean-machine/offline installer regression checks.
+
 ## 0.7.0-alpha.2
 
 ### Added

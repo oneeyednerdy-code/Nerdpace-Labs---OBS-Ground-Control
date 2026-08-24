@@ -1,4 +1,4 @@
-# v0.7.0-alpha.2 Alpha Patch Notes
+# v0.7.0-alpha.3 Alpha Patch Notes
 
 ## Focus: verified OBS plugin updates
 
@@ -37,3 +37,11 @@ Test with OBS fully closed first, then test plugin inventory/update checks with 
 - Adds Start Menu entry, optional Desktop shortcut, Windows uninstall entry, and launch-after-install option.
 - GitHub Releases now publish both the recommended installer and portable ZIP.
 - The installer is unsigned until the separate Authenticode signing step is configured.
+
+
+## Self-contained installer runtime
+
+- Windows installer/portable builds now explicitly include the required .NET runtime.
+- No separate .NET Desktop Runtime installation is required for testers.
+- GitHub Actions verifies the self-contained/single-file project settings before packaging.
+- Setup remains offline with respect to .NET prerequisites; it does not bootstrap or download .NET during install.

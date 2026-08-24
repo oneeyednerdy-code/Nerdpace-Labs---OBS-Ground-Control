@@ -1,9 +1,9 @@
-# v0.7.0-alpha.2 Windows Alpha Testing Checklist
+# v0.7.0-alpha.3 Windows Alpha Testing Checklist
 
 ## Build / release
 - [ ] Windows x64 GitHub Actions build succeeds.
 - [ ] No Linux or macOS jobs are present in build/release workflows.
-- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.2` for the branch build.
+- [ ] Footer shows `Nerdspace Labs by OneEyedNerdy • v0.7.0-alpha.3` for the branch build.
 - [ ] Tagged release uses the tag version in the footer/app metadata.
 - [ ] Release ZIP contains the self-contained Windows app.
 - [ ] SHA256SUMS.txt matches the release ZIP.
@@ -104,7 +104,7 @@
 - [ ] `Clear Reminder` restores normal update status immediately.
 - [ ] Plugin update actions never download/install binaries automatically.
 
-## Windows installer regression checks (v0.7.0-alpha.2+)
+## Windows installer regression checks (v0.7.0-alpha.3+)
 
 - [ ] GitHub Actions produces `Nerdspace-OBS-Ground-Control-Setup-vX.Y.Z.exe`.
 - [ ] Installer runs without requesting Administrator privileges for a normal per-user install.
@@ -116,3 +116,12 @@
 - [ ] Installer prompts/closes a running Ground Control instance before replacing locked files when required.
 - [ ] Uninstall removes installed program files and shortcuts but does not silently delete user-created backups/logs/settings outside the install directory.
 - [ ] Portable ZIP continues to run independently of the installed build.
+
+
+## Self-contained runtime regression checks (v0.7.0-alpha.3+)
+
+- [ ] Install on a supported clean Windows VM/test machine with no separately installed .NET Desktop Runtime.
+- [ ] Ground Control launches normally after installation.
+- [ ] Setup never prompts to download/install .NET.
+- [ ] Unplug/disconnect the network during install and confirm setup still completes.
+- [ ] Portable ZIP also launches without installing .NET separately.

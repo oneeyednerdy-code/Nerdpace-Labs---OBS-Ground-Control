@@ -26,7 +26,18 @@ jobs:
         run: dotnet build src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release --no-restore
 
       - name: Publish Windows x64
-        run: dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/win-x64
+        run: dotnet publish src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false --no-restore -o publish/win-x64
+
+      - name: Verify self-contained publish
+        shell: pwsh
+        run: |
+          $exe = "publish/win-x64/Nerdspace.OBSRecovery.exe"
+          if (-not (Test-Path $exe)) { throw "Published Ground Control executable was not produced." }
+          $project = [xml](Get-Content src/Nerdspace.OBSRecovery/Nerdspace.OBSRecovery.csproj)
+          $props = $project.Project.PropertyGroup
+          if (($props.SelfContained | Select-Object -First 1) -ne 'true') { throw "SelfContained must remain true for installer releases." }
+          if (($props.PublishSingleFile | Select-Object -First 1) -ne 'true') { throw "PublishSingleFile must remain true for installer releases." }
+          Write-Host "Verified: Windows publish is self-contained and does not require a separately installed .NET runtime."
 
       - name: Package portable build
         shell: pwsh

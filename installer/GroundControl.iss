@@ -1,6 +1,6 @@
 #define MyAppName "Nerdspace Labs OBS Ground Control"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.7.0-alpha.2"
+  #define MyAppVersion "0.7.0-alpha.3"
 #endif
 #define MyAppPublisher "Nerdspace Labs by OneEyedNerdy"
 #define MyAppExeName "Nerdspace.OBSRecovery.exe"
@@ -17,6 +17,7 @@ AppPublisher={#MyAppPublisher}
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} Installer
 VersionInfoProductName={#MyAppName}
+AppComments=Self-contained Windows build; no separate .NET runtime installation required.
 DefaultDirName={localappdata}\Programs\Nerdspace Labs\OBS Ground Control
 DefaultGroupName=Nerdspace Labs
 DisableProgramGroupPage=yes
