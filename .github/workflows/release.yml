@@ -100,7 +100,7 @@ jobs:
           $lines | Set-Content SHA256SUMS.txt -Encoding ascii
 
       - name: Publish versioned GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: NerdSpace Labs - Streamer Mission Control ${{ github.ref_name }}
           generate_release_notes: true
