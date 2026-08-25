@@ -1,84 +1,51 @@
-# Public Updater Distribution
+# Public Update Feed
 
-Streamer Mission Control source code may remain in a **private GitHub repository**.
+Streamer Mission Control already lives in a public GitHub repository, so a second distribution repository and a cross-repository PAT are not required.
 
-The self-updater cannot, however, use release assets in a private GitHub repository as an anonymous download endpoint. Installed copies of the app do not contain a GitHub access token and must never embed one.
+## Repository
 
-NetSparkle Strict mode fetches the appcast and its `.signature` sidecar from the configured update URL. The installer referenced by the appcast must also be publicly downloadable.
-
-## Recommended architecture
+The build and updater both use the repository identified by GitHub Actions as `GITHUB_REPOSITORY`:
 
 ```text
-PRIVATE SOURCE REPOSITORY
-  Nerdpace-Labs---OBS-Ground-Control
-        |
-        | GitHub Actions builds + signs
-        v
-PUBLIC RELEASE-ONLY REPOSITORY
-  e.g. NerdSpace-Streamer-Mission-Control-Releases
-        |
-        +-- v0.8.0-alpha.9
-        |    +-- Setup.exe
-        |    +-- portable ZIP
-        |    +-- SHA256SUMS.txt
-        |
-        +-- update-feed
-             +-- appcast-preview.xml
-             +-- appcast-preview.xml.signature
-             +-- appcast-stable.xml (after stable release)
-             +-- appcast-stable.xml.signature
+oneeyednerdy-code/Nerdpace-Labs---OBS-Ground-Control
 ```
 
-No application source code needs to be placed in the public release repository.
+## Required Actions configuration
 
-## One-time GitHub setup
-
-1. Create a **public** GitHub repository for binary releases.
-   - A suggested name is `NerdSpace-Streamer-Mission-Control-Releases`.
-   - Initialize it with a README so it has a default branch.
-2. In the private source repository, open:
-   `Settings -> Secrets and variables -> Actions`.
-3. Add repository variable:
+Repository variable:
 
 ```text
-UPDATE_DISTRIBUTION_REPOSITORY
+NETSPARKLE_PUBLIC_KEY
 ```
 
-Value example:
+Repository secret:
 
 ```text
-oneeyednerdy-code/NerdSpace-Streamer-Mission-Control-Releases
+NETSPARKLE_PRIVATE_KEY
 ```
 
-4. Create a **fine-grained GitHub personal access token** that has access only to the public distribution repository and grants:
-   - Repository permissions -> Contents: Read and write
-5. Add that token to the private source repository as Actions secret:
+`UPDATE_DISTRIBUTION_REPOSITORY` and `UPDATE_DISTRIBUTION_TOKEN` are no longer used. They may be deleted from repository Actions settings.
+
+## Release layout
+
+Each version tag creates the normal GitHub release with the installer, portable ZIP and checksum. The same workflow creates or refreshes a fixed release/tag named `update-feed` containing the signed appcast files.
+
+For preview releases:
 
 ```text
-UPDATE_DISTRIBUTION_TOKEN
+appcast-preview.xml
+appcast-preview.xml.signature
 ```
 
-Existing updater signing values remain unchanged:
+For stable releases, the workflow also publishes:
 
 ```text
-NETSPARKLE_PUBLIC_KEY   (Actions variable)
-NETSPARKLE_PRIVATE_KEY  (Actions secret)
+appcast-stable.xml
+appcast-stable.xml.signature
 ```
 
-## Release behavior
+The release workflow finishes by downloading the preview appcast and signature anonymously. If either cannot be fetched publicly, the release fails instead of shipping a broken updater.
 
-For each `v*.*.*` tag, the private source workflow now:
+## Repair workflow
 
-1. builds Mission Control;
-2. publishes the normal source-repository release;
-3. verifies that the configured updater distribution repository is **public**;
-4. mirrors installer/portable/checksum assets to the public release-only repository;
-5. generates the NetSparkle appcast with installer URLs pointing at that public repository;
-6. signs the appcast and installer metadata with the existing Ed25519 signing identity;
-7. publishes the signed appcast to the public `update-feed` release.
-
-The release fails closed if the configured distribution repository is private or inaccessible.
-
-## Why no GitHub token is embedded in Mission Control
-
-Embedding a token would allow anyone with the installed application to extract that credential. Mission Control therefore uses only anonymous public download URLs plus cryptographic Ed25519 verification.
+GitHub Actions also includes **Repair Update Feed**. Run it manually and supply an existing versioned release tag. It downloads that release's installer, regenerates the signed appcast with the existing Ed25519 keys, refreshes `update-feed`, and verifies anonymous access.

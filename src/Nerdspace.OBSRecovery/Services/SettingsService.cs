@@ -31,7 +31,7 @@ public sealed class SettingsService
 
         var defaults = new AppSettings();
         ApplyDefaults(defaults);
-        SaveAsync(defaults).GetAwaiter().GetResult();
+        SaveLocalStateForShutdown(defaults);
         return defaults;
     }
 
@@ -42,6 +42,19 @@ public sealed class SettingsService
         var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(_settingsPath, json, cancellationToken);
         await _platform.ConfigureStartupAsync(settings.StartWithOperatingSystem, cancellationToken);
+    }
+
+    /// <summary>
+    /// Persists only Mission Control's local JSON state synchronously during process shutdown.
+    /// Startup registration is intentionally not touched here; that setting is persisted when
+    /// the user changes it. This avoids blocking Avalonia's UI thread on an async continuation.
+    /// </summary>
+    public void SaveLocalStateForShutdown(AppSettings settings)
+    {
+        ApplyDefaults(settings);
+        Directory.CreateDirectory(_platform.GetSettingsDirectory());
+        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(_settingsPath, json);
     }
 
     private void ApplyDefaults(AppSettings settings)

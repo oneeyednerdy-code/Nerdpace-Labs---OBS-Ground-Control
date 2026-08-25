@@ -4,7 +4,7 @@
 
 A Windows-first companion for OBS Studio focused on **pre-flight readiness, bandwidth advice, maintenance, backups, recovery, diagnostics, plugin health, creator hardware, and workstation confidence**.
 
-Current development version: **v0.8.0-alpha.9**
+Current development version: **v0.8.0-alpha.10**
 
 ## Supported platform
 
@@ -226,5 +226,5 @@ Maintainer setup: `docs/SELF-UPDATES.md`.
 
 ### Public updater distribution
 
-Mission Control may be developed in a private repository, but installed applications must be able to anonymously fetch the signed update metadata and installer. Configure a separate public release-only repository with `UPDATE_DISTRIBUTION_REPOSITORY` and `UPDATE_DISTRIBUTION_TOKEN`. See `docs/PUBLIC-UPDATER-DISTRIBUTION.md`.
+Mission Control publishes its signed updater metadata from the existing public GitHub repository. No second release repository or distribution PAT is required. The normal release workflow creates/refreshes the fixed `update-feed` release, and a manual **Repair Update Feed** workflow can rebuild it from an existing version tag. See `docs/PUBLIC-UPDATER-DISTRIBUTION.md`.
 

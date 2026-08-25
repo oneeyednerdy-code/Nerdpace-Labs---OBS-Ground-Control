@@ -36,21 +36,29 @@ public sealed class PluginInventoryService
 
     public async Task<IReadOnlyList<PluginInfo>> ScanAsync(bool checkUpdates, CancellationToken cancellationToken = default)
     {
-        var plugins = new List<PluginInfo>();
-        var bundledRoot = GetBundledPluginRoot();
-        foreach (var root in _platform.GetPluginDirectories().Where(Directory.Exists))
+        // Directory recursion, PE metadata and manifest parsing are disk/CPU work. Keep
+        // them off Avalonia's UI thread so the scan progress animation stays responsive.
+        var deduped = await Task.Run(() =>
         {
-            try { ScanWindows(root, plugins, PathsEqual(root, bundledRoot)); }
-            catch (Exception ex) { _logger.Warn($"Plugin directory scan failed for {root}: {ex.Message}"); }
-        }
+            var plugins = new List<PluginInfo>();
+            var bundledRoot = GetBundledPluginRoot();
+            foreach (var root in _platform.GetPluginDirectories().Where(Directory.Exists))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                try { ScanWindows(root, plugins, PathsEqual(root, bundledRoot), cancellationToken); }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex) { _logger.Warn($"Plugin directory scan failed for {root}: {ex.Message}"); }
+            }
 
-        var deduped = plugins
-            .GroupBy(p => p.Path, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Select(ApplyRegistryFallback)
-            .OrderBy(p => p.Name)
-            .Select(p => p with { CompatibilityStatus = GetCompatibility(p.Name) })
-            .ToList();
+            return plugins
+                .GroupBy(p => p.Path, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .Select(ApplyRegistryFallback)
+                .OrderBy(p => p.Name)
+                .Select(p => p with { CompatibilityStatus = GetCompatibility(p.Name) })
+                .ToList();
+        }, cancellationToken).ConfigureAwait(false);
+
         if (!checkUpdates) return deduped;
 
         var releaseCache = new Dictionary<string, GitHubReleaseInfo?>(StringComparer.OrdinalIgnoreCase);
@@ -157,8 +165,9 @@ public sealed class PluginInventoryService
 
     public static string DeferralKey(string pluginId) => $"plugin:{pluginId}";
 
-    private static void ScanWindows(string root, ICollection<PluginInfo> result, bool filterBundledModules)
+    private static void ScanWindows(string root, ICollection<PluginInfo> result, bool filterBundledModules, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var programDataStyle = Directory.GetDirectories(root).Any(d => Directory.Exists(Path.Combine(d, "bin")));
         if (programDataStyle)
         {
@@ -166,6 +175,7 @@ public sealed class PluginInventoryService
             // the same manifest.json OBS reads from the module data path.
             foreach (var dir in Directory.GetDirectories(root))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var dll = Directory.EnumerateFiles(dir, "*.dll", SearchOption.AllDirectories).FirstOrDefault();
                 if (dll is null) continue;
                 var moduleName = Path.GetFileNameWithoutExtension(dll);
@@ -176,6 +186,7 @@ public sealed class PluginInventoryService
         {
             foreach (var dll in Directory.EnumerateFiles(root, "*.dll", SearchOption.TopDirectoryOnly))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var moduleName = Path.GetFileNameWithoutExtension(dll);
                 if (filterBundledModules && IsBundledObsModule(moduleName))
                     continue;

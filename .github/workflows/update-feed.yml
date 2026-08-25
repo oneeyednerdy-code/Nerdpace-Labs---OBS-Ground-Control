@@ -1,0 +1,140 @@
+name: Repair Update Feed
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing versioned release tag to publish into update-feed (example: v0.8.0-alpha.10)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  repair-feed:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Validate updater signing configuration
+        shell: pwsh
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.NETSPARKLE_PRIVATE_KEY }}
+          SPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY) -or
+              [string]::IsNullOrWhiteSpace($env:SPARKLE_PUBLIC_KEY)) {
+            throw "NETSPARKLE_PRIVATE_KEY and NETSPARKLE_PUBLIC_KEY must both be configured."
+          }
+
+      - name: Install NetSparkle appcast generator
+        shell: pwsh
+        run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 2.9.0
+
+      - name: Download installer from existing release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\feed-binary" | Out-Null
+          gh release download "$env:RELEASE_TAG" `
+            --repo "$env:GITHUB_REPOSITORY" `
+            --pattern "NerdSpace-Streamer-Mission-Control-Setup-*.exe" `
+            --dir "$env:RUNNER_TEMP\feed-binary"
+          if ($LASTEXITCODE -ne 0) { throw "Could not download an installer from $env:RELEASE_TAG." }
+
+      - name: Generate signed appcast
+        id: feed
+        shell: pwsh
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.NETSPARKLE_PRIVATE_KEY }}
+          SPARKLE_PUBLIC_KEY: ${{ vars.NETSPARKLE_PUBLIC_KEY }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $version = $env:RELEASE_TAG.TrimStart('v')
+          $baseUrl = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/$env:RELEASE_TAG"
+          $binary = "$env:RUNNER_TEMP\feed-binary"
+          $out = "$env:RUNNER_TEMP\feed-out"
+          $publish = "$env:RUNNER_TEMP\feed-publish"
+          New-Item -ItemType Directory -Force -Path $out, $publish | Out-Null
+
+          $args = @(
+            "-a", $out,
+            "-b", $binary,
+            "-e", "exe",
+            "-o", "windows",
+            "-n", "NerdSpace Labs - Streamer Mission Control",
+            "-u", $baseUrl,
+            "--file-version", $version
+          )
+          $isPreview = $version.Contains("-")
+          if ($isPreview) { $args += @("--channel", "preview") }
+
+          & netsparkle-generate-appcast @args
+          if ($LASTEXITCODE -ne 0) { throw "NetSparkle appcast generation failed." }
+
+          $cast = Join-Path $out "appcast.xml"
+          $sig = "$cast.signature"
+          if (-not (Test-Path $cast) -or -not (Test-Path $sig)) {
+            throw "NetSparkle did not create both appcast and signature files."
+          }
+
+          if ($isPreview) {
+            Copy-Item $cast (Join-Path $publish "appcast-preview.xml")
+            Copy-Item $sig (Join-Path $publish "appcast-preview.xml.signature")
+          } else {
+            Copy-Item $cast (Join-Path $publish "appcast-stable.xml")
+            Copy-Item $sig (Join-Path $publish "appcast-stable.xml.signature")
+            Copy-Item $cast (Join-Path $publish "appcast-preview.xml")
+            Copy-Item $sig (Join-Path $publish "appcast-preview.xml.signature")
+          }
+          "dir=$publish" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Create or refresh update-feed release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view update-feed --repo "$env:GITHUB_REPOSITORY" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create update-feed `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --target "$env:GITHUB_SHA" `
+              --title "Streamer Mission Control Update Feed" `
+              --notes "Machine-readable signed update metadata used by Streamer Mission Control." `
+              --prerelease
+            if ($LASTEXITCODE -ne 0) { throw "Could not create update-feed release." }
+          }
+
+          Get-ChildItem "${{ steps.feed.outputs.dir }}" -File | ForEach-Object {
+            gh release upload update-feed $_.FullName --repo "$env:GITHUB_REPOSITORY" --clobber
+            if ($LASTEXITCODE -ne 0) { throw "Could not upload $($_.Name)." }
+          }
+
+      - name: Verify anonymous feed access
+        shell: pwsh
+        run: |
+          $url = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/update-feed/appcast-preview.xml"
+          $sig = "$url.signature"
+          $verified = $false
+          for ($attempt = 1; $attempt -le 5; $attempt++) {
+            try {
+              $feedResponse = Invoke-WebRequest -Uri $url -MaximumRedirection 10
+              $sigResponse = Invoke-WebRequest -Uri $sig -MaximumRedirection 10
+              if ($feedResponse.StatusCode -eq 200 -and $sigResponse.StatusCode -eq 200) {
+                $verified = $true
+                break
+              }
+            } catch {
+              Write-Host "Anonymous feed verification attempt $attempt did not succeed yet."
+            }
+            Start-Sleep -Seconds 3
+          }
+          if (-not $verified) { throw "The update feed exists but is not anonymously downloadable." }
+          Write-Host "Update feed repaired and publicly verified."

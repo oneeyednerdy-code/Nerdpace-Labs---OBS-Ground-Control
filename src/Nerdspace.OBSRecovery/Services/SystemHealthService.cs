@@ -13,6 +13,11 @@ public sealed class SystemHealthService
     private DateTimeOffset? _lastCpuTimeAt;
     private TimeSpan _lastCpuTime;
     private string _latestObsVersion = "Not checked";
+    private DateTimeOffset _slowSampleExpiresAt = DateTimeOffset.MinValue;
+    private string? _cachedRecordingPath;
+    private double? _cachedRecordingFreeGb;
+    private string _cachedInstalledObsVersion = "Not detected";
+    private readonly object _sampleGate = new();
 
     public SystemHealthService(AppSettings settings, IObsPlatformService platform, UpdateService updates, LoggingService logger)
     {
@@ -29,6 +34,14 @@ public sealed class SystemHealthService
     }
 
     public SystemHealthSnapshot Sample()
+    {
+        lock (_sampleGate)
+        {
+            return SampleCore();
+        }
+    }
+
+    private SystemHealthSnapshot SampleCore()
     {
         var processes = _platform.GetObsProcesses().ToList();
         double memory = 0;
@@ -52,10 +65,24 @@ public sealed class SystemHealthService
         _lastCpuTimeAt = now;
         _lastCpuTime = totalCpu;
 
-        var recordingPath = FindRecordingPath();
-        var freeGb = GetFreeGb(recordingPath);
-        var installed = _platform.GetInstalledObsVersion(_settings.ObsPath);
-        return new SystemHealthSnapshot(processes.Count, memory, cpu, recordingPath ?? "Not detected", freeGb, installed, _latestObsVersion, UpdateService.Compare(installed, _latestObsVersion), now);
+        if (now >= _slowSampleExpiresAt)
+        {
+            _cachedRecordingPath = FindRecordingPath();
+            _cachedRecordingFreeGb = GetFreeGb(_cachedRecordingPath);
+            _cachedInstalledObsVersion = _platform.GetInstalledObsVersion(_settings.ObsPath);
+            _slowSampleExpiresAt = now.AddSeconds(30);
+        }
+
+        return new SystemHealthSnapshot(
+            processes.Count,
+            memory,
+            cpu,
+            _cachedRecordingPath ?? "Not detected",
+            _cachedRecordingFreeGb,
+            _cachedInstalledObsVersion,
+            _latestObsVersion,
+            UpdateService.Compare(_cachedInstalledObsVersion, _latestObsVersion),
+            now);
     }
 
     public string? FindRecordingPath()

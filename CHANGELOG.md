@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.8.0-alpha.10 - Responsive Scans + Exit + Update Feed Workflow
+
+- Fixed Exit / window-close freezes caused by synchronously blocking on `SaveAsync` from Avalonia's UI thread.
+- Shutdown now cancels in-flight background scan work and persists local window/settings state without waiting on an async UI continuation.
+- Plugin directory recursion, DLL metadata inspection, and manifest parsing now run on a worker thread with cancellation support.
+- Pre-Flight runs its scan pipeline off the UI thread while progress updates continue to marshal back to Avalonia.
+- Diagnostics now analyzes OBS logs, missing scene assets, and crash history in parallel background tasks.
+- Graphics, Elgato, SteelSeries Sonar, and creator-software detection are moved off the UI thread.
+- Reduced memory/allocation churn by caching slow OBS recording-path/version/disk probes for 30 seconds instead of repeating them every 2-second health tick.
+- Scene collection JSON is parsed directly from a stream instead of allocating an extra full-file string first.
+- Removed duplicate plugin-list storage between Installed and Updates views.
+- Simplified signed self-updates to the existing public GitHub repository; no second release repository or distribution PAT is required.
+- Release workflow now creates/refreshes the public `update-feed` release in the same repository using GitHub's built-in Actions token.
+- Added a manual `Repair Update Feed` workflow for rebuilding the signed feed from any already-published version tag.
+
 ## 0.8.0-alpha.9 - Public Updater Distribution Fix
 
 - Fixed the self-updater path that could report **Could not determine update status** when the signed appcast was hosted in a private GitHub repository.

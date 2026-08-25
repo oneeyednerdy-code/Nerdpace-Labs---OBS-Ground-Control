@@ -1,6 +1,6 @@
 # Start Here — Publish Streamer Mission Control to GitHub
 
-Current alpha: **v0.8.0-alpha.9**
+Current alpha: **v0.8.0-alpha.10**
 
 1. Create a GitHub repository named `nerdspace-obs-ground-control`.
 2. Push the **contents of this folder** to the repository.

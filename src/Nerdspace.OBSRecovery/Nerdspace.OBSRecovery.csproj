@@ -7,10 +7,10 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyName>NerdSpace.StreamerMissionControl</AssemblyName>
     <RootNamespace>Nerdspace.OBSRecovery</RootNamespace>
-    <Version>0.8.0-alpha.9</Version>
+    <Version>0.8.0-alpha.10</Version>
     <AssemblyVersion>0.8.0.0</AssemblyVersion>
     <FileVersion>0.8.0.0</FileVersion>
-    <InformationalVersion>0.8.0-alpha.9</InformationalVersion>
+    <InformationalVersion>0.8.0-alpha.10</InformationalVersion>
     <Company>NerdSpace Labs by OneEyedNerdy</Company>
     <Product>NerdSpace Labs - Streamer Mission Control</Product>
     <Description>Windows-first streamer workstation pre-flight, OBS maintenance, update checks, backup, recovery, diagnostics, and creator-tool health utility by NerdSpace Labs.</Description>
@@ -20,6 +20,9 @@
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- Desktop utility: prefer workstation GC for a smaller steady-state footprint. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <InvariantGlobalization>false</InvariantGlobalization>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <!-- MainWindow is created through AppServices dependency injection rather than Avalonia runtime construction. -->

@@ -74,7 +74,11 @@ public sealed class SceneAssetScannerService
         foreach (var file in Directory.EnumerateFiles(sceneDir, "*.json", SearchOption.TopDirectoryOnly))
         {
             JsonDocument? doc = null;
-            try { doc = JsonDocument.Parse(File.ReadAllText(file)); }
+            try
+            {
+                using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 64 * 1024, FileOptions.SequentialScan);
+                doc = JsonDocument.Parse(stream);
+            }
             catch (Exception ex)
             {
                 _logger.Warn($"Could not inspect scene collection {Path.GetFileName(file)}: {ex.Message}");

@@ -39,6 +39,7 @@ public partial class MainWindow : Window
     private readonly SupportReportService _support;
 
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(2) };
+    private readonly CancellationTokenSource _lifetimeCts = new();
     private readonly ObservableCollection<string> _history = new();
     private ObsSnapshot? _lastSnapshot;
     private bool _monitorBusy;
@@ -118,16 +119,23 @@ public partial class MainWindow : Window
         Closing += OnClosing;
         Opened += async (_, _) =>
         {
-            await MonitorTickAsync();
-            RefreshHealthLocal();
-            RefreshBackupList();
-            await RefreshSceneMediaEstimateAsync();
-            RefreshQuarantineList();
-            await RefreshDiagnosticsAsync();
-            UpdatePreflightBandwidthProfile();
-            RefreshCurrentObsOutput();
-            await RefreshCreatorSoftwareCoreAsync(false);
-            await MaybeAutoCheckMissionControlUpdateAsync();
+            try
+            {
+                await MonitorTickAsync();
+                await RefreshHealthAsync();
+                RefreshBackupList();
+                await RefreshSceneMediaEstimateAsync();
+                RefreshQuarantineList();
+                await RefreshDiagnosticsAsync();
+                UpdatePreflightBandwidthProfile();
+                RefreshCurrentObsOutput();
+                await RefreshCreatorSoftwareCoreAsync(false);
+                await MaybeAutoCheckMissionControlUpdateAsync();
+            }
+            catch (OperationCanceledException) when (_lifetimeCts.IsCancellationRequested)
+            {
+                // Window closed while startup scans were still finishing.
+            }
         };
     }
 
@@ -288,17 +296,21 @@ public partial class MainWindow : Window
 
     private async Task MonitorTickAsync()
     {
-        if (_monitorBusy) return;
+        if (_monitorBusy || _lifetimeCts.IsCancellationRequested) return;
         _monitorBusy = true;
         try
         {
-            var snapshot = _detector.Inspect();
+            var snapshot = await Task.Run(_detector.Inspect, _lifetimeCts.Token);
             UpdateStatus(snapshot);
             if (_lastSnapshot?.State != snapshot.State)
                 AddHistory($"{DateTime.Now:HH:mm:ss}  {snapshot.State}: {snapshot.Message}");
             _lastSnapshot = snapshot;
             await _recovery.HandleAutomaticRecoveryAsync(snapshot);
-            RefreshHealthLocal();
+            await RefreshHealthAsync();
+        }
+        catch (OperationCanceledException) when (_lifetimeCts.IsCancellationRequested)
+        {
+            // Normal during application shutdown.
         }
         catch (Exception ex)
         {
@@ -337,9 +349,14 @@ public partial class MainWindow : Window
         ForceCloseButton.IsEnabled = snapshot.CanForceClose;
     }
 
-    private void RefreshHealthLocal()
+    private async Task RefreshHealthAsync()
     {
-        var health = _health.Sample();
+        var health = await Task.Run(_health.Sample, _lifetimeCts.Token);
+        ApplyHealthSnapshot(health);
+    }
+
+    private void ApplyHealthSnapshot(SystemHealthSnapshot health)
+    {
         var cpu = health.ObsCpuPercent.HasValue ? $"{health.ObsCpuPercent.Value:F1}% CPU" : "CPU sampling…";
         var disk = health.RecordingFreeGb.HasValue ? $"{health.RecordingFreeGb.Value:F1} GB recording disk free" : "recording disk unknown";
         HealthSummaryText.Text = $"OBS {health.ObsVersion} • {health.ObsProcessCount} process(es) • {health.ObsMemoryMb:F0} MB • {cpu} • {disk}";
@@ -480,8 +497,8 @@ public partial class MainWindow : Window
     private async Task RefreshObsUpdateCoreAsync()
     {
         await _health.RefreshLatestVersionAsync();
-        var health = _health.Sample();
-        RefreshHealthLocal();
+        var health = await Task.Run(_health.Sample, _lifetimeCts.Token);
+        ApplyHealthSnapshot(health);
         ObsUpdateCardText.Text = $"Installed: {health.ObsVersion}\nLatest: {health.LatestObsVersion}\nStatus: {health.UpdateStatus}";
     }
 
@@ -492,7 +509,7 @@ public partial class MainWindow : Window
 
     private async Task RefreshGraphicsCoreAsync()
     {
-        _graphicsSnapshot = await _graphics.InspectAsync();
+        _graphicsSnapshot = await Task.Run(async () => await _graphics.InspectAsync(_lifetimeCts.Token), _lifetimeCts.Token);
         var nvidia = _graphicsSnapshot.Adapters.Where(x => x.Vendor.Equals("NVIDIA", StringComparison.OrdinalIgnoreCase)).ToList();
         var amd = _graphicsSnapshot.Adapters.Where(x => x.Vendor.Equals("AMD", StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -511,7 +528,7 @@ public partial class MainWindow : Window
 
     private async Task RefreshElgatoCoreAsync()
     {
-        var snapshot = await _elgato.InspectAsync(_settings.CheckUpdatesOnline);
+        var snapshot = await Task.Run(async () => await _elgato.InspectAsync(_settings.CheckUpdatesOnline, _lifetimeCts.Token), _lifetimeCts.Token);
         ElgatoText.Text = $"{snapshot.Summary}\n\n{snapshot.Status}\n{snapshot.Detail}";
         OpenElgatoButton.Content = snapshot.HasSoftwareUpdates ? "Open Elgato Updates" : "Official Downloads";
     }
@@ -523,7 +540,7 @@ public partial class MainWindow : Window
 
     private async Task RefreshSonarCoreAsync()
     {
-        var snapshot = await _sonar.InspectAsync();
+        var snapshot = await Task.Run(async () => await _sonar.InspectAsync(_lifetimeCts.Token), _lifetimeCts.Token);
         SteelSeriesText.Text = snapshot.Summary + "\n" + snapshot.Detail;
     }
 
@@ -531,28 +548,44 @@ public partial class MainWindow : Window
     {
         await WithBusyAsync(CheckMixItUpButton, "Checking…", UpdatesProgress, UpdatesProgressText,
             "Detecting Mix It Up and checking its official stable release…", async () =>
-            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckMixItUpAsync(_settings.CheckUpdatesOnline)));
+            {
+                var snapshot = await Task.Run(async () =>
+                    await _creatorSoftware.CheckMixItUpAsync(_settings.CheckUpdatesOnline, _lifetimeCts.Token), _lifetimeCts.Token);
+                ApplyCreatorSoftwareSnapshot(snapshot);
+            });
     }
 
     private async Task CheckStreamerBotAsync()
     {
         await WithBusyAsync(CheckStreamerBotButton, "Checking…", UpdatesProgress, UpdatesProgressText,
             "Detecting Streamer.bot and checking its official stable release…", async () =>
-            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckStreamerBotAsync(_settings.CheckUpdatesOnline)));
+            {
+                var snapshot = await Task.Run(async () =>
+                    await _creatorSoftware.CheckStreamerBotAsync(_settings.CheckUpdatesOnline, _lifetimeCts.Token), _lifetimeCts.Token);
+                ApplyCreatorSoftwareSnapshot(snapshot);
+            });
     }
 
     private async Task CheckFirebotAsync()
     {
         await WithBusyAsync(CheckFirebotButton, "Checking…", UpdatesProgress, UpdatesProgressText,
             "Detecting Firebot and checking its official stable release…", async () =>
-            ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckFirebotAsync(_settings.CheckUpdatesOnline)));
+            {
+                var snapshot = await Task.Run(async () =>
+                    await _creatorSoftware.CheckFirebotAsync(_settings.CheckUpdatesOnline, _lifetimeCts.Token), _lifetimeCts.Token);
+                ApplyCreatorSoftwareSnapshot(snapshot);
+            });
     }
 
     private async Task RefreshCreatorSoftwareCoreAsync(bool checkOnline)
     {
-        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckMixItUpAsync(checkOnline && _settings.CheckUpdatesOnline));
-        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckStreamerBotAsync(checkOnline && _settings.CheckUpdatesOnline));
-        ApplyCreatorSoftwareSnapshot(await _creatorSoftware.CheckFirebotAsync(checkOnline && _settings.CheckUpdatesOnline));
+        var online = checkOnline && _settings.CheckUpdatesOnline;
+        var token = _lifetimeCts.Token;
+        var mixTask = Task.Run(async () => await _creatorSoftware.CheckMixItUpAsync(online, token), token);
+        var streamerTask = Task.Run(async () => await _creatorSoftware.CheckStreamerBotAsync(online, token), token);
+        var firebotTask = Task.Run(async () => await _creatorSoftware.CheckFirebotAsync(online, token), token);
+        var snapshots = await Task.WhenAll(mixTask, streamerTask, firebotTask);
+        foreach (var snapshot in snapshots) ApplyCreatorSoftwareSnapshot(snapshot);
     }
 
     private void ApplyCreatorSoftwareSnapshot(CreatorSoftwareUpdateSnapshot snapshot)
@@ -731,7 +764,8 @@ public partial class MainWindow : Window
                 BandwidthServerTranscodeToggle.IsChecked == true && BandwidthEnhancedToggle.IsChecked == true && SelectedStreamingPlatform() == StreamingPlatform.Twitch);
 
             var progress = new Progress<string>(message => PreflightProgressText.Text = message);
-            var results = await _preflight.RunAsync(options, progress);
+            var results = await Task.Run(async () =>
+                await _preflight.RunAsync(options, progress, _lifetimeCts.Token), _lifetimeCts.Token);
             PreflightList.ItemsSource = results.Select(FormatPreflight).ToList();
             var failures = results.Count(x => x.Severity == CheckSeverity.Fail);
             var warnings = results.Count(x => x.Severity == CheckSeverity.Warning);
@@ -758,6 +792,11 @@ public partial class MainWindow : Window
             }
 
             await SaveSettingsAsync(true);
+        }
+        catch (OperationCanceledException) when (_lifetimeCts.IsCancellationRequested)
+        {
+            PreflightSummaryText.Text = "Pre-Flight cancelled.";
+            PreflightProgressText.Text = "Mission Control is closing.";
         }
         catch (Exception ex)
         {
@@ -829,7 +868,7 @@ public partial class MainWindow : Window
         await WithBusyAsync(button, online ? "Checking…" : "Scanning…", progress, progressText,
             online ? "Checking trusted plugin release sources…" : "Scanning installed third-party OBS plugins…", async () =>
             {
-                _pluginItems = await _plugins.ScanAsync(online);
+                _pluginItems = await _plugins.ScanAsync(online, _lifetimeCts.Token);
                 PluginList.ItemsSource = _pluginItems.Count == 0
                     ? new[] { "Nothing found — No third-party OBS plugins were detected." }
                     : _pluginItems.Select(x => x.Display).ToList();
@@ -837,7 +876,7 @@ public partial class MainWindow : Window
                 PluginSelect.SelectedIndex = _pluginItems.Count > 0 ? 0 : -1;
                 UpdatePluginDetail();
 
-                _pluginUpdateItems = _pluginItems.ToList();
+                _pluginUpdateItems = _pluginItems;
                 PluginUpdateList.ItemsSource = _pluginUpdateItems.Count == 0
                     ? new[] { "Nothing found — No installed third-party OBS plugins were detected." }
                     : _pluginUpdateItems.Select(x => x.Display).ToList();
@@ -1023,7 +1062,7 @@ public partial class MainWindow : Window
             {
                 // Refresh the local installed list if it has not been scanned yet so Discover can label installed entries.
                 if (_pluginItems.Count == 0)
-                    _pluginItems = await _plugins.ScanAsync(false);
+                    _pluginItems = await _plugins.ScanAsync(false, _lifetimeCts.Token);
 
                 _pluginDiscoveryItems = await _pluginDiscovery.SearchAsync(
                     DiscoverPluginSearchBox.Text,
@@ -1151,7 +1190,7 @@ public partial class MainWindow : Window
         var includeMedia = IncludeSceneMediaBackupToggle.IsChecked == true;
         if (includeMedia)
         {
-            var estimate = await Task.Run(_backups.EstimateSceneMedia);
+            var estimate = await Task.Run(_backups.EstimateSceneMedia, _lifetimeCts.Token);
             if (estimate.ExistingFileCount > 0 && estimate.ExistingSizeBytes >= 2L * 1024 * 1024 * 1024)
             {
                 var proceed = await ConfirmAsync("Large scene-media backup?",
@@ -1181,7 +1220,7 @@ public partial class MainWindow : Window
         SceneMediaEstimateText.Text = "Scanning referenced scene media…";
         try
         {
-            var estimate = await Task.Run(_backups.EstimateSceneMedia);
+            var estimate = await Task.Run(_backups.EstimateSceneMedia, _lifetimeCts.Token);
             SceneMediaEstimateText.Text = estimate.Display;
         }
         catch (Exception ex) { SceneMediaEstimateText.Text = $"Scene media scan failed: {ex.Message}"; }
@@ -1223,12 +1262,18 @@ public partial class MainWindow : Window
         });
     }
 
-    private Task RefreshDiagnosticsAsync()
+    private async Task RefreshDiagnosticsAsync()
     {
-        DiagnosticList.ItemsSource = _logs.AnalyzeLatest().Select(x => x.Display + "\n    " + x.Detail).ToList();
-        MissingAssetsList.ItemsSource = _assets.Scan().Select(x => x.Display).DefaultIfEmpty("No missing local assets detected.").ToList();
-        CrashList.ItemsSource = _crashes.List().Select(x => x.Display).DefaultIfEmpty("No OBS crash reports detected.").ToList();
-        return Task.CompletedTask;
+        var token = _lifetimeCts.Token;
+        var findingsTask = Task.Run(_logs.AnalyzeLatest, token);
+        var assetsTask = Task.Run(() => _assets.Scan(), token);
+        var crashesTask = Task.Run(() => _crashes.List(), token);
+
+        await Task.WhenAll(findingsTask, assetsTask, crashesTask);
+
+        DiagnosticList.ItemsSource = findingsTask.Result.Select(x => x.Display + "\n    " + x.Detail).ToList();
+        MissingAssetsList.ItemsSource = assetsTask.Result.Select(x => x.Display).DefaultIfEmpty("No missing local assets detected.").ToList();
+        CrashList.ItemsSource = crashesTask.Result.Select(x => x.Display).DefaultIfEmpty("No OBS crash reports detected.").ToList();
     }
 
     private async Task RefreshDiagnosticsWithBusyAsync()
@@ -1244,7 +1289,8 @@ public partial class MainWindow : Window
     {
         await WithBusyAsync(DiagnosticButton, "Generating…", DiagnosticsProgress, DiagnosticsProgressText, "Generating a sanitized support report…", async () =>
         {
-            var path = await _support.GenerateAsync();
+            var path = await Task.Run(async () =>
+                await _support.GenerateAsync(_lifetimeCts.Token), _lifetimeCts.Token);
             DiagnosticsProgressText.Text = "Sanitized support report created.";
             await ShowInfoAsync("Support report created", path);
         });
@@ -1342,6 +1388,10 @@ public partial class MainWindow : Window
         {
             await action();
         }
+        catch (OperationCanceledException) when (_lifetimeCts.IsCancellationRequested)
+        {
+            progressText.Text = "Operation cancelled during shutdown.";
+        }
         catch (Exception ex)
         {
             _logger.Error(ex.Message);
@@ -1427,7 +1477,14 @@ public partial class MainWindow : Window
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        PrepareForShutdown();
+        _logger.Info("Streamer Mission Control shutting down.");
+    }
+
+    public void PrepareForShutdown()
+    {
         _timer.Stop();
+        if (!_lifetimeCts.IsCancellationRequested) _lifetimeCts.Cancel();
 
         if (WindowState == WindowState.Normal)
         {
@@ -1436,30 +1493,8 @@ public partial class MainWindow : Window
         }
 
         _settings.MinimizeToTrayOnClose = false;
-
-        try
-        {
-            _settingsService.SaveAsync(_settings).GetAwaiter().GetResult();
-        }
-        catch (Exception ex)
-        {
-            _logger.Warn($"Could not persist window settings during shutdown: {ex.Message}");
-        }
-
-        _logger.Info("Streamer Mission Control shutting down.");
-    }
-
-    public void PrepareForShutdown()
-    {
-        _timer.Stop();
-        if (WindowState == WindowState.Normal)
-        {
-            _settings.WindowWidth = Math.Max(MinWidth, Bounds.Width);
-            _settings.WindowHeight = Math.Max(MinHeight, Bounds.Height);
-        }
-
-        try { _settingsService.SaveAsync(_settings).GetAwaiter().GetResult(); }
-        catch { }
+        try { _settingsService.SaveLocalStateForShutdown(_settings); }
+        catch (Exception ex) { _logger.Warn($"Could not persist window settings during shutdown: {ex.Message}"); }
     }
     public void LaunchObsFromTray() => _ = RunActionAsync(() => _recovery.LaunchAsync());
     public Task RestartObsFromTrayAsync() => RunActionAsync(() => _recovery.RestartAsync());
